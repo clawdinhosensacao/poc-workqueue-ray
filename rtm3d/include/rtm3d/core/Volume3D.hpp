@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstddef>
-#include <stdexcept>
 #include <vector>
 
 namespace rtm3d {
@@ -12,15 +11,13 @@ class Volume3D {
   Volume3D(std::size_t nx, std::size_t ny, std::size_t nz, float init = 0.0f)
       : nx_(nx), ny_(ny), nz_(nz), data_(nx * ny * nz, init) {}
 
-  float& operator()(std::size_t ix, std::size_t iy, std::size_t iz) {
-    return data_.at(index(ix, iy, iz));
-  }
-  const float& operator()(std::size_t ix, std::size_t iy, std::size_t iz) const {
-    return data_.at(index(ix, iy, iz));
-  }
-
   std::size_t index(std::size_t ix, std::size_t iy, std::size_t iz) const {
     return (iz * ny_ + iy) * nx_ + ix;
+  }
+
+  float& operator()(std::size_t ix, std::size_t iy, std::size_t iz) { return data_[index(ix, iy, iz)]; }
+  const float& operator()(std::size_t ix, std::size_t iy, std::size_t iz) const {
+    return data_[index(ix, iy, iz)];
   }
 
   std::size_t nx() const { return nx_; }

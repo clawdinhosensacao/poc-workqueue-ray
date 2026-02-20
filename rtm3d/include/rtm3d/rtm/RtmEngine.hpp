@@ -1,11 +1,9 @@
 #pragma once
 
 #include <cstddef>
-#include <string>
 #include <vector>
 
-#include "rtm3d/MarmousiLoader.hpp"
-#include "rtm3d/Volume3D.hpp"
+#include "rtm3d/model/GridModel2D.hpp"
 
 namespace rtm3d {
 
@@ -22,10 +20,10 @@ struct RtmConfig {
 struct MigrationResult {
   std::size_t nx{};
   std::size_t nz{};
-  std::vector<float> inline_xz;  // y-mid slice [nz][nx]
+  std::vector<float> inline_xz;
 };
 
-MigrationResult run_single_shot_rtm(const Marmousi2D& model, const RtmConfig& cfg);
 std::vector<float> ricker_wavelet(std::size_t nt, float dt, float f0);
+MigrationResult run_single_shot_rtm(const GridModel2D& model, const RtmConfig& cfg);
 
 }  // namespace rtm3d
