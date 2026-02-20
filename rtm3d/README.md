@@ -1,84 +1,59 @@
-# rtm3d-cli (production baseline)
+# rtm3d-cli synthetic realistic benchmark
 
-C++20 command-line baseline for **3D acoustic RTM** (isotropic, CPU) with architecture prepared for future anisotropy (TTI) and GPU backends.
+C++20 CLI baseline for 3D acoustic RTM with a reproducible synthetic benchmark pipeline.
 
-## Highlights
-- Generic model I/O abstraction (`ArrayModelLoader` + `GridModelLoader`) not tied to Marmousi naming.
-- Strict CLI argument parsing and validation (no hardcoded runtime values).
-- GoogleTest test suite with unit + integration-style coverage.
-- Data provenance + reproducible Marmousi download script.
-
-## Repository layout
-- `include/rtm3d/model` – model structs (`GridModel2D`)
-- `include/rtm3d/io` – array parsing, grid loading, image writing
-- `include/rtm3d/rtm` – RTM engine interfaces
-- `include/rtm3d/cli` – CLI schema/parsing
-- `src/io`, `src/rtm`, `src/cli` – implementations
-- `tests` – GoogleTest suite
-- `scripts` – data acquisition + helper scripts
-- `docs` – architecture and provenance notes
-
-## Build
+## Reproduce end-to-end (4 commands)
 ```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DRTM3D_BUILD_TESTS=ON
-cmake --build build -j
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DRTM3D_BUILD_TESTS=ON && cmake --build build -j
+python3 scripts/generate_synthetic_model.py --out-dir data/synthetic
+./build/rtm3d_cli --config configs/synthetic_benchmark.json
+python3 scripts/float32_to_png.py --input artifacts/synthetic_migrated_inline.bin --meta artifacts/synthetic_migrated_inline.bin.json --output artifacts/synthetic_migrated_inline.png
 ```
 
+Generated artifacts:
+- `data/synthetic/velocity_model.bin` + `.json`
+- `data/synthetic/shot_0001_gather.bin` + `.json`
+- `data/synthetic/shot_0001.segy_like`
+- `artifacts/synthetic_migrated_inline.bin` + `.json`
+- `artifacts/synthetic_migrated_inline.png`
+
+## Synthetic model generator
+`scripts/generate_synthetic_model.py` creates a geology-inspired velocity model with:
+- depth velocity gradient
+- meandering channel low-velocity body
+- multiple lenses (positive/negative anomalies)
+- fault-like displacement perturbation
+- weak correlated heterogeneity
+
+Outputs are float32 plus metadata JSON and JSON arrays (`x.json`, `z.json`, `vel.json`) for the existing loader path.
+
+## Synthetic acquisition generator
+The same script also creates one synthetic shot gather with:
+- plausible surface geometry (central shot, regular receiver spread)
+- Ricker wavelet source
+- moveout-like reflectivity response + light noise
+
+Deliverables:
+- `shot_0001_gather.bin` (float32 raw, row-major `[n_receivers][nt]`)
+- `shot_0001_gather.bin.json` (shape/sampling/geometry)
+- `shot_0001.segy_like` (strict binary+header structure)
+
+### SEG-Y-like note
+`shot_0001.segy_like` is intentionally **SEG-Y-like**, not full standards-compliant SEG-Y:
+- 3200-byte textual header (ASCII padded)
+- 400-byte binary header (sample interval, samples/trace, format code)
+- per trace: 240-byte trace header + IEEE float32 big-endian samples
+
+This avoids adding new dependencies while keeping exchange-friendly structure documented and deterministic.
+
+## Config-driven dataset path
+`rtm3d_cli` supports config JSON with `data_dir` / `x_file` / `z_file` / `values_file` (no hardcoded runtime paths).
+See `configs/synthetic_benchmark.json`.
+
 ## Tests
+Unit + e2e:
 ```bash
 ctest --test-dir build --output-on-failure
 ```
 
-## Download real Marmousi data
-```bash
-./scripts/download_marmousi.sh data
-```
-
-See `docs/DATA_PROVENANCE.md` for source and licensing caveats.
-
-## Run RTM
-Recommended (config file, fewer CLI args):
-```bash
-./build/rtm3d_cli --config configs/marmousi_quickstart.json
-```
-
-Equivalent explicit CLI:
-```bash
-./build/rtm3d_cli \
-  --data-dir data \
-  --decim-x 20 --decim-z 20 \
-  --crop-x 80 --crop-z 50 \
-  --ny 24 --dy 20 --dt 0.0015 --nt 140 --f0 12 --pml 8 --receiver-stride 5 \
-  --output output/migrated_inline.pgm --output-format pgm8
-```
-
-## Confidence checks
-- End-to-end run should produce `output/migrated_inline.pgm` and non-zero migrated image energy.
-- `ctest` verifies parser, CLI validation, RTM execution, and output file writing.
-
-## About PGM output
-PGM (Portable GrayMap, `P5` binary) is a minimal grayscale raster format with tiny implementation overhead and broad compatibility.
-
-**Pros:** very simple, deterministic, good for debug snapshots.
-**Cons:** no metadata, no compression by default, and 8-bit dynamic range.
-
-### Float32 output (recommended for processing)
-Use:
-```bash
-./build/rtm3d_cli --config configs/marmousi_quickstart.json --output-format float32_raw --output output/migrated_inline.bin
-```
-This writes:
-- `output/migrated_inline.bin` (raw float32, row-major `[nz][nx]`)
-- `output/migrated_inline.bin.json` (shape + dtype metadata)
-
-### Better output options for production
-- **TIFF / GeoTIFF**: richer metadata, higher bit depth, industry tooling.
-- **HDF5 / NetCDF / Zarr**: multidimensional arrays, chunking/compression, scalable workflows.
-- **SEG-Y (for seismic traces/volumes)**: domain standard interchange format.
-- **PNG**: convenient preview format, but not ideal for scientific dynamic range.
-
-## Future-ready notes
-Current solver is isotropic CPU-only, but interfaces are split by concern (`io`, `rtm`, `cli`) so adding:
-- `RtmEngineTTI` (anisotropy)
-- GPU backend (`CudaRtmEngine` / `HipRtmEngine`)
-can be done without changing CLI/model IO contracts.
+E2E test (`tests/e2e_synthetic.sh`) validates: generation → migration of one shot setup → existence of outputs, shape consistency, finite values, non-zero energy.

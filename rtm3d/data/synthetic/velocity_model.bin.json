@@ -1,0 +1,9 @@
+{
+  "nx": 160,
+  "nz": 96,
+  "dx": 10.0,
+  "dz": 10.0,
+  "dtype": "float32",
+  "order": "row-major [nz][nx]",
+  "units": "m/s"
+}

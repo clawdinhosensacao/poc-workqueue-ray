@@ -34,12 +34,16 @@ if(RTM3D_BUILD_TESTS)
 
   add_executable(rtm3d_tests
     tests/test_array_model_loader.cpp
+    tests/test_array_loader_edge.cpp
     tests/test_cli_options.cpp
+    tests/test_cli_validation_extra.cpp
     tests/test_rtm_engine.cpp
+    tests/test_rtm_edge.cpp
     tests/test_image_io.cpp
   )
   target_link_libraries(rtm3d_tests PRIVATE rtm3d GTest::gtest_main)
 
   include(GoogleTest)
   gtest_discover_tests(rtm3d_tests)
+  add_test(NAME rtm3d_e2e_synthetic COMMAND bash ${CMAKE_SOURCE_DIR}/tests/e2e_synthetic.sh)
 endif()
