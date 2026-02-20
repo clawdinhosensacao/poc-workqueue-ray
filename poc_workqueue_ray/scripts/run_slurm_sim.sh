@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Simulates an on-prem SLURM-style execution plan.
-# If sbatch/srun exist, uses them. Otherwise falls back to local emulation.
-
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-OUT="$ROOT/results/slurm_sim.log"
+LOG="$ROOT/results/slurm_sim.log"
+SUMMARY="$ROOT/results/slurm_sim_summary.txt"
 TASKS="${TASKS:-24}"
 N="${N:-400000}"
 WORKERS="${WORKERS:-4}"
 CPUS="${CPUS:-4}"
+
+mkdir -p "$ROOT/results"
 
 {
   echo "[slurm-sim] start $(date -Is)"
@@ -24,4 +24,12 @@ CPUS="${CPUS:-4}"
   fi
   python3 "$ROOT/scripts/summarize_results.py"
   echo "[slurm-sim] done $(date -Is)"
-} | tee "$OUT"
+} | tee "$LOG"
+
+{
+  echo "slurm_sim_summary"
+  grep '^\[slurm-sim\]' "$LOG"
+  grep '^benchmark_summary' -A3 "$LOG" | sed '/^--$/d'
+} > "$SUMMARY"
+
+echo "wrote $SUMMARY"

@@ -1,0 +1,8 @@
+slurm_sim_summary
+[slurm-sim] start 2026-02-20T01:14:47-03:00
+[slurm-sim] SLURM not detected, running local emulation
+[slurm-sim] done 2026-02-20T01:14:56-03:00
+benchmark_summary
+workqueue done=24 failed=0 wall_s=3.1396 tasks_per_s=7.64429
+ray done=24 failed=0 wall_s=1.048 tasks_per_s=22.894
+overhead_eval wall_ratio_workqueue_over_ray=2.996

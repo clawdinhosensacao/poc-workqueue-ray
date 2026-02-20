@@ -1,0 +1,5 @@
+spot_sim_summary
+workqueue_exit=0
+wq_summary tasks=30 done=30 failed=0 wall_s=3.63083 tasks_per_s=8.26257
+ray_exit=0
+ray_summary tasks=30 done=30 failed=0 wall_s=2.038 tasks_per_s=14.720

@@ -19,3 +19,7 @@ python3 "$ROOT/src/ray_bag.py" \
   --max-retries "$MAX_RETRIES" \
   --fail-prob "$FAIL_PROB" \
   > "$ROOT/results/ray.log" 2>&1
+
+if [[ "${KEEP_OUTPUTS:-0}" != "1" ]]; then
+  rm -f "$ROOT"/results/ray_out_*.bin
+fi

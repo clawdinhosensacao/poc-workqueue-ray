@@ -2,33 +2,33 @@
 
 This repository compares **CCTools Work Queue** and **Ray** for distributing the same heavy C++ task.
 
-## What is fair in this revision
+## Fairness constraints in this version
 
-- Same C++ executable in both paths: `compress_task`
-- Same compression codec in both paths: `zfp`
-- Ray is used only for scheduling/distribution (task body remains C++)
+- same C++ executable in both paths: `compress_task`
+- same codec in both paths: `zfp`
+- Ray only handles orchestration/distribution
 
-## Project layout
+## Structure
 
-- `CMakeLists.txt` — primary build system (CMake, no ad-hoc Makefile)
-- `src/compress_task.cpp` — C++ zfp compression workload
-- `src/workqueue_manager.cpp` — Work Queue manager (C++)
-- `src/ray_bag.py` — Ray distributor invoking the same C++ binary
-- `scripts/build.sh` — configure/build via CMake
-- `scripts/run_workqueue.sh` — local Work Queue run
-- `scripts/run_ray.sh` — local Ray run
-- `scripts/run_slurm_sim.sh` — SLURM scenario (real SLURM if available, local emulation otherwise)
-- `scripts/run_spot_sim.sh` — spot/preemption simulation with fault injection
+- `CMakeLists.txt` — canonical build
+- `src/compress_task.cpp` — C++ zfp workload
+- `src/workqueue_manager.cpp` — Work Queue manager
+- `src/ray_bag.py` — Ray wrapper invoking the same C++ binary
+- `scripts/build.sh` — CMake configure/build
+- `scripts/run_workqueue.sh` — baseline Work Queue run
+- `scripts/run_ray.sh` — baseline Ray run
+- `scripts/run_slurm_sim.sh` — SLURM scenario (real SLURM if available, else emulation)
+- `scripts/run_spot_sim.sh` — spot/preemption simulation
 - `scripts/summarize_results.py` — writes `results/benchmark_summary.txt`
-- `docs/RFC-workqueue-vs-ray.md` — architectural + adoption analysis
-- `docs/SCENARIOS.md` — on-prem SLURM and cloud spot simulation plan
+- `docs/RFC-workqueue-vs-ray.md` — technical + adoption analysis
+- `docs/SCENARIOS.md` — scenario playbook
 
 ## Prerequisites
 
 - CMake >= 3.20
-- C++ toolchain (g++)
-- Python 3 + `ray`
-- Local CCTools checkout at `../cctools` with Work Queue built (`libwork_queue.a`, `libdttools.a`, `work_queue_worker`)
+- C++ toolchain
+- Python 3 + ray
+- local CCTools tree at `../cctools` with Work Queue built
 
 Install Ray if needed:
 
@@ -42,7 +42,7 @@ python3 -m pip install --user --break-system-packages ray
 ./scripts/build.sh
 ```
 
-> CMake fetches/builds zfp automatically via `FetchContent`.
+> If system `cmake` is missing, `scripts/build.sh` downloads a local CMake binary under `third_party/tools`.
 
 ## Baseline run
 
@@ -55,25 +55,24 @@ cat results/benchmark_summary.txt
 
 ## Scenario runs
 
-### On-prem SLURM scenario
+### SLURM/on-prem scenario
 
 ```bash
 ./scripts/run_slurm_sim.sh
+cat results/slurm_sim_summary.txt
 ```
-
-- Uses `sbatch/srun` if present.
-- Falls back to local emulation if SLURM is not installed.
 
 ### Spot/preemptible simulation
 
 ```bash
 ./scripts/run_spot_sim.sh
+cat results/spot_sim_summary.txt
 ```
 
-- Work Queue: kills one worker during execution.
-- Ray: injects failure probability and retries (`MAX_RETRIES=2`, `FAIL_PROB=0.20`).
+## About old `connection refused` messages
 
-## Documentation
+If you see old lines such as `couldn't connect ... Connection refused`, they usually came from previous failed attempts where workers started before a valid manager or with stale port values. For current runs, trust the latest summary files:
 
-- Full comparison and recommendation: `docs/RFC-workqueue-vs-ray.md`
-- Deployment/scenario plan: `docs/SCENARIOS.md`
+- `results/benchmark_summary.txt`
+- `results/slurm_sim_summary.txt`
+- `results/spot_sim_summary.txt`

@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Spot/preemptible simulation:
-# 1) Work Queue: kill one worker mid-run and verify completion.
-# 2) Ray: inject random task failures and enable retries.
-
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CCTOOLS="${CCTOOLS_BIN_DIR:-$ROOT/../cctools/work_queue/src}"
 BUILD_DIR="${BUILD_DIR:-$ROOT/build}"
@@ -18,13 +14,13 @@ WQ_LOG="$ROOT/results/spot_workqueue_manager.log"
 WK_LOG="$ROOT/results/spot_workqueue_workers.log"
 RAY_LOG="$ROOT/results/spot_ray.log"
 PID_FILE="$ROOT/results/spot_workers.pids"
-OUT="$ROOT/results/spot_sim_summary.log"
+SUMMARY="$ROOT/results/spot_sim_summary.txt"
 
-rm -f "$WQ_LOG" "$WK_LOG" "$RAY_LOG" "$PID_FILE" "$OUT"
+mkdir -p "$ROOT/results"
+rm -f "$WQ_LOG" "$WK_LOG" "$RAY_LOG" "$PID_FILE" "$SUMMARY"
 cp -f "$BUILD_DIR/compress_task" "$BUILD_DIR/workqueue_manager" "$ROOT/results/"
 cd "$ROOT/results"
 
-# --- Work Queue preemption simulation ---
 ./workqueue_manager --port "$PORT" --tasks "$TASKS" --n "$N" --tolerance "$TOLERANCE" --binary compress_task > "$WQ_LOG" 2>&1 &
 MANAGER_PID=$!
 sleep 1
@@ -34,7 +30,6 @@ for _ in $(seq 1 "$WORKERS"); do
   echo $! >> "$PID_FILE"
 done
 
-# Simulate preemption: kill first worker after warmup
 sleep 2
 PREEMPT_PID=$(head -n1 "$PID_FILE" || true)
 if [[ -n "${PREEMPT_PID:-}" ]]; then
@@ -52,7 +47,6 @@ if [[ -f "$PID_FILE" ]]; then
   rm -f "$PID_FILE"
 fi
 
-# --- Ray preemption simulation ---
 set +e
 TASKS="$TASKS" N="$N" CPUS="$WORKERS" TOLERANCE="$TOLERANCE" MAX_RETRIES=5 FAIL_PROB=0.10 \
   "$ROOT/scripts/run_ray.sh"
@@ -66,9 +60,8 @@ cp -f "$ROOT/results/ray.log" "$RAY_LOG"
   grep 'wq_summary' "$WQ_LOG" || true
   echo "ray_exit=$RAY_STATUS"
   grep 'ray_summary' "$RAY_LOG" || true
-} | tee "$OUT"
+} | tee "$SUMMARY"
 
-# non-zero only if either failed outright
 if [[ "$WQ_STATUS" -ne 0 || "$RAY_STATUS" -ne 0 ]]; then
   exit 1
 fi

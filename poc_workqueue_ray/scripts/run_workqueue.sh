@@ -37,4 +37,8 @@ if [[ -f "$PID_FILE" ]]; then
   rm -f "$PID_FILE"
 fi
 
+if [[ "${KEEP_OUTPUTS:-0}" != "1" ]]; then
+  rm -f out_*.bin compress_task workqueue_manager
+fi
+
 exit "$STATUS"
