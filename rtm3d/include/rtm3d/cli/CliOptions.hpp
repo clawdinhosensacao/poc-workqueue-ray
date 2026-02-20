@@ -7,11 +7,14 @@
 
 namespace rtm3d {
 
+enum class OutputFormat { kPgm8, kFloat32Raw };
+
 struct CliOptions {
   std::string x_file;
   std::string z_file;
   std::string values_file;
   std::string output_file = "output/migrated_inline.pgm";
+  OutputFormat output_format = OutputFormat::kPgm8;
   GridLoadOptions load;
   RtmConfig rtm;
 };

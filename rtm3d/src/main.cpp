@@ -14,7 +14,11 @@ int main(int argc, char** argv) {
     const auto migration = rtm3d::run_single_shot_rtm(model, cli.rtm);
 
     std::filesystem::create_directories(std::filesystem::path(cli.output_file).parent_path());
-    rtm3d::write_pgm(cli.output_file, migration.inline_xz, migration.nx, migration.nz);
+    if (cli.output_format == rtm3d::OutputFormat::kFloat32Raw) {
+      rtm3d::write_float32_raw(cli.output_file, migration.inline_xz, migration.nx, migration.nz);
+    } else {
+      rtm3d::write_pgm(cli.output_file, migration.inline_xz, migration.nx, migration.nz);
+    }
 
     std::cout << "RTM finished\n"
               << "model nx=" << model.nx << " nz=" << model.nz << " dx=" << model.dx << " dz=" << model.dz << "\n"

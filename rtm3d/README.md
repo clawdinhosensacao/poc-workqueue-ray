@@ -37,13 +37,19 @@ ctest --test-dir build --output-on-failure
 See `docs/DATA_PROVENANCE.md` for source and licensing caveats.
 
 ## Run RTM
+Recommended (config file, fewer CLI args):
+```bash
+./build/rtm3d_cli --config configs/marmousi_quickstart.json
+```
+
+Equivalent explicit CLI:
 ```bash
 ./build/rtm3d_cli \
   --data-dir data \
   --decim-x 20 --decim-z 20 \
   --crop-x 80 --crop-z 50 \
   --ny 24 --dy 20 --dt 0.0015 --nt 140 --f0 12 --pml 8 --receiver-stride 5 \
-  --output output/migrated_inline.pgm
+  --output output/migrated_inline.pgm --output-format pgm8
 ```
 
 ## Confidence checks
@@ -54,7 +60,16 @@ See `docs/DATA_PROVENANCE.md` for source and licensing caveats.
 PGM (Portable GrayMap, `P5` binary) is a minimal grayscale raster format with tiny implementation overhead and broad compatibility.
 
 **Pros:** very simple, deterministic, good for debug snapshots.
-**Cons:** no metadata, no compression by default, 8-bit output in this implementation.
+**Cons:** no metadata, no compression by default, and 8-bit dynamic range.
+
+### Float32 output (recommended for processing)
+Use:
+```bash
+./build/rtm3d_cli --config configs/marmousi_quickstart.json --output-format float32_raw --output output/migrated_inline.bin
+```
+This writes:
+- `output/migrated_inline.bin` (raw float32, row-major `[nz][nx]`)
+- `output/migrated_inline.bin.json` (shape + dtype metadata)
 
 ### Better output options for production
 - **TIFF / GeoTIFF**: richer metadata, higher bit depth, industry tooling.
