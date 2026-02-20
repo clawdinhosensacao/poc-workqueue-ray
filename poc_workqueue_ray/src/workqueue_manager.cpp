@@ -12,12 +12,16 @@ int main(int argc, char** argv) {
     int tasks = 40;
     int n = 1000000;
     int port = 9123;
+    double tolerance = 1e-3;
+    std::string binary = "compress_task";
 
     for (int i = 1; i < argc; ++i) {
         std::string k = argv[i];
         if (k == "--tasks" && i + 1 < argc) tasks = std::stoi(argv[++i]);
         else if (k == "--n" && i + 1 < argc) n = std::stoi(argv[++i]);
         else if (k == "--port" && i + 1 < argc) port = std::stoi(argv[++i]);
+        else if (k == "--tolerance" && i + 1 < argc) tolerance = std::stod(argv[++i]);
+        else if (k == "--binary" && i + 1 < argc) binary = argv[++i];
         else {
             std::cerr << "unknown arg: " << k << "\n";
             return 2;
@@ -35,13 +39,13 @@ int main(int argc, char** argv) {
 
     for (int i = 0; i < tasks; ++i) {
         std::ostringstream cmd;
-        cmd << "./compress_task --seed " << (1000 + i)
+        cmd << "./" << binary << " --seed " << (1000 + i)
             << " --n " << n
-            << " --tolerance 1e-3"
+            << " --tolerance " << tolerance
             << " --out out_" << i << ".bin";
 
         auto t = work_queue_task_create(cmd.str().c_str());
-        work_queue_task_specify_file(t, "compress_task", "compress_task", WORK_QUEUE_INPUT, WORK_QUEUE_CACHE);
+        work_queue_task_specify_file(t, binary.c_str(), binary.c_str(), WORK_QUEUE_INPUT, WORK_QUEUE_CACHE);
 
         std::string outname = "out_" + std::to_string(i) + ".bin";
         work_queue_task_specify_file(t, outname.c_str(), outname.c_str(), WORK_QUEUE_OUTPUT, WORK_QUEUE_NOCACHE);

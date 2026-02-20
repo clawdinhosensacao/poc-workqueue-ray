@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import os
+import random
 import subprocess
 import time
 
@@ -17,20 +18,20 @@ def parse_kv(line: str):
     return out
 
 
-@ray.remote
-def run_cpp_task(binary: str, seed: int, n: int, tolerance: float, out_dir: str):
+def run_cpp_task(binary: str, seed: int, n: int, tolerance: float, out_dir: str, fail_prob: float):
+    # Synthetic preemption/failure injection for spot simulation.
+    if fail_prob > 0 and random.random() < fail_prob:
+        raise RuntimeError("simulated_preemption")
+
     out_file = os.path.join(out_dir, f"ray_out_{seed}.bin")
     cmd = [
         binary,
-        "--seed",
-        str(seed),
-        "--n",
-        str(n),
-        "--tolerance",
-        str(tolerance),
-        "--out",
-        out_file,
+        "--seed", str(seed),
+        "--n", str(n),
+        "--tolerance", str(tolerance),
+        "--out", out_file,
     ]
+
     started = time.perf_counter()
     proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
     finished = time.perf_counter()
@@ -66,17 +67,26 @@ def main():
     p.add_argument("--cpus", type=int, default=4)
     p.add_argument("--tolerance", type=float, default=1e-3)
     p.add_argument("--binary", default=None)
+    p.add_argument("--max-retries", type=int, default=0)
+    p.add_argument("--fail-prob", type=float, default=0.0)
     args = p.parse_args()
 
     root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    binary = args.binary or os.path.join(root, "bin", "compress_task")
-    out_dir = os.path.join(root, "bin")
+    binary = args.binary or os.path.join(root, "build", "compress_task")
+    out_dir = os.path.join(root, "results")
     os.makedirs(out_dir, exist_ok=True)
 
     ray.init(num_cpus=args.cpus, include_dashboard=False, logging_level="ERROR")
 
+    remote_fn = ray.remote(run_cpp_task)
+
     t0 = time.perf_counter()
-    refs = [run_cpp_task.remote(binary, 1000 + i, args.n, args.tolerance, out_dir) for i in range(args.tasks)]
+    refs = [
+        remote_fn.options(max_retries=args.max_retries, retry_exceptions=True).remote(
+            binary, 1000 + i, args.n, args.tolerance, out_dir, args.fail_prob
+        )
+        for i in range(args.tasks)
+    ]
     results = ray.get(refs)
     t1 = time.perf_counter()
 

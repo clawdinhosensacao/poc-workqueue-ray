@@ -2,24 +2,26 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-CCTOOLS="$ROOT/../cctools"
-ZFP_PREFIX="$ROOT/third_party/zfp-install"
+BUILD_DIR="${BUILD_DIR:-$ROOT/build}"
+TOOLS_DIR="$ROOT/third_party/tools"
+CMAKE_VERSION="${CMAKE_VERSION:-3.29.6}"
 
-mkdir -p "$ROOT/bin" "$ROOT/results"
+if command -v cmake >/dev/null 2>&1; then
+  CMAKE_BIN="$(command -v cmake)"
+else
+  mkdir -p "$TOOLS_DIR"
+  CMAKE_DIR="$TOOLS_DIR/cmake-${CMAKE_VERSION}-linux-x86_64"
+  CMAKE_TGZ="$TOOLS_DIR/cmake-${CMAKE_VERSION}-linux-x86_64.tar.gz"
+  if [[ ! -x "$CMAKE_DIR/bin/cmake" ]]; then
+    curl -fL "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-x86_64.tar.gz" -o "$CMAKE_TGZ"
+    tar -xzf "$CMAKE_TGZ" -C "$TOOLS_DIR"
+  fi
+  CMAKE_BIN="$CMAKE_DIR/bin/cmake"
+fi
 
-"$ROOT/scripts/install_zfp.sh"
+mkdir -p "$BUILD_DIR" "$ROOT/results"
 
-# build payload task (C++ + zfp)
-g++ -O3 -std=c++17 "$ROOT/src/compress_task.cpp" \
-  -I"$ZFP_PREFIX/include" -L"$ZFP_PREFIX/lib64" -L"$ZFP_PREFIX/lib" -lzfp -lm \
-  -o "$ROOT/bin/compress_task"
+"$CMAKE_BIN" -S "$ROOT" -B "$BUILD_DIR" -DCMAKE_BUILD_TYPE=Release
+"$CMAKE_BIN" --build "$BUILD_DIR" --parallel
 
-# build Work Queue manager (C++ with CCTools static libs)
-g++ -O2 -std=c++17 "$ROOT/src/workqueue_manager.cpp" \
-  -I"$CCTOOLS/work_queue/src" \
-  -I"$CCTOOLS/dttools/src" \
-  "$CCTOOLS/work_queue/src/libwork_queue.a" \
-  "$CCTOOLS/dttools/src/libdttools.a" \
-  -lm -ldl -pthread -lz -o "$ROOT/bin/workqueue_manager"
-
-echo "Build complete."
+echo "Build complete: $BUILD_DIR"

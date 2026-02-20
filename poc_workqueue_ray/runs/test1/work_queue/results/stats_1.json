@@ -1,9 +1,0 @@
-{
-  "seed": 1,
-  "input_bytes": 2097152,
-  "compressed_bytes": 2097798,
-  "ratio": 1.00031,
-  "gen_ms": 17,
-  "comp_ms": 124,
-  "total_ms": 141
-}

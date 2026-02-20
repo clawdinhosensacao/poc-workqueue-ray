@@ -1,50 +1,79 @@
-# PoC: CCTools Work Queue vs Ray (same C++ zfp compression task)
+# PoC — Work Queue vs Ray for C++ Bag-of-Tasks (zfp)
 
-This PoC compares orchestration overhead using **the same C++ binary** in both systems:
+This repository compares **CCTools Work Queue** and **Ray** for distributing the same heavy C++ task.
 
-- **Work Queue**: C++ manager dispatches `compress_task` to workers.
-- **Ray**: Python only distributes tasks; each Ray task invokes the same `bin/compress_task` executable via subprocess.
+## What is fair in this revision
 
-Compression kernel is **zfp in C++** for both paths.
+- Same C++ executable in both paths: `compress_task`
+- Same compression codec in both paths: `zfp`
+- Ray is used only for scheduling/distribution (task body remains C++)
 
-## Layout
+## Project layout
 
-- `src/compress_task.cpp` — standalone C++ zfp compression task.
-- `src/workqueue_manager.cpp` — C++ Work Queue manager.
-- `src/ray_bag.py` — Ray distributor that launches the C++ binary.
-- `scripts/install_zfp.sh` — local (no-root) zfp source build and install.
-- `scripts/build.sh` — builds zfp + binaries.
-- `scripts/run_workqueue.sh` — runs Work Queue benchmark.
-- `scripts/run_ray.sh` — runs Ray benchmark.
-- `scripts/summarize_results.py` — extracts benchmark summaries + overhead ratio.
-- `results/` — execution logs.
-- `docs/RFC-workqueue-vs-ray.md` — technical analysis and recommendation.
+- `CMakeLists.txt` — primary build system (CMake, no ad-hoc Makefile)
+- `src/compress_task.cpp` — C++ zfp compression workload
+- `src/workqueue_manager.cpp` — Work Queue manager (C++)
+- `src/ray_bag.py` — Ray distributor invoking the same C++ binary
+- `scripts/build.sh` — configure/build via CMake
+- `scripts/run_workqueue.sh` — local Work Queue run
+- `scripts/run_ray.sh` — local Ray run
+- `scripts/run_slurm_sim.sh` — SLURM scenario (real SLURM if available, local emulation otherwise)
+- `scripts/run_spot_sim.sh` — spot/preemption simulation with fault injection
+- `scripts/summarize_results.py` — writes `results/benchmark_summary.txt`
+- `docs/RFC-workqueue-vs-ray.md` — architectural + adoption analysis
+- `docs/SCENARIOS.md` — on-prem SLURM and cloud spot simulation plan
 
 ## Prerequisites
 
-- CMake + C++ compiler toolchain
-- Python 3 + `ray` installed
-- Local CCTools source tree at `../cctools` with Work Queue worker binary
+- CMake >= 3.20
+- C++ toolchain (g++)
+- Python 3 + `ray`
+- Local CCTools checkout at `../cctools` with Work Queue built (`libwork_queue.a`, `libdttools.a`, `work_queue_worker`)
 
-## Build (reproducible, no root)
+Install Ray if needed:
 
 ```bash
-cd poc_workqueue_ray
+python3 -m pip install --user --break-system-packages ray
+```
+
+## Build
+
+```bash
 ./scripts/build.sh
 ```
 
-This will clone/build/install zfp from source into `third_party/zfp-install`.
+> CMake fetches/builds zfp automatically via `FetchContent`.
 
-## Run (same parameters used in current results)
+## Baseline run
 
 ```bash
-PORT=9233 TASKS=12 N=200000 WORKERS=3 ./scripts/run_workqueue.sh
+WQ_PORT=9233 TASKS=12 N=200000 WORKERS=3 ./scripts/run_workqueue.sh
 TASKS=12 N=200000 CPUS=3 TOLERANCE=1e-3 ./scripts/run_ray.sh
 python3 scripts/summarize_results.py
+cat results/benchmark_summary.txt
 ```
 
-## Logs
+## Scenario runs
 
-- `results/workqueue_manager.log`
-- `results/workqueue_workers.log`
-- `results/ray.log`
+### On-prem SLURM scenario
+
+```bash
+./scripts/run_slurm_sim.sh
+```
+
+- Uses `sbatch/srun` if present.
+- Falls back to local emulation if SLURM is not installed.
+
+### Spot/preemptible simulation
+
+```bash
+./scripts/run_spot_sim.sh
+```
+
+- Work Queue: kills one worker during execution.
+- Ray: injects failure probability and retries (`MAX_RETRIES=2`, `FAIL_PROB=0.20`).
+
+## Documentation
+
+- Full comparison and recommendation: `docs/RFC-workqueue-vs-ray.md`
+- Deployment/scenario plan: `docs/SCENARIOS.md`

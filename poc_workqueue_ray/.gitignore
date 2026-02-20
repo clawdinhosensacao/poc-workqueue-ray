@@ -1,2 +1,10 @@
+build/
 third_party/
-bin/ray_out_*.bin
+results/*.log
+results/*.bin
+results/workqueue_manager
+results/compress_task
+results/workers.pids
+results/spot_workers.pids
+__pycache__/
+*.pyc

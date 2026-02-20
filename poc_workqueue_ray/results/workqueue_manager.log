@@ -1,18 +1,30 @@
-manager_port=9233
+manager_port=26201
 warning: this work queue manager is visible to the public.
 warning: you should set a password with the --password option.
 warning: using plain-text when communicating with workers.
 warning: use encryption with a key and cert when creating the manager.
-task_id=1 seed=1000 n=200000 tolerance=0.001 input_bytes=800000 compressed_bytes=629632 ratio=1.27058 comp_ms=7.85171 total_ms=12.0687
-task_id=2 seed=1001 n=200000 tolerance=0.001 input_bytes=800000 compressed_bytes=629672 ratio=1.2705 comp_ms=8.70206 total_ms=16.7142
-task_id=4 seed=1003 n=200000 tolerance=0.001 input_bytes=800000 compressed_bytes=629624 ratio=1.2706 comp_ms=6.83682 total_ms=11.8906
-task_id=3 seed=1002 n=200000 tolerance=0.001 input_bytes=800000 compressed_bytes=629696 ratio=1.27045 comp_ms=13.0297 total_ms=20.2065
-task_id=5 seed=1004 n=200000 tolerance=0.001 input_bytes=800000 compressed_bytes=629680 ratio=1.27049 comp_ms=9.87461 total_ms=18.9515
-task_id=6 seed=1005 n=200000 tolerance=0.001 input_bytes=800000 compressed_bytes=629712 ratio=1.27042 comp_ms=6.67857 total_ms=10.7676
-task_id=7 seed=1006 n=200000 tolerance=0.001 input_bytes=800000 compressed_bytes=629640 ratio=1.27057 comp_ms=6.93886 total_ms=13.3162
-task_id=9 seed=1008 n=200000 tolerance=0.001 input_bytes=800000 compressed_bytes=629680 ratio=1.27049 comp_ms=12.2646 total_ms=20.1235
-task_id=8 seed=1007 n=200000 tolerance=0.001 input_bytes=800000 compressed_bytes=629656 ratio=1.27054 comp_ms=12.4868 total_ms=22.8453
-task_id=10 seed=1009 n=200000 tolerance=0.001 input_bytes=800000 compressed_bytes=629656 ratio=1.27054 comp_ms=6.15392 total_ms=9.74481
-task_id=12 seed=1011 n=200000 tolerance=0.001 input_bytes=800000 compressed_bytes=629640 ratio=1.27057 comp_ms=6.41547 total_ms=10.5209
-task_id=11 seed=1010 n=200000 tolerance=0.001 input_bytes=800000 compressed_bytes=629664 ratio=1.27052 comp_ms=8.20317 total_ms=13.0736
-wq_summary tasks=12 done=12 failed=0 wall_s=2.26823 tasks_per_s=5.29048
+task_id=1 seed=1000 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259176 ratio=1.27067 comp_ms=13.6656 total_ms=21.6613
+task_id=2 seed=1001 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259328 ratio=1.27052 comp_ms=16.9027 total_ms=25.7518
+task_id=3 seed=1002 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259416 ratio=1.27043 comp_ms=15.2425 total_ms=23.6087
+task_id=4 seed=1003 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259256 ratio=1.27059 comp_ms=13.0016 total_ms=22.352
+task_id=5 seed=1004 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259288 ratio=1.27056 comp_ms=14.4164 total_ms=22.7482
+task_id=6 seed=1005 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259312 ratio=1.27054 comp_ms=17.6113 total_ms=27.5521
+task_id=7 seed=1006 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259280 ratio=1.27057 comp_ms=14.5288 total_ms=23.3191
+task_id=8 seed=1007 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259272 ratio=1.27058 comp_ms=13.1386 total_ms=21.195
+task_id=9 seed=1008 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259312 ratio=1.27054 comp_ms=15.6422 total_ms=23.8678
+task_id=10 seed=1009 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259304 ratio=1.27054 comp_ms=15.7698 total_ms=24.3288
+task_id=11 seed=1010 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259432 ratio=1.27041 comp_ms=16.9073 total_ms=25.6145
+task_id=12 seed=1011 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259296 ratio=1.27055 comp_ms=15.734 total_ms=24.6417
+task_id=13 seed=1012 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259304 ratio=1.27054 comp_ms=14.2654 total_ms=22.7552
+task_id=14 seed=1013 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259232 ratio=1.27062 comp_ms=12.9354 total_ms=20.928
+task_id=15 seed=1014 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259288 ratio=1.27056 comp_ms=16.3899 total_ms=24.6263
+task_id=16 seed=1015 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259224 ratio=1.27062 comp_ms=16.4984 total_ms=25.4622
+task_id=17 seed=1016 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259232 ratio=1.27062 comp_ms=16.3459 total_ms=25.0831
+task_id=18 seed=1017 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259208 ratio=1.27064 comp_ms=15.9985 total_ms=24.775
+task_id=19 seed=1018 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259216 ratio=1.27063 comp_ms=13.5911 total_ms=21.2043
+task_id=20 seed=1019 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259320 ratio=1.27053 comp_ms=18.095 total_ms=27.8973
+task_id=21 seed=1020 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259160 ratio=1.27069 comp_ms=13.6252 total_ms=21.1685
+task_id=22 seed=1021 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259232 ratio=1.27062 comp_ms=17.2844 total_ms=26.2588
+task_id=23 seed=1022 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259392 ratio=1.27045 comp_ms=16.9231 total_ms=25.5913
+task_id=24 seed=1023 n=400000 tolerance=0.001 input_bytes=1600000 compressed_bytes=1259304 ratio=1.27054 comp_ms=16.7817 total_ms=26.8111
+wq_summary tasks=24 done=24 failed=0 wall_s=5.2002 tasks_per_s=4.61521
