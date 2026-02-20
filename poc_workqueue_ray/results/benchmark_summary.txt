@@ -1,0 +1,4 @@
+benchmark_summary
+workqueue done=12 failed=0 wall_s=2.26823 tasks_per_s=5.29048
+ray done=12 failed=0 wall_s=1.272 tasks_per_s=9.437
+overhead_eval wall_ratio_workqueue_over_ray=1.783

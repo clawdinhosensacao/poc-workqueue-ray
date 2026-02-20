@@ -3,11 +3,16 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CCTOOLS="$ROOT/../cctools"
+ZFP_PREFIX="$ROOT/third_party/zfp-install"
 
 mkdir -p "$ROOT/bin" "$ROOT/results"
 
-# build payload task (C++)
-g++ -O3 -std=c++17 "$ROOT/src/compress_task.cpp" -lz -o "$ROOT/bin/compress_task"
+"$ROOT/scripts/install_zfp.sh"
+
+# build payload task (C++ + zfp)
+g++ -O3 -std=c++17 "$ROOT/src/compress_task.cpp" \
+  -I"$ZFP_PREFIX/include" -L"$ZFP_PREFIX/lib64" -L"$ZFP_PREFIX/lib" -lzfp -lm \
+  -o "$ROOT/bin/compress_task"
 
 # build Work Queue manager (C++ with CCTools static libs)
 g++ -O2 -std=c++17 "$ROOT/src/workqueue_manager.cpp" \

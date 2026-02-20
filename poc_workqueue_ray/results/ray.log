@@ -1,15 +1,15 @@
 /data/.local/lib/python3.13/site-packages/ray/_private/worker.py:2052: FutureWarning: Tip: In future versions of Ray, Ray will no longer override accelerator visible devices env var if num_gpus=0 or num_gpus=None (default). To enable this behavior and turn off this error message, set RAY_ACCEL_ENV_VAR_OVERRIDE_ON_ZERO=0
   warnings.warn(
-seed=1000 n=200000 input_bytes=800000 compressed_bytes=629736 ratio=1.2704 comp_ms=10.468
-seed=1001 n=200000 input_bytes=800000 compressed_bytes=629616 ratio=1.2706 comp_ms=10.275
-seed=1002 n=200000 input_bytes=800000 compressed_bytes=629640 ratio=1.2706 comp_ms=18.453
-seed=1003 n=200000 input_bytes=800000 compressed_bytes=629752 ratio=1.2703 comp_ms=25.388
-seed=1004 n=200000 input_bytes=800000 compressed_bytes=629672 ratio=1.2705 comp_ms=22.522
-seed=1005 n=200000 input_bytes=800000 compressed_bytes=629680 ratio=1.2705 comp_ms=38.151
-seed=1006 n=200000 input_bytes=800000 compressed_bytes=629576 ratio=1.2707 comp_ms=32.084
-seed=1007 n=200000 input_bytes=800000 compressed_bytes=629728 ratio=1.2704 comp_ms=13.420
-seed=1008 n=200000 input_bytes=800000 compressed_bytes=629536 ratio=1.2708 comp_ms=7.145
-seed=1009 n=200000 input_bytes=800000 compressed_bytes=629544 ratio=1.2708 comp_ms=7.925
-seed=1010 n=200000 input_bytes=800000 compressed_bytes=629704 ratio=1.2704 comp_ms=16.182
-seed=1011 n=200000 input_bytes=800000 compressed_bytes=629552 ratio=1.2707 comp_ms=8.868
-ray_summary tasks=12 done=12 failed=0 wall_s=1.183 tasks_per_s=10.140
+seed=1000 n=200000 input_bytes=800000 compressed_bytes=629632 ratio=1.2706 comp_ms=243.791 total_ms=590.411 dispatch_ms=681.502
+seed=1001 n=200000 input_bytes=800000 compressed_bytes=629672 ratio=1.2705 comp_ms=285.821 total_ms=510.273 dispatch_ms=624.388
+seed=1002 n=200000 input_bytes=800000 compressed_bytes=629696 ratio=1.2705 comp_ms=55.464 total_ms=231.163 dispatch_ms=349.070
+seed=1003 n=200000 input_bytes=800000 compressed_bytes=629624 ratio=1.2706 comp_ms=7.001 total_ms=47.859 dispatch_ms=56.870
+seed=1004 n=200000 input_bytes=800000 compressed_bytes=629680 ratio=1.2705 comp_ms=6.682 total_ms=24.406 dispatch_ms=27.476
+seed=1005 n=200000 input_bytes=800000 compressed_bytes=629712 ratio=1.2704 comp_ms=8.277 total_ms=12.358 dispatch_ms=15.375
+seed=1006 n=200000 input_bytes=800000 compressed_bytes=629640 ratio=1.2706 comp_ms=23.476 total_ms=182.222 dispatch_ms=202.071
+seed=1007 n=200000 input_bytes=800000 compressed_bytes=629656 ratio=1.2705 comp_ms=14.689 total_ms=113.098 dispatch_ms=123.068
+seed=1008 n=200000 input_bytes=800000 compressed_bytes=629680 ratio=1.2705 comp_ms=12.966 total_ms=53.125 dispatch_ms=56.454
+seed=1009 n=200000 input_bytes=800000 compressed_bytes=629656 ratio=1.2705 comp_ms=6.403 total_ms=66.352 dispatch_ms=68.995
+seed=1010 n=200000 input_bytes=800000 compressed_bytes=629664 ratio=1.2705 comp_ms=9.095 total_ms=31.038 dispatch_ms=38.430
+seed=1011 n=200000 input_bytes=800000 compressed_bytes=629640 ratio=1.2706 comp_ms=7.895 total_ms=12.426 dispatch_ms=16.291
+ray_summary tasks=12 done=12 failed=0 wall_s=1.272 tasks_per_s=9.437

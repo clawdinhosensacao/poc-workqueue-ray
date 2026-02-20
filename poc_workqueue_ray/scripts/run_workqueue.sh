@@ -23,7 +23,7 @@ sleep 1
 
 # Start local workers
 for i in $(seq 1 "$WORKERS"); do
-  "$CCTOOLS/work_queue_worker" -N wq-zlib-poc localhost "$PORT" >> "$WORKER_LOG" 2>&1 &
+  "$CCTOOLS/work_queue_worker" -N wq-zfp-poc localhost "$PORT" >> "$WORKER_LOG" 2>&1 &
   echo $! >> "$ROOT/results/workers.pids"
 done
 

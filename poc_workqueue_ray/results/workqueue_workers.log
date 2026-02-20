@@ -1,27 +1,30 @@
-2026/02/19 22:10:46.88 work_queue_worker[2748]error: Did not find the manager address '72.61.132.235' in the list of interfaces.
-couldn't connect to 172.18.0.2:9123: Connection refused
-couldn't connect to 72.61.132.235:9123: Connection refused
-2026/02/19 22:10:48.88 work_queue_worker[2748]error: Did not find the manager address '72.61.132.235' in the list of interfaces.
-work_queue_worker: creating workspace /tmp/worker-1000-2748
-work_queue_worker: using 2 cores, 7941 MB memory, 88458 MB disk, 0 gpus
-connected to manager 172.18.0.2:9233 via local address 172.18.0.2:50902
-2026/02/19 22:10:49.45 work_queue_worker[2748]error: Did not find the manager address '72.61.132.235' in the list of interfaces.
-2026/02/19 22:10:49.45 work_queue_worker[2748]notice: stopping: abort signal received
+2026/02/19 22:55:29.70 work_queue_worker[3744]error: Did not find the manager address '72.61.132.235' in the list of interfaces.
+2026/02/19 22:55:29.70 work_queue_worker[3741]error: Did not find the manager address '72.61.132.235' in the list of interfaces.
+work_queue_worker: creating workspace /tmp/worker-1000-3744
+work_queue_worker: using 2 cores, 7941 MB memory, 88209 MB disk, 0 gpus
+connected to manager 172.18.0.2:9233 via local address 172.18.0.2:57306
+work_queue_worker: creating workspace /tmp/worker-1000-3741
+work_queue_worker: using 2 cores, 7941 MB memory, 88209 MB disk, 0 gpus
+connected to manager 172.18.0.2:9233 via local address 172.18.0.2:57318
+2026/02/19 22:55:29.72 work_queue_worker[3740]error: Did not find the manager address '72.61.132.235' in the list of interfaces.
+work_queue_worker: creating workspace /tmp/worker-1000-3740
+work_queue_worker: using 2 cores, 7941 MB memory, 88209 MB disk, 0 gpus
+connected to manager 172.18.0.2:9233 via local address 172.18.0.2:57328
+2026/02/19 22:55:29.83 work_queue_worker[3740]error: Did not find the manager address '72.61.132.235' in the list of interfaces.
+2026/02/19 22:55:29.83 work_queue_worker[3740]notice: stopping: abort signal received
 disconnected from manager 172.18.0.2:9233
-connected to manager 172.18.0.2:9233 via local address 172.18.0.2:50910
+connected to manager 172.18.0.2:9233 via local address 172.18.0.2:57332
 disconnected from manager 172.18.0.2:9233
-work_queue_worker: deleting workspace /tmp/worker-1000-2748
-2026/02/19 22:10:49.60 work_queue_worker[2747]error: Did not find the manager address '72.61.132.235' in the list of interfaces.
-couldn't connect to 172.18.0.2:9123: Connection refused
-couldn't connect to 72.61.132.235:9123: Connection refused
-2026/02/19 22:10:49.60 work_queue_worker[2747]notice: stopping: abort signal received
-work_queue_worker: creating workspace /tmp/worker-1000-2747
-work_queue_worker: using 2 cores, 7941 MB memory, 88458 MB disk, 0 gpus
-work_queue_worker: deleting workspace /tmp/worker-1000-2747
-2026/02/19 22:10:49.79 work_queue_worker[2749]error: Did not find the manager address '72.61.132.235' in the list of interfaces.
-couldn't connect to 172.18.0.2:9123: Connection refused
-couldn't connect to 72.61.132.235:9123: Connection refused
-2026/02/19 22:10:49.79 work_queue_worker[2749]notice: stopping: abort signal received
-work_queue_worker: creating workspace /tmp/worker-1000-2749
-work_queue_worker: using 2 cores, 7941 MB memory, 88458 MB disk, 0 gpus
-work_queue_worker: deleting workspace /tmp/worker-1000-2749
+work_queue_worker: deleting workspace /tmp/worker-1000-3740
+2026/02/19 22:55:29.83 work_queue_worker[3741]error: Did not find the manager address '72.61.132.235' in the list of interfaces.
+2026/02/19 22:55:29.83 work_queue_worker[3741]notice: stopping: abort signal received
+disconnected from manager 172.18.0.2:9233
+connected to manager 172.18.0.2:9233 via local address 172.18.0.2:57334
+disconnected from manager 172.18.0.2:9233
+work_queue_worker: deleting workspace /tmp/worker-1000-3741
+2026/02/19 22:55:29.83 work_queue_worker[3744]error: Did not find the manager address '72.61.132.235' in the list of interfaces.
+2026/02/19 22:55:29.84 work_queue_worker[3744]notice: stopping: abort signal received
+disconnected from manager 172.18.0.2:9233
+connected to manager 172.18.0.2:9233 via local address 172.18.0.2:57336
+disconnected from manager 172.18.0.2:9233
+work_queue_worker: deleting workspace /tmp/worker-1000-3744

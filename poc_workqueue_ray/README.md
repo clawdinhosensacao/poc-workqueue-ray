@@ -1,54 +1,50 @@
-# PoC: CCTools Work Queue vs Ray for Bag-of-Tasks (C++ compression workload)
+# PoC: CCTools Work Queue vs Ray (same C++ zfp compression task)
 
-This PoC compares two task-distribution approaches on the same host:
+This PoC compares orchestration overhead using **the same C++ binary** in both systems:
 
-- **CCTools Work Queue** (manager + workers), task payload in **C++** using **zlib** fallback.
-- **Ray** (Python API), task payload using **zfpy (zfp)**.
+- **Work Queue**: C++ manager dispatches `compress_task` to workers.
+- **Ray**: Python only distributes tasks; each Ray task invokes the same `bin/compress_task` executable via subprocess.
 
-> Why zlib fallback on Work Queue side?
-> We targeted zfp, but C++ zfp headers/libs were not available in this runtime without extra build steps. To keep the PoC runnable end-to-end now, Work Queue tasks use zlib compression in C++ and this is documented in the RFC as a comparability caveat.
+Compression kernel is **zfp in C++** for both paths.
 
 ## Layout
 
-- `src/compress_task.cpp` — standalone C++ task binary (random float generation + zlib compression).
-- `src/workqueue_manager.cpp` — C++ Work Queue manager that submits bag-of-tasks.
-- `src/ray_bag.py` — Ray bag-of-tasks driver using zfpy compression.
-- `scripts/build.sh` — compiles task binary + Work Queue manager.
-- `scripts/run_workqueue.sh` — runs manager and local workers.
-- `scripts/run_ray.sh` — runs Ray experiment.
-- `results/` — logs from executions.
-- `docs/RFC-workqueue-vs-ray.md` — findings and analysis.
+- `src/compress_task.cpp` — standalone C++ zfp compression task.
+- `src/workqueue_manager.cpp` — C++ Work Queue manager.
+- `src/ray_bag.py` — Ray distributor that launches the C++ binary.
+- `scripts/install_zfp.sh` — local (no-root) zfp source build and install.
+- `scripts/build.sh` — builds zfp + binaries.
+- `scripts/run_workqueue.sh` — runs Work Queue benchmark.
+- `scripts/run_ray.sh` — runs Ray benchmark.
+- `scripts/summarize_results.py` — extracts benchmark summaries + overhead ratio.
+- `results/` — execution logs.
+- `docs/RFC-workqueue-vs-ray.md` — technical analysis and recommendation.
 
-## Prereqs used in this run
+## Prerequisites
 
-- Python 3.13.5
-- Ray 2.54.0
-- numpy 2.4.2
-- zfpy 1.0.1
-- CCTools Work Queue worker version 8.0.0 DEVELOPMENT (local source build)
-- g++ 14.2.0
+- CMake + C++ compiler toolchain
+- Python 3 + `ray` installed
+- Local CCTools source tree at `../cctools` with Work Queue worker binary
 
-## Build
+## Build (reproducible, no root)
 
 ```bash
 cd poc_workqueue_ray
 ./scripts/build.sh
 ```
 
-## Run (example used for reported results)
+This will clone/build/install zfp from source into `third_party/zfp-install`.
+
+## Run (same parameters used in current results)
 
 ```bash
-# Work Queue
 PORT=9233 TASKS=12 N=200000 WORKERS=3 ./scripts/run_workqueue.sh
-
-# Ray
-TASKS=12 N=200000 CPUS=3 ./scripts/run_ray.sh
+TASKS=12 N=200000 CPUS=3 TOLERANCE=1e-3 ./scripts/run_ray.sh
+python3 scripts/summarize_results.py
 ```
 
-## Result logs
+## Logs
 
 - `results/workqueue_manager.log`
 - `results/workqueue_workers.log`
 - `results/ray.log`
-
-See RFC for interpretation and trade-offs.

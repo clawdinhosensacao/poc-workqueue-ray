@@ -31,13 +31,13 @@ int main(int argc, char** argv) {
     }
 
     std::cout << "manager_port=" << work_queue_port(q) << "\n";
-    work_queue_specify_name(q, "wq-zlib-poc");
+    work_queue_specify_name(q, "wq-zfp-poc");
 
     for (int i = 0; i < tasks; ++i) {
         std::ostringstream cmd;
         cmd << "./compress_task --seed " << (1000 + i)
             << " --n " << n
-            << " --level 3"
+            << " --tolerance 1e-3"
             << " --out out_" << i << ".bin";
 
         auto t = work_queue_task_create(cmd.str().c_str());

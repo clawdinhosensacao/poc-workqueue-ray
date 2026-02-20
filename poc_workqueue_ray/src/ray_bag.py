@@ -1,25 +1,62 @@
 #!/usr/bin/env python3
 import argparse
+import os
+import subprocess
 import time
-import numpy as np
+
 import ray
-import zfpy
+
+
+def parse_kv(line: str):
+    out = {}
+    for token in line.strip().split():
+        if "=" not in token:
+            continue
+        k, v = token.split("=", 1)
+        out[k] = v
+    return out
+
 
 @ray.remote
-def compress_task(seed: int, n: int, tolerance: float = 1e-3):
-    rng = np.random.default_rng(seed)
-    arr = rng.uniform(-1000.0, 1000.0, size=n).astype(np.float32)
-    t0 = time.perf_counter()
-    compressed = zfpy.compress_numpy(arr, tolerance=tolerance)
-    t1 = time.perf_counter()
-    return {
-        "seed": seed,
-        "n": int(n),
-        "input_bytes": int(arr.nbytes),
-        "compressed_bytes": int(len(compressed)),
-        "ratio": float(arr.nbytes / len(compressed)),
-        "comp_ms": (t1 - t0) * 1000.0,
-    }
+def run_cpp_task(binary: str, seed: int, n: int, tolerance: float, out_dir: str):
+    out_file = os.path.join(out_dir, f"ray_out_{seed}.bin")
+    cmd = [
+        binary,
+        "--seed",
+        str(seed),
+        "--n",
+        str(n),
+        "--tolerance",
+        str(tolerance),
+        "--out",
+        out_file,
+    ]
+    started = time.perf_counter()
+    proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    finished = time.perf_counter()
+
+    if proc.returncode != 0:
+        return {
+            "seed": seed,
+            "failed": True,
+            "returncode": proc.returncode,
+            "stderr": proc.stderr.strip(),
+            "stdout": proc.stdout.strip(),
+            "dispatch_ms": (finished - started) * 1000.0,
+        }
+
+    line = proc.stdout.strip().splitlines()[-1]
+    data = parse_kv(line)
+    data["seed"] = int(data.get("seed", seed))
+    data["n"] = int(data["n"])
+    data["input_bytes"] = int(data["input_bytes"])
+    data["compressed_bytes"] = int(data["compressed_bytes"])
+    data["ratio"] = float(data["ratio"])
+    data["comp_ms"] = float(data["comp_ms"])
+    data["total_ms"] = float(data["total_ms"])
+    data["dispatch_ms"] = (finished - started) * 1000.0
+    data["failed"] = False
+    return data
 
 
 def main():
@@ -27,24 +64,39 @@ def main():
     p.add_argument("--tasks", type=int, default=40)
     p.add_argument("--n", type=int, default=1_000_000)
     p.add_argument("--cpus", type=int, default=4)
+    p.add_argument("--tolerance", type=float, default=1e-3)
+    p.add_argument("--binary", default=None)
     args = p.parse_args()
+
+    root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    binary = args.binary or os.path.join(root, "bin", "compress_task")
+    out_dir = os.path.join(root, "bin")
+    os.makedirs(out_dir, exist_ok=True)
 
     ray.init(num_cpus=args.cpus, include_dashboard=False, logging_level="ERROR")
 
     t0 = time.perf_counter()
-    refs = [compress_task.remote(1000 + i, args.n) for i in range(args.tasks)]
+    refs = [run_cpp_task.remote(binary, 1000 + i, args.n, args.tolerance, out_dir) for i in range(args.tasks)]
     results = ray.get(refs)
     t1 = time.perf_counter()
 
+    failed = 0
     for r in results:
-        print(
-            f"seed={r['seed']} n={r['n']} input_bytes={r['input_bytes']} "
-            f"compressed_bytes={r['compressed_bytes']} ratio={r['ratio']:.4f} comp_ms={r['comp_ms']:.3f}"
-        )
+        if r.get("failed"):
+            failed += 1
+            print(f"task_fail seed={r['seed']} rc={r['returncode']} stderr={r.get('stderr','')}")
+        else:
+            print(
+                f"seed={r['seed']} n={r['n']} input_bytes={r['input_bytes']} "
+                f"compressed_bytes={r['compressed_bytes']} ratio={r['ratio']:.4f} "
+                f"comp_ms={r['comp_ms']:.3f} total_ms={r['total_ms']:.3f} dispatch_ms={r['dispatch_ms']:.3f}"
+            )
 
     wall_s = t1 - t0
+    done = len(results) - failed
     print(
-        f"ray_summary tasks={args.tasks} done={len(results)} failed=0 wall_s={wall_s:.3f} tasks_per_s={len(results)/wall_s:.3f}"
+        f"ray_summary tasks={args.tasks} done={done} failed={failed} "
+        f"wall_s={wall_s:.3f} tasks_per_s={done / wall_s:.3f}"
     )
 
     ray.shutdown()
