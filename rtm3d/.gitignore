@@ -1,5 +1,0 @@
-build/
-third_party/
-output/*.png
-output/*.pgm
-tests/tmp_loader/
