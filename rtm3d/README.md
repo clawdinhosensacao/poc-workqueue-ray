@@ -1,4 +1,4 @@
-# RTM 3D CLI (Isotropic, CPU) — Marmousi shot migration
+# RTM 3D CLI (Isotropic, CPU)
 
 Modern C++ (C++20) command-line starter for **3D acoustic RTM** focused on:
 - clean architecture (`loader`, `engine`, `io`)
