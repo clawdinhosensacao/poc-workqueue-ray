@@ -1,0 +1,7 @@
+work_queue_worker: creating workspace /tmp/worker-1000-2237
+work_queue_worker: using 2 cores, 7941 MB memory, 88557 MB disk, 0 gpus
+connected to manager 127.0.0.1:9123 via local address 127.0.0.1:60250
+couldn't connect to 127.0.0.1:9123: Connection refused
+2026/02/19 22:09:29.28 work_queue_worker[2237]notice: stopping: abort signal received
+disconnected from manager 127.0.0.1:9123
+work_queue_worker: deleting workspace /tmp/worker-1000-2237

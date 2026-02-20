@@ -1,0 +1,15 @@
+/data/.local/lib/python3.13/site-packages/ray/_private/worker.py:2052: FutureWarning: Tip: In future versions of Ray, Ray will no longer override accelerator visible devices env var if num_gpus=0 or num_gpus=None (default). To enable this behavior and turn off this error message, set RAY_ACCEL_ENV_VAR_OVERRIDE_ON_ZERO=0
+  warnings.warn(
+seed=1000 n=200000 input_bytes=800000 compressed_bytes=629736 ratio=1.2704 comp_ms=10.468
+seed=1001 n=200000 input_bytes=800000 compressed_bytes=629616 ratio=1.2706 comp_ms=10.275
+seed=1002 n=200000 input_bytes=800000 compressed_bytes=629640 ratio=1.2706 comp_ms=18.453
+seed=1003 n=200000 input_bytes=800000 compressed_bytes=629752 ratio=1.2703 comp_ms=25.388
+seed=1004 n=200000 input_bytes=800000 compressed_bytes=629672 ratio=1.2705 comp_ms=22.522
+seed=1005 n=200000 input_bytes=800000 compressed_bytes=629680 ratio=1.2705 comp_ms=38.151
+seed=1006 n=200000 input_bytes=800000 compressed_bytes=629576 ratio=1.2707 comp_ms=32.084
+seed=1007 n=200000 input_bytes=800000 compressed_bytes=629728 ratio=1.2704 comp_ms=13.420
+seed=1008 n=200000 input_bytes=800000 compressed_bytes=629536 ratio=1.2708 comp_ms=7.145
+seed=1009 n=200000 input_bytes=800000 compressed_bytes=629544 ratio=1.2708 comp_ms=7.925
+seed=1010 n=200000 input_bytes=800000 compressed_bytes=629704 ratio=1.2704 comp_ms=16.182
+seed=1011 n=200000 input_bytes=800000 compressed_bytes=629552 ratio=1.2707 comp_ms=8.868
+ray_summary tasks=12 done=12 failed=0 wall_s=1.183 tasks_per_s=10.140
