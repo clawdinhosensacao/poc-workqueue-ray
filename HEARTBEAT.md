@@ -13,7 +13,10 @@ read_when:
 ## Active tasks
 
 - If there is no urgent user request, spend heartbeat cycles improving `rtm3d-cli` incrementally:
-  - pick one small improvement (bugfix, test, docs, performance, DX)
-  - implement + run relevant tests
-  - commit with a clear message
-  - report concise progress update to user when meaningful
+  - prioritize code organization/refactor before synthetic-data expansion:
+    - split large RTM functions by responsibility (source propagation, receiver backpropagation, imaging condition)
+    - improve file/module structure for discoverability and testability
+    - run static analysis (prefer clang-tidy, fallback cppcheck) and fix issues incrementally
+  - then continue with benchmark realism (synthetic scenarios, multi-shot, stronger metrics)
+  - for each cycle: implement + run relevant tests + commit with clear message
+  - avoid idle cycles
