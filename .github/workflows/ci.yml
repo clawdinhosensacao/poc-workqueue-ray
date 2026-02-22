@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, 'feature/**', 'heartbeat/**']
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ python3 python3-pip python3-numpy
+
+      - name: Build
+        run: make -j$(nproc)
+
+      - name: Run unit tests
+        run: make test
+
+      - name: Generate synthetic data
+        run: |
+          python3 scripts/generate_synthetic_model.py --out-dir data/synthetic \
+            --nx 80 --nz 48 --nt 100 --dt 0.001 --f0 16 --seed 42 --n-shots 2
+
+      - name: Run E2E tests
+        run: |
+          ./build/rtm3d_cli --config configs/synthetic_benchmark.json
+          python3 scripts/e2e_metrics.py \
+            --input artifacts/synthetic_migrated_inline.bin \
+            --meta artifacts/synthetic_migrated_inline.bin.json \
+            --fail-on-threshold
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rtm-output
+          path: |
+            artifacts/*.bin
+            artifacts/*.json
+            output/*.pgm

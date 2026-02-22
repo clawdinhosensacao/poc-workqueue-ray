@@ -77,6 +77,55 @@ python3 scripts/generate_synthetic_model.py --out-dir data/synthetic --nx 192 --
 python3 scripts/visualize_synthetic.py --data-dir data/synthetic --out-dir artifacts/synthetic_preview --shot-index 2
 ```
 
+## Multi-shot RTM Migration
+
+Run RTM with multiple source positions for improved subsurface illumination:
+
+```bash
+# CLI option
+./build/rtm3d_cli --config configs/synthetic_benchmark.json --n-shots 3
+
+# Or via config JSON
+./build/rtm3d_cli --config configs/synthetic_circle_lens_multishot.json
+```
+
+Multi-shot migration stacks images from each shot position, improving signal-to-noise ratio and coverage.
+
+### API Usage
+
+```cpp
+#include "rtm3d/rtm/RtmEngine.hpp"
+
+rtm3d::GridModel2D model = load_model(...);
+rtm3d::RtmConfig cfg;
+
+// Single-shot (default)
+auto result = rtm3d::run_single_shot_rtm(model, cfg);
+
+// Multi-shot with custom positions
+std::vector<rtm3d::ShotPosition> shots = {
+    {.sx = 20, .sz = 2},
+    {.sx = 40, .sz = 2},
+    {.sx = 60, .sz = 2}
+};
+auto result = rtm3d::run_multi_shot_rtm(model, cfg, shots);
+```
+
+## CI/CD
+
+GitHub Actions workflow runs on every push:
+- Build with g++ (C++20)
+- Unit tests (34 tests)
+- E2E synthetic benchmark
+- Quality metrics validation
+
+```bash
+# Local CI simulation
+make test
+python3 scripts/e2e_metrics.py --input artifacts/synthetic_migrated_inline.bin \
+    --meta artifacts/synthetic_migrated_inline.bin.json --fail-on-threshold
+```
+
 ## Tests
 Unit + e2e:
 ```bash

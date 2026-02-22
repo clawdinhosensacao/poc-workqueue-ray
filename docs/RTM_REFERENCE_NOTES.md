@@ -42,24 +42,25 @@ Goal: keep this document short and practical. It captures implementation pattern
 - [ ] Confirm CFL-related parameter checks (dt vs dx/dz/dy and velocity bounds).
 
 ### Boundary conditions / absorbing layers
-- [x] Keep damping/PML generation in dedicated module.
+- [x] Keep damping/PML generation in dedicated module (`Boundary.cpp`).
 - [ ] Add tests for boundary damping profile monotonicity and edge behavior.
 - [ ] Parameterize damping strength separately from width (pml cells).
 
 ### Source model
-- [ ] Keep wavelet generation isolated (`ricker_wavelet` already separated).
+- [x] Keep wavelet generation isolated (`Wavelet.cpp` - `ricker_wavelet`).
 - [ ] Support configurable source type and source depth/position policy.
 
 ### Acquisition geometry
-- [x] Separate geometry builder (shot + receiver layout) from propagation loops.
-- [x] Add multi-shot geometry abstraction (generator-level support added).
+- [x] Separate geometry builder (`Acquisition.cpp`) from propagation loops.
+- [x] Multi-shot geometry abstraction (`ShotPosition` struct + `run_multi_shot_rtm`).
+- [x] CLI option `--n-shots` for multi-shot migration.
 
 ### Receiver backpropagation (adjoint)
-- [x] Keep injection and stepping as separate functions.
-- [ ] Add tests for receiver injection indexing/consistency.
+- [x] Keep injection and stepping as separate functions (`ReceiverImaging.cpp`).
+- [x] Tests for receiver injection indexing/consistency (`test_rtm_receivers.cpp`).
 
 ### Imaging condition
-- [x] Keep cross-correlation imaging condition isolated.
+- [x] Keep cross-correlation imaging condition isolated (`Imaging.cpp`).
 - [ ] Add optional illumination compensation hooks.
 - [ ] Prepare extension point for alternative imaging conditions.
 
@@ -67,7 +68,37 @@ Goal: keep this document short and practical. It captures implementation pattern
 - [x] Persist enough metadata to reproduce run (geometry, wavelet, seed, numerics).
 - [x] Keep synthetic generator and migration config versioned.
 
-## 3) Immediate engineering moves (next cycles)
+## 3) Implementation status (2026-02-22)
+
+### Completed modules (extracted from RtmEngine)
+| Module | File | Responsibility |
+|--------|------|----------------|
+| Validation | `Validation.cpp` | Config validation |
+| Acquisition | `Acquisition.cpp` | Shot geometry builder |
+| Wavelet | `Wavelet.cpp` | Ricker wavelet generation |
+| SourcePropagation | `SourcePropagation.cpp` | Forward wave propagation |
+| ReceiverImaging | `ReceiverImaging.cpp` | Backpropagation + imaging |
+| ResultBuilder | `ResultBuilder.cpp` | Result assembly |
+| Receivers | `Receivers.cpp` | Receiver operations |
+| InlineSlice | `InlineSlice.cpp` | Slice extraction |
+| Boundary | `Boundary.cpp` | PML damping |
+| Geometry | `Geometry.cpp` | Velocity volume |
+
+### Test coverage
+- 34 tests passing
+- 12 RTM-specific test files
+
+### API
+```cpp
+// Single-shot migration
+MigrationResult run_single_shot_rtm(const GridModel2D& model, const RtmConfig& cfg);
+
+// Multi-shot migration with image stacking
+MigrationResult run_multi_shot_rtm(const GridModel2D& model, const RtmConfig& cfg,
+                                   const std::vector<ShotPosition>& shots);
+```
+
+## 4) Immediate engineering moves (next cycles)
 
 1. Introduce lightweight internal structs:
    - `ShotGeometry`, `ReceiverGeometry`, `Wavefields`.
