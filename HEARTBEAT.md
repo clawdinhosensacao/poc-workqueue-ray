@@ -19,4 +19,6 @@ read_when:
     - run static analysis (prefer clang-tidy, fallback cppcheck) and fix issues incrementally
   - then continue with benchmark realism (synthetic scenarios, multi-shot, stronger metrics)
   - for each cycle: implement + run relevant tests + commit with clear message
+  - at the start of each cycle, review prioritized backlog in memory and execute the top actionable item
+  - if a strong new idea appears, append it to backlog memory with clear priority placement
   - avoid idle cycles
