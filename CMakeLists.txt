@@ -55,6 +55,7 @@ if(RTM3D_BUILD_TESTS)
     tests/test_rtm_receivers.cpp
     tests/test_rtm_boundary.cpp
     tests/test_rtm_wavelet.cpp
+    tests/test_rtm_inline_slice.cpp
     tests/test_rtm_result_builder.cpp
     tests/test_rtm_validation.cpp
     tests/test_image_io.cpp
