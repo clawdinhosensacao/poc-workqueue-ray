@@ -54,6 +54,7 @@ if(RTM3D_BUILD_TESTS)
     tests/test_rtm_receivers.cpp
     tests/test_rtm_boundary.cpp
     tests/test_rtm_wavelet.cpp
+    tests/test_rtm_result_builder.cpp
     tests/test_image_io.cpp
   )
   target_link_libraries(rtm3d_tests PRIVATE rtm3d GTest::gtest_main)
