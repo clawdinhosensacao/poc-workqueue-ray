@@ -1,7 +1,6 @@
 #include "rtm3d/rtm/RtmEngine.hpp"
 
 #include <algorithm>
-#include <cmath>
 #include <stdexcept>
 
 #include "Acquisition.hpp"
@@ -10,6 +9,7 @@
 #include "Imaging.hpp"
 #include "Propagation.hpp"
 #include "Validation.hpp"
+#include "Wavelet.hpp"
 #include "rtm3d/core/Volume3D.hpp"
 
 namespace rtm3d {
@@ -62,18 +62,7 @@ void receiver_backpropagation_and_imaging(const GridModel2D& model, const RtmCon
 }  // namespace
 
 std::vector<float> ricker_wavelet(std::size_t nt, float dt, float f0) {
-  if (nt < 2 || dt <= 0.0f || f0 <= 0.0f) throw std::runtime_error("invalid wavelet arguments");
-
-  std::vector<float> w(nt, 0.0f);
-  const float t0 = 1.0f / f0;
-  constexpr float kPi = 3.14159265358979323846f;
-  for (std::size_t it = 0; it < nt; ++it) {
-    const float t = static_cast<float>(it) * dt - t0;
-    const float a = kPi * f0 * t;
-    const float a2 = a * a;
-    w[it] = (1.0f - 2.0f * a2) * std::exp(-a2);
-  }
-  return w;
+  return rtm_internal::ricker_wavelet(nt, dt, f0);
 }
 
 MigrationResult run_single_shot_rtm(const GridModel2D& model, const RtmConfig& cfg) {
