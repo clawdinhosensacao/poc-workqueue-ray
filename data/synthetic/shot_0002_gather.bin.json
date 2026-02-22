@@ -1,0 +1,15 @@
+{
+  "n_receivers": 80,
+  "nt": 280,
+  "dt": 0.001,
+  "shot_index": 2,
+  "shot_x": 1570.0,
+  "shot_z": 20.0,
+  "receiver_x0": 20.0,
+  "receiver_dx": 10.0,
+  "snr_db": 26.0,
+  "noise_seed": 120,
+  "dtype": "float32",
+  "order": "row-major [n_receivers][nt]",
+  "units": "arbitrary amplitude"
+}
