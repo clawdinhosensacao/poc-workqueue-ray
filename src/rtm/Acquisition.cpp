@@ -13,4 +13,14 @@ ShotGeometry make_default_shot_geometry(const Volume3D& vel, std::size_t receive
   return g;
 }
 
+ShotGeometry make_shot_geometry(const Volume3D& vel, std::size_t sx, std::size_t sz,
+                                std::size_t receiver_stride) {
+  ShotGeometry g;
+  g.sx = sx;
+  g.sy = vel.ny() / 2;
+  g.sz = sz;
+  g.rx = make_receiver_positions(vel, receiver_stride);
+  return g;
+}
+
 }  // namespace rtm3d::rtm_internal
