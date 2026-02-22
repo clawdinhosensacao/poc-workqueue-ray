@@ -4,6 +4,7 @@
 #include <cmath>
 #include <stdexcept>
 
+#include "Acquisition.hpp"
 #include "Boundary.hpp"
 #include "Geometry.hpp"
 #include "Imaging.hpp"
@@ -84,18 +85,16 @@ MigrationResult run_single_shot_rtm(const GridModel2D& model, const RtmConfig& c
   const auto damp = rtm_internal::make_damp(vel.nx(), vel.ny(), vel.nz(), cfg.pml);
   const auto wavelet = ricker_wavelet(cfg.nt, cfg.dt, cfg.f0);
 
-  const std::size_t sx = vel.nx() / 2;
-  const std::size_t sy = vel.ny() / 2;
-  const std::size_t sz = 2;
-
-  const auto rx = rtm_internal::make_receiver_positions(vel, cfg.receiver_stride);
+  const auto shot = rtm_internal::make_default_shot_geometry(vel, cfg.receiver_stride);
   std::vector<float> src_snaps(cfg.nt * n, 0.0f);
-  std::vector<float> rec_data(cfg.nt * rx.size(), 0.0f);
+  std::vector<float> rec_data(cfg.nt * shot.rx.size(), 0.0f);
 
-  forward_source_propagation(model, cfg, vel, damp, wavelet, sx, sy, sz, rx, src_snaps, rec_data);
+  forward_source_propagation(model, cfg, vel, damp, wavelet, shot.sx, shot.sy, shot.sz, shot.rx,
+                             src_snaps, rec_data);
 
   std::vector<float> image(n, 0.0f);
-  receiver_backpropagation_and_imaging(model, cfg, vel, damp, sy, sz, rx, src_snaps, rec_data, image);
+  receiver_backpropagation_and_imaging(model, cfg, vel, damp, shot.sy, shot.sz, shot.rx, src_snaps,
+                                       rec_data, image);
 
   MigrationResult out;
   out.nx = vel.nx();

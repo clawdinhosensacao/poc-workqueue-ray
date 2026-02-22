@@ -3,7 +3,7 @@ CXXFLAGS ?= -O2 -std=c++20 -Wall -Wextra -Wpedantic -Iinclude
 GTEST_DIR := third_party/googletest
 GTEST_INC := -I$(GTEST_DIR)/googletest/include -I$(GTEST_DIR)/googletest
 
-SRC = src/io/ArrayModelLoader.cpp src/io/GridModelLoader.cpp src/io/ImageIO.cpp src/rtm/RtmEngine.cpp src/rtm/Geometry.cpp src/rtm/Boundary.cpp src/rtm/Propagation.cpp src/rtm/Imaging.cpp src/rtm/Validation.cpp src/cli/CliOptions.cpp
+SRC = src/io/ArrayModelLoader.cpp src/io/GridModelLoader.cpp src/io/ImageIO.cpp src/rtm/RtmEngine.cpp src/rtm/Geometry.cpp src/rtm/Boundary.cpp src/rtm/Propagation.cpp src/rtm/Imaging.cpp src/rtm/Validation.cpp src/rtm/Acquisition.cpp src/cli/CliOptions.cpp
 TEST_SRC = tests/test_array_model_loader.cpp tests/test_array_loader_edge.cpp tests/test_cli_options.cpp tests/test_cli_validation_extra.cpp tests/test_rtm_engine.cpp tests/test_rtm_edge.cpp tests/test_image_io.cpp
 
 all: build/rtm3d_cli build/rtm3d_tests
