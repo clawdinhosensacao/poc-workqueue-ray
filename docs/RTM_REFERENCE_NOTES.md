@@ -98,7 +98,91 @@ MigrationResult run_multi_shot_rtm(const GridModel2D& model, const RtmConfig& cf
                                    const std::vector<ShotPosition>& shots);
 ```
 
-## 4) Immediate engineering moves (next cycles)
+## 4) Devito code patterns mapped to rtm3d-cli
+
+### Forward propagation correspondence
+
+**Devito (Python):**
+```python
+# From examples/seismic/acoustic/operators.py
+def Forward(model, source, receiver, **kwargs):
+    # Forward wavefield propagation
+    u = wavefield(model.grid)  # Allocate wavefield
+    src_term = source.inject(u, src)  # Source injection
+    rec_term = receiver.interpolate(u)  # Receiver recording
+    op = Operator([src_term, rec_term, stencil])  # Build operator
+    op(time=time_range.num-1, dt=dt)
+```
+
+**rtm3d-cli (C++):**
+```cpp
+// src/rtm/SourcePropagation.cpp
+void forward_source_propagation(..., const std::vector<float>& wavelet,
+                                 std::vector<float>& src_snaps,
+                                 std::vector<float>& rec_data) {
+    // Time-stepping loop
+    for (std::size_t it = 0; it < nt; ++it) {
+        inject_source(..., wavelet[it]);     // Source injection
+        fd_step_forward(...);                 // Stencil application
+        record_receivers(..., rec_data, it);  // Receiver recording
+        save_snapshot(src_snaps, it);         // Wavefield checkpoint
+    }
+}
+```
+
+### Imaging condition correspondence
+
+**Devito (Python):**
+```python
+# Cross-correlation imaging condition
+image = Function(name='image', grid=model.grid)
+op = Operator([Eq(image, image + u * v)])  # u=forward, v=adjoint
+```
+
+**rtm3d-cli (C++):**
+```cpp
+// src/rtm/Imaging.cpp
+void apply_imaging_condition(const Volume3D& vel, std::size_t n,
+                             const std::vector<float>& src_snap,
+                             std::vector<float>& image, std::size_t it) {
+    for (std::size_t i = 0; i < n; ++i) {
+        image[i] += src_snap[it * n + i] * adjoint[i];  // Cross-correlation
+    }
+}
+```
+
+### Boundary damping (PML) correspondence
+
+**Devito (Python):**
+```python
+# Damping profile from examples/seismic/preset_models.py
+damp = Function(name='damp', grid=model.grid)
+damp.data[:] = damping_profile(nbl, spacing)  # Boundary layer width
+```
+
+**rtm3d-cli (C++):**
+```cpp
+// src/rtm/Boundary.cpp
+std::vector<float> make_damp(std::size_t nx, std::size_t ny, std::size_t nz,
+                             std::size_t pml) {
+    // Gaussian taper at boundaries
+    for (std::size_t k = 0; k < pml; ++k) {
+        float val = 0.01f * std::pow(k / static_cast<float>(pml), 2);
+        damp[k] = val;
+    }
+}
+```
+
+## 5) Actionable tasks from references
+
+| Task | Priority | Source |
+|------|----------|--------|
+| CFL stability check | Medium | Devito acoustic solver validates dt/dx |
+| Illumination compensation | Medium | Devito RTM examples show source illumination |
+| Configurable source type | Low | Devito supports Ricker, Gaussian, custom |
+| SEG-Y strict compliance | Low | segyio/ObsPy patterns for production IO |
+
+## 6) Immediate engineering moves (next cycles)
 
 1. Introduce lightweight internal structs:
    - `ShotGeometry`, `ReceiverGeometry`, `Wavefields`.
