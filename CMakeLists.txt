@@ -59,6 +59,7 @@ if(RTM3D_BUILD_TESTS)
     tests/test_rtm_inline_slice.cpp
     tests/test_rtm_result_builder.cpp
     tests/test_rtm_validation.cpp
+    tests/test_rtm_propagation_pipeline.cpp
     tests/test_image_io.cpp
   )
   target_link_libraries(rtm3d_tests PRIVATE rtm3d GTest::gtest_main)
