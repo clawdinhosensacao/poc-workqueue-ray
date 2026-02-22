@@ -17,6 +17,7 @@ struct CliOptions {
   OutputFormat output_format = OutputFormat::kPgm8;
   GridLoadOptions load;
   RtmConfig rtm;
+  std::size_t n_shots = 1;  // 1 = single-shot (default), >1 = multi-shot with evenly spaced sources
 };
 
 CliOptions parse_cli_or_throw(int argc, char** argv);

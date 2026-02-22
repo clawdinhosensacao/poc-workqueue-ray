@@ -95,6 +95,7 @@ void apply_json_config(CliOptions& o, const std::string& path) {
   if (const auto v = json_find_number_token(s, "pml"); !v.empty()) o.rtm.pml = parse_num<std::size_t>(v, "pml");
   if (const auto v = json_find_number_token(s, "receiver_stride"); !v.empty())
     o.rtm.receiver_stride = parse_num<std::size_t>(v, "receiver_stride");
+  if (const auto v = json_find_number_token(s, "n_shots"); !v.empty()) o.n_shots = parse_num<std::size_t>(v, "n_shots");
 }
 
 void validate(const CliOptions& o) {
@@ -123,6 +124,7 @@ std::string cli_help() {
          "  --crop-x <n> --crop-z <n>     Crop size (0 means full)\n"
          "RTM options:\n"
          "  --ny <n> --dy <m> --dt <s> --nt <n> --f0 <Hz> --pml <n> --receiver-stride <n>\n"
+         "  --n-shots <n>                 Number of shots (default=1, evenly spaced sources)\n"
          "Output:\n"
          "  --output <path>               Output file path\n"
          "  --output-format <pgm8|float32_raw>\n"
@@ -173,6 +175,8 @@ CliOptions parse_cli_or_throw(int argc, char** argv) {
       o.rtm.pml = parse_num<std::size_t>(require_value(argc, argv, i), "--pml");
     } else if (arg == "--receiver-stride") {
       o.rtm.receiver_stride = parse_num<std::size_t>(require_value(argc, argv, i), "--receiver-stride");
+    } else if (arg == "--n-shots") {
+      o.n_shots = parse_num<std::size_t>(require_value(argc, argv, i), "--n-shots");
     } else if (is_flag(arg)) {
       throw std::runtime_error("unknown option: " + arg);
     } else {
