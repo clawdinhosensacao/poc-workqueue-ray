@@ -1,6 +1,6 @@
 #include "Acquisition.hpp"
 
-#include "Geometry.hpp"
+#include "Receivers.hpp"
 
 namespace rtm3d::rtm_internal {
 
