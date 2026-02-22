@@ -16,6 +16,7 @@ add_library(rtm3d
     src/rtm/Boundary.cpp
     src/rtm/Propagation.cpp
     src/rtm/Imaging.cpp
+    src/rtm/Validation.cpp
     src/cli/CliOptions.cpp
 )
 

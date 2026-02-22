@@ -8,19 +8,11 @@
 #include "Geometry.hpp"
 #include "Imaging.hpp"
 #include "Propagation.hpp"
+#include "Validation.hpp"
 #include "rtm3d/core/Volume3D.hpp"
 
 namespace rtm3d {
 namespace {
-
-void validate_cfg(const GridModel2D& model, const RtmConfig& cfg) {
-  if (model.nx < 8 || model.nz < 8) throw std::runtime_error("model too small");
-  if (model.dx <= 0.0f || model.dz <= 0.0f) throw std::runtime_error("invalid model spacing");
-  if (cfg.ny < 4 || cfg.nt < 2) throw std::runtime_error("ny/nt too small");
-  if (cfg.dy <= 0.0f || cfg.dt <= 0.0f || cfg.f0 <= 0.0f) throw std::runtime_error("invalid RTM scalar parameter");
-  if (cfg.receiver_stride == 0) throw std::runtime_error("receiver_stride must be > 0");
-  if (cfg.pml == 0) throw std::runtime_error("pml must be > 0");
-}
 
 void forward_source_propagation(const GridModel2D& model, const RtmConfig& cfg, const Volume3D& vel,
                                 const std::vector<float>& damp, const std::vector<float>& wavelet,
@@ -84,7 +76,7 @@ std::vector<float> ricker_wavelet(std::size_t nt, float dt, float f0) {
 }
 
 MigrationResult run_single_shot_rtm(const GridModel2D& model, const RtmConfig& cfg) {
-  validate_cfg(model, cfg);
+  rtm_internal::validate_cfg(model, cfg);
 
   const Volume3D vel = rtm_internal::make_velocity_volume(model, cfg);
   const auto n = vel.size();
