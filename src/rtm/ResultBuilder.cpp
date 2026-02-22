@@ -1,6 +1,6 @@
 #include "ResultBuilder.hpp"
 
-#include "Geometry.hpp"
+#include "InlineSlice.hpp"
 
 namespace rtm3d::rtm_internal {
 
