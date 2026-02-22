@@ -23,7 +23,14 @@ struct MigrationResult {
   std::vector<float> inline_xz;
 };
 
+struct ShotPosition {
+  std::size_t sx;
+  std::size_t sz;
+};
+
 std::vector<float> ricker_wavelet(std::size_t nt, float dt, float f0);
 MigrationResult run_single_shot_rtm(const GridModel2D& model, const RtmConfig& cfg);
+MigrationResult run_multi_shot_rtm(const GridModel2D& model, const RtmConfig& cfg,
+                                   const std::vector<ShotPosition>& shots);
 
 }  // namespace rtm3d
