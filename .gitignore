@@ -3,3 +3,8 @@ third_party/
 output/*.png
 output/*.pgm
 tests/tmp_loader/
+artifacts/*.bin
+artifacts/*.json
+artifacts/*.png
+data/synthetic_circle_lens/
+scripts/__pycache__/
