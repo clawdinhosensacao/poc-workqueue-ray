@@ -21,6 +21,7 @@ add_library(rtm3d
     src/rtm/Wavelet.cpp
     src/rtm/SourcePropagation.cpp
     src/rtm/ReceiverImaging.cpp
+    src/rtm/ResultBuilder.cpp
     src/cli/CliOptions.cpp
 )
 

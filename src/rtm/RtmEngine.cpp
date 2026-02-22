@@ -1,11 +1,10 @@
 #include "rtm3d/rtm/RtmEngine.hpp"
 
-#include <stdexcept>
-
 #include "Acquisition.hpp"
 #include "Boundary.hpp"
 #include "Geometry.hpp"
 #include "ReceiverImaging.hpp"
+#include "ResultBuilder.hpp"
 #include "SourcePropagation.hpp"
 #include "Validation.hpp"
 #include "Wavelet.hpp"
@@ -37,11 +36,7 @@ MigrationResult run_single_shot_rtm(const GridModel2D& model, const RtmConfig& c
   rtm_internal::receiver_backpropagation_and_imaging(model, cfg, vel, damp, shot.sy, shot.sz,
                                                      shot.rx, src_snaps, rec_data, image);
 
-  MigrationResult out;
-  out.nx = vel.nx();
-  out.nz = vel.nz();
-  out.inline_xz = rtm_internal::extract_inline_xz(vel, image);
-  return out;
+  return rtm_internal::build_migration_result(vel, image);
 }
 
 }  // namespace rtm3d
