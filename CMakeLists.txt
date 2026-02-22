@@ -11,6 +11,7 @@ add_library(rtm3d
     src/io/ArrayModelLoader.cpp
     src/io/GridModelLoader.cpp
     src/io/ImageIO.cpp
+    src/model/SeismicModel.cpp
     src/rtm/RtmEngine.cpp
     src/rtm/Geometry.cpp
     src/rtm/InlineSlice.cpp
@@ -49,6 +50,7 @@ if(RTM3D_BUILD_TESTS)
     tests/test_array_loader_edge.cpp
     tests/test_cli_options.cpp
     tests/test_cli_validation_extra.cpp
+    tests/test_seismic_model.cpp
     tests/test_rtm_engine.cpp
     tests/test_rtm_edge.cpp
     tests/test_rtm_geometry.cpp
