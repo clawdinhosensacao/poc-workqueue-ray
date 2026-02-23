@@ -407,8 +407,10 @@ def main() -> int:
     
     # Build velocity model
     model_fn = PRESET_MODELS[args.scenario]
-    if args.scenario in ("constant", "circle"):
-        vel = model_fn(args.nx, args.nz, args.dx, args.dz)
+    if args.scenario == "constant":
+        vel = model_fn(args.nx, args.nz, args.vp_top)
+    elif args.scenario == "circle":
+        vel = model_fn(args.nx, args.nz, args.dx, args.dz, args.vp_top, args.vp_bottom)
     elif args.scenario in ("layers",):
         vel = model_fn(args.nx, args.nz, args.dx, args.dz, args.vp_top, args.vp_bottom)
     else:

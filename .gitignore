@@ -7,4 +7,8 @@ artifacts/*.bin
 artifacts/*.json
 artifacts/*.png
 data/synthetic_circle_lens/
+data/demo_*/
+docs/examples/assets/*.bin
+docs/examples/assets/*.json
+docs/examples/assets/*.png
 scripts/__pycache__/

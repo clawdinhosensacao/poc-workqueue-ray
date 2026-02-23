@@ -1,0 +1,17 @@
+{
+  "data_dir": "data/demo_salt_dome",
+  "velocity_model": "velocity_model.bin",
+  "nx": 100,
+  "nz": 60,
+  "dx": 10.0,
+  "dz": 10.0,
+  "ny": 12,
+  "dy": 10.0,
+  "nt": 120,
+  "dt": 0.0008,
+  "f0": 16.0,
+  "pml": 8,
+  "n_shots": 2,
+  "output": "output/demos/demo_salt_dome",
+  "output_format": "float32_raw"
+}
