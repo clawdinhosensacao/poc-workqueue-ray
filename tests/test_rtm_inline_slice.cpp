@@ -23,3 +23,62 @@ TEST(RtmInlineSlice, ExtractsMiddleYPlaneInXZOrder) {
   EXPECT_FLOAT_EQ(inline_xz[4], 101.0f);
   EXPECT_FLOAT_EQ(inline_xz[5], 102.0f);
 }
+
+TEST(RtmInlineSlice, ExtractsCrosslineYZAtCenterX) {
+  rtm3d::Volume3D vol(3, 5, 2, 1500.0f);
+  std::vector<float> image(vol.size(), 0.0f);
+
+  const std::size_t xmid = vol.nx() / 2;
+  for (std::size_t z = 0; z < vol.nz(); ++z) {
+    for (std::size_t y = 0; y < vol.ny(); ++y) {
+      image[vol.index(xmid, y, z)] = static_cast<float>(10 * z + y);
+    }
+  }
+
+  const auto crossline = rtm3d::rtm_internal::extract_crossline_yz(vol, image);
+  ASSERT_EQ(crossline.size(), vol.ny() * vol.nz());
+
+  // Check first row (z=0)
+  for (std::size_t y = 0; y < vol.ny(); ++y) {
+    EXPECT_FLOAT_EQ(crossline[y], static_cast<float>(y));
+  }
+}
+
+TEST(RtmInlineSlice, ExtractsDepthXYAtGivenZ) {
+  rtm3d::Volume3D vol(3, 5, 2, 1500.0f);
+  std::vector<float> image(vol.size(), 0.0f);
+
+  const std::size_t target_z = 1;
+  for (std::size_t y = 0; y < vol.ny(); ++y) {
+    for (std::size_t x = 0; x < vol.nx(); ++x) {
+      image[vol.index(x, y, target_z)] = static_cast<float>(100 * y + x);
+    }
+  }
+
+  const auto depth_slice = rtm3d::rtm_internal::extract_depth_xy(vol, image, target_z);
+  ASSERT_EQ(depth_slice.size(), vol.nx() * vol.ny());
+
+  // Check first row (y=0)
+  EXPECT_FLOAT_EQ(depth_slice[0], 0.0f);
+  EXPECT_FLOAT_EQ(depth_slice[1], 1.0f);
+  EXPECT_FLOAT_EQ(depth_slice[2], 2.0f);
+
+  // Check second row (y=1)
+  EXPECT_FLOAT_EQ(depth_slice[3], 100.0f);
+  EXPECT_FLOAT_EQ(depth_slice[4], 101.0f);
+  EXPECT_FLOAT_EQ(depth_slice[5], 102.0f);
+}
+
+TEST(RtmInlineSlice, ClampsDepthIndexToValidRange) {
+  rtm3d::Volume3D vol(3, 5, 2, 1500.0f);
+  std::vector<float> image(vol.size(), 1.0f);
+
+  // Request out-of-range depth
+  const auto slice = rtm3d::rtm_internal::extract_depth_xy(vol, image, 100);
+  ASSERT_EQ(slice.size(), vol.nx() * vol.ny());
+
+  // Should return slice at z = nz-1
+  for (float v : slice) {
+    EXPECT_FLOAT_EQ(v, 1.0f);
+  }
+}
