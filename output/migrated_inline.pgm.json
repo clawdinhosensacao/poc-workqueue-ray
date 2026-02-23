@@ -1,6 +1,6 @@
 {
   "dtype": "float32",
   "layout": "row-major [nz][nx]",
-  "nx": 160,
-  "nz": 96
+  "nx": 48,
+  "nz": 32
 }

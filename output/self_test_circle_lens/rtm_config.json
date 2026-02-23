@@ -1,0 +1,17 @@
+{
+  "data_dir": "output/self_test_circle_lens/model",
+  "velocity_model": "velocity_model.bin",
+  "nx": 80,
+  "nz": 48,
+  "dx": 10.0,
+  "dz": 10.0,
+  "ny": 8,
+  "dy": 10.0,
+  "nt": 100,
+  "dt": 0.0008,
+  "f0": 16.0,
+  "pml": 6,
+  "n_shots": 2,
+  "output": "output/self_test_circle_lens/migrated.pgm",
+  "output_format": "pgm8"
+}

@@ -1,0 +1,12 @@
+{
+  "nx": 80,
+  "nz": 48,
+  "dx": 10.0,
+  "dz": 10.0,
+  "scenario": "circle",
+  "dtype": "float32",
+  "order": "row-major [nz][nx]",
+  "units": "m/s",
+  "v_min": 1500.0,
+  "v_max": 3500.0
+}

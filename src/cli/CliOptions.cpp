@@ -77,6 +77,7 @@ void apply_json_config(CliOptions& o, const std::string& path) {
   if (const auto v = json_find_string(s, "z_file"); !v.empty()) o.z_file = v;
   if (const auto v = json_find_string(s, "values_file"); !v.empty()) o.values_file = v;
   if (const auto v = json_find_string(s, "output_file"); !v.empty()) o.output_file = v;
+  if (const auto v = json_find_string(s, "output"); !v.empty()) o.output_file = v;  // alias
 
   if (const auto v = json_find_string(s, "output_format"); !v.empty()) {
     o.output_format = parse_output_format_or_throw(v, "config");
