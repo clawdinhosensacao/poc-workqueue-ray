@@ -60,6 +60,7 @@ class PipelineResult:
     elapsed_ms: float
     tests: list
     output_path: str
+    phase_times: dict = None
     error: str = ""
 
 
@@ -159,6 +160,7 @@ def check_shape(image: np.ndarray, expected_size: int) -> TestResult:
 def run_pipeline(config: PipelineConfig) -> PipelineResult:
     """Run the full self-test pipeline."""
     start_time = time.perf_counter()
+    phase_times = {}
     tests = []
     output_dir = Path(f"output/self_test_{config.preset}")
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -166,6 +168,7 @@ def run_pipeline(config: PipelineConfig) -> PipelineResult:
     try:
         # Step 1: Generate synthetic model
         print(f"[1/3] Generating {config.preset} model...")
+        phase_start = time.perf_counter()
         gen_cmd = [
             "python3", "scripts/generate_synthetic_model.py",
             "--out-dir", str(output_dir / "model"),
@@ -179,6 +182,7 @@ def run_pipeline(config: PipelineConfig) -> PipelineResult:
             "--n-shots", str(config.n_shots),
         ]
         ret, stdout, stderr = run_command(gen_cmd)
+        phase_times["generation_ms"] = (time.perf_counter() - phase_start) * 1000
         if ret != 0:
             return PipelineResult(
                 passed=False, elapsed_ms=0, tests=[],
@@ -209,8 +213,10 @@ def run_pipeline(config: PipelineConfig) -> PipelineResult:
         
         # Step 3: Run RTM
         print(f"[2/3] Running RTM migration...")
+        phase_start = time.perf_counter()
         rtm_cmd = ["./build/rtm3d_cli", "--config", str(config_path)]
         ret, stdout, stderr = run_command(rtm_cmd, timeout=300)
+        phase_times["rtm_ms"] = (time.perf_counter() - phase_start) * 1000
         if ret != 0:
             return PipelineResult(
                 passed=False, elapsed_ms=0, tests=[],
@@ -220,6 +226,7 @@ def run_pipeline(config: PipelineConfig) -> PipelineResult:
         
         # Step 4: Validate output
         print(f"[3/3] Validating output...")
+        phase_start = time.perf_counter()
         
         output_file = output_dir / "migrated.pgm"
         
@@ -258,7 +265,9 @@ def run_pipeline(config: PipelineConfig) -> PipelineResult:
         tests.append(check_energy(image))
         tests.append(check_focus_ratio(image, config.nx, config.nz))
         tests.append(check_amplitude_range(image))
+        tests.append(check_sharpness(image, config.nx, config.nz))
         
+        phase_times["validation_ms"] = (time.perf_counter() - phase_start) * 1000
         elapsed_ms = (time.perf_counter() - start_time) * 1000
         
         passed = all(t.passed for t in tests)
@@ -280,11 +289,20 @@ def run_pipeline(config: PipelineConfig) -> PipelineResult:
             passed=passed,
             elapsed_ms=elapsed_ms,
             tests=tests_dict,
-            output_path=str(output_file)
+            output_path=str(output_file),
+            phase_times=phase_times
         )
         
         # Save result
         (output_dir / "result.json").write_text(json.dumps(asdict(result), indent=2))
+        
+        # Print timing summary
+        print()
+        print("=== Timing ===")
+        print(f"  Model generation: {phase_times.get('generation_ms', 0):.1f} ms")
+        print(f"  RTM migration:    {phase_times.get('rtm_ms', 0):.1f} ms")
+        print(f"  Validation:       {phase_times.get('validation_ms', 0):.1f} ms")
+        print(f"  Total:            {elapsed_ms:.1f} ms")
         
         return result
         
