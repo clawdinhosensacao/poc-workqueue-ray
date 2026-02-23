@@ -127,6 +127,24 @@ def check_amplitude_range(image: np.ndarray) -> TestResult:
     )
 
 
+def check_sharpness(image: np.ndarray, nx: int, nz: int) -> TestResult:
+    """Check image sharpness via Laplacian variance (higher = sharper)."""
+    img2d = image.reshape(nz, nx).astype(np.float64)
+    # Laplacian kernel approximation
+    lap = np.abs(img2d[1:-1, 1:-1] - 0.25 * (
+        img2d[:-2, 1:-1] + img2d[2:, 1:-1] +
+        img2d[1:-1, :-2] + img2d[1:-1, 2:]
+    ))
+    sharpness = float(np.mean(lap))
+    passed = sharpness > 1e-10  # Just check it's non-zero
+    return TestResult(
+        name="sharpness",
+        passed=passed,
+        value=sharpness,
+        message=f"Sharpness (Laplacian): {sharpness:.4f}" if passed else f"Image too flat: {sharpness:.4f}"
+    )
+
+
 def check_shape(image: np.ndarray, expected_size: int) -> TestResult:
     """Check that output has expected shape."""
     passed = image.size == expected_size
