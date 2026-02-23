@@ -1,14 +1,8 @@
 build/
 third_party/
-output/*.png
-output/*.pgm
+output/
 tests/tmp_loader/
-artifacts/*.bin
-artifacts/*.json
-artifacts/*.png
+artifacts/
 data/synthetic_circle_lens/
 data/demo_*/
-docs/examples/assets/*.bin
-docs/examples/assets/*.json
-docs/examples/assets/*.png
 scripts/__pycache__/
