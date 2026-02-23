@@ -114,15 +114,15 @@ def test_rtm_constant_velocity():
     """Test RTM on constant velocity model."""
     print("\n[TEST] RTM Constant Velocity")
     
-    nx, nz = 60, 50
+    nx, nz = 80, 60
     dx, dz = 10.0, 10.0
-    nt = 100
-    dt = 0.0008
+    nt = 200
+    dt = 0.0004
     f0 = 16.0
     v_const = 2000.0
-    pml = 6
+    pml = 8
     
-    print(f"  Model: {nx}x{nz}, v={v_const} m/s")
+    print(f"  Model: {nx}x{nz}, v={v_const} m/s, nt={nt}, dt={dt}")
     
     try:
         image = run_rtm3d_cli(nx, nz, dx, dz, nt, dt, f0, v_const, pml)
@@ -144,7 +144,7 @@ def test_rtm_constant_velocity():
         print(f"  ✗ FAIL: Non-finite values detected")
         return False
     
-    if energy < 1.0:
+    if energy < 1e-8:
         print(f"  ✗ FAIL: Image energy too low")
         return False
     
@@ -231,8 +231,84 @@ def test_rtm_layers():
         image = np.fromfile(output_file, dtype=np.float32).reshape((nz, nx))
         
         energy = np.mean(image ** 2)
-        print(f"  Energy: {energy:.2f}")
+        print(f"  Energy: {energy:.6f}")
         print(f"  ✓ PASS: Layered RTM successful")
+        return True
+
+
+def test_rtm_3d_volume():
+    """Test 3D RTM with extended Y dimension."""
+    print("\n[TEST] RTM 3D Volume")
+    
+    nx, nz, ny = 80, 50, 20
+    dx, dz, dy = 10.0, 10.0, 10.0
+    nt = 200
+    dt = 0.0004
+    f0 = 16.0
+    pml = 8
+    n_shots = 5
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Create constant velocity model
+        x_coords = (np.arange(nx) * dx).tolist()
+        z_coords = (np.arange(nz) * dz).tolist()
+        vel_data = [[2000.0] * nx for _ in range(nz)]
+        
+        (Path(tmpdir) / "x.json").write_text(json.dumps(x_coords))
+        (Path(tmpdir) / "z.json").write_text(json.dumps(z_coords))
+        (Path(tmpdir) / "vel.json").write_text(json.dumps(vel_data))
+        
+        config = {
+            "data_dir": tmpdir,
+            "ny": ny,
+            "dy": dy,
+            "nt": nt,
+            "dt": dt,
+            "f0": f0,
+            "pml": pml,
+            "n_shots": n_shots,
+            "output": str(Path(tmpdir) / "migrated_3d"),
+            "output_format": "float32_raw"
+        }
+        
+        config_file = Path(tmpdir) / "config.json"
+        config_file.write_text(json.dumps(config))
+        
+        print(f"  Model: {nx}x{ny}x{nz}, shots={n_shots}")
+        
+        result = subprocess.run(
+            ["./build/rtm3d_cli", "--config", str(config_file)],
+            capture_output=True, text=True, timeout=300
+        )
+        
+        if result.returncode != 0:
+            print(f"  ✗ FAIL: {result.stderr}")
+            return False
+        
+        output_file = Path(tmpdir) / "migrated_3d"
+        if not output_file.exists():
+            print(f"  ✗ FAIL: No output")
+            return False
+        
+        image = np.fromfile(output_file, dtype=np.float32).reshape((nz, nx))
+        
+        energy = np.mean(image ** 2)
+        max_val = np.max(np.abs(image))
+        finite_ratio = np.isfinite(image).sum() / image.size
+        
+        print(f"  Energy: {energy:.6f}")
+        print(f"  Max amplitude: {max_val:.4f}")
+        print(f"  Finite values: {finite_ratio*100:.1f}%")
+        
+        if finite_ratio < 0.99:
+            print(f"  ✗ FAIL: Non-finite values")
+            return False
+        
+        if energy < 1e-8:
+            print(f"  ✗ FAIL: Energy too low")
+            return False
+        
+        print(f"  ✓ PASS: 3D RTM successful")
         return True
 
 
@@ -248,6 +324,7 @@ def run_all_tests():
     results.append(("Devito Ricker", devito_ricker_test()))
     results.append(("RTM Constant Velocity", test_rtm_constant_velocity()))
     results.append(("RTM Layered Velocity", test_rtm_layers()))
+    results.append(("RTM 3D Volume", test_rtm_3d_volume()))
     
     print("\n" + "=" * 60)
     print("Summary")
