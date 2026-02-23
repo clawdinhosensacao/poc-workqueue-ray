@@ -14,7 +14,7 @@ std::vector<float> make_damp(std::size_t nx, std::size_t ny, std::size_t nz, std
         float coeff = 1.0f;
         if (dist < pml) {
           const float x = static_cast<float>(pml - dist) / static_cast<float>(pml);
-          coeff = std::exp(-0.03f * x * x);
+          coeff = std::exp(-0.75f * x * x);  // Strong damping for effective boundary absorption
         }
         d[(iz * ny + iy) * nx + ix] = coeff;
       }

@@ -6,3 +6,4 @@ artifacts/
 data/synthetic_circle_lens/
 data/demo_*/
 scripts/__pycache__/
+*.o
