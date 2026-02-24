@@ -80,7 +80,64 @@ SeismicModel SeismicModel::from_preset(ModelPreset preset, const GridSpec& grid,
       break;
     }
 
-    case ModelPreset::SaltDome:
+    case ModelPreset::SaltDome: {
+      // Salt dome with background velocity gradient
+      // Salt velocity ~4500 m/s, sediments 2000-3500 m/s
+      float salt_vel = 4500.0f;
+
+      // Background gradient
+      for (std::size_t k = 0; k < grid.nz; ++k) {
+        float depth_ratio = static_cast<float>(k) / static_cast<float>(grid.nz - 1);
+        float bg_vel = vp_top + (vp_bottom - vp_top) * depth_ratio;
+        for (std::size_t i = 0; i < grid.nx; ++i) {
+          for (std::size_t j = 0; j < grid.ny; ++j) {
+            std::size_t idx = j * grid.nz * grid.nx + k * grid.nx + i;
+            model.vp_[idx] = bg_vel;
+          }
+        }
+      }
+
+      // Salt dome geometry: teardrop/diapir shape
+      float cx = static_cast<float>(grid.nx) / 2.0f;
+      float base_radius = static_cast<float>(grid.nx) * 0.18f;
+      float top_z = static_cast<float>(grid.nz) * 0.12f;   // Top of dome near surface
+      float base_z = static_cast<float>(grid.nz) * 0.75f;  // Base of dome deeper
+
+      for (std::size_t k = 0; k < grid.nz; ++k) {
+        float z = static_cast<float>(k);
+
+        // Skip if above top of dome
+        if (z < top_z) continue;
+
+        // Radius decreases toward top (diapir shape)
+        float z_norm = (z - top_z) / (base_z - top_z);
+        z_norm = std::max(0.0f, std::min(1.0f, z_norm));
+
+        // Tapered radius: wider at base, narrower at top
+        float taper = std::sqrt(z_norm);  // Makes it narrower at top
+        float radius = base_radius * taper;
+
+        // Add slight overhang near top
+        if (z_norm < 0.3f) {
+          radius *= 0.6f + 0.4f * (z_norm / 0.3f);
+        }
+
+        for (std::size_t i = 0; i < grid.nx; ++i) {
+          float dx = static_cast<float>(i) - cx;
+          float dist_sq = dx * dx;
+
+          // Elliptical cross-section (slightly wider in x)
+          if (dist_sq <= radius * radius) {
+            for (std::size_t j = 0; j < grid.ny; ++j) {
+              std::size_t idx = j * grid.nz * grid.nx + k * grid.nx + i;
+              model.vp_[idx] = salt_vel;
+            }
+          }
+        }
+      }
+      break;
+    }
+
     case ModelPreset::Marmousi2D:
       throw std::runtime_error("Preset requires external data file, use from_file()");
   }

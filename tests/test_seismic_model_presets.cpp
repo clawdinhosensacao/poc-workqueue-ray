@@ -44,6 +44,25 @@ TEST(SeismicModelPreset, CircleLensHasSmoothTransition) {
   EXPECT_LT(model.max_velocity(), 3500.0f);
 }
 
+TEST(SeismicModelPreset, SaltDomeHasHighVelocityCore) {
+  rtm3d::GridSpec grid{.nx = 80, .nz = 60, .ny = 1, .dx = 10.0f, .dz = 10.0f};
+  auto model = rtm3d::SeismicModel::from_preset(
+      rtm3d::ModelPreset::SaltDome, grid, 2000.0f, 3500.0f);
+
+  // Salt dome should have high velocity (~4500 m/s) for the salt body
+  // and background gradient from vp_top to vp_bottom
+  EXPECT_GT(model.max_velocity(), 4000.0f);  // Salt velocity
+  EXPECT_LT(model.min_velocity(), 2500.0f);  // Shallow sediments
+
+  // Center column should have salt at depth
+  const auto& vel = model.velocity();
+  std::size_t center_x = grid.nx / 2;
+  std::size_t deep_z = static_cast<std::size_t>(grid.nz * 0.5);
+
+  std::size_t idx = deep_z * grid.nx + center_x;
+  EXPECT_GT(vel[idx], 4000.0f);  // Salt body at center
+}
+
 TEST(SeismicModelFromVelocity, AcceptsValidData) {
   rtm3d::GridSpec grid{.nx = 10, .nz = 8, .ny = 1};
   std::vector<float> vel(10 * 8, 2000.0f);
