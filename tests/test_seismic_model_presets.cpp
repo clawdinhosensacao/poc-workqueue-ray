@@ -72,15 +72,18 @@ TEST(SeismicModelPreset, FaultHasLayerOffset) {
   EXPECT_GT(model.max_velocity(), model.min_velocity());
 
   // Check for layer offset across fault (discontinuity)
+  // Fault dips at 60 degrees, throw is ~5 grid points
+  // With 5 layers, layer boundaries at z≈12,24,36,48
+  // At z=38: footwall is in layer 3 (v=3000), hanging wall effective_z=33 is layer 2 (v=2500)
   const auto& vel = model.velocity();
-  std::size_t mid_z = grid.nz / 2;
-  std::size_t left_x = static_cast<std::size_t>(grid.nx * 0.3);
-  std::size_t right_x = static_cast<std::size_t>(grid.nx * 0.7);
+  std::size_t test_z = 38;
+  std::size_t footwall_x = 5;   // Left of fault plane
+  std::size_t hanging_x = 60;   // Right of fault plane (hanging wall, downthrown)
 
   // Velocities at same depth but different sides should differ due to fault offset
-  float vel_left = vel[mid_z * grid.nx + left_x];
-  float vel_right = vel[mid_z * grid.nx + right_x];
-  EXPECT_NE(vel_left, vel_right);  // Fault creates offset
+  float vel_footwall = vel[test_z * grid.nx + footwall_x];
+  float vel_hanging = vel[test_z * grid.nx + hanging_x];
+  EXPECT_NE(vel_footwall, vel_hanging);  // Fault creates offset
 }
 
 TEST(SeismicModelFromVelocity, AcceptsValidData) {

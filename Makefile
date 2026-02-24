@@ -49,3 +49,17 @@ static:
 
 clean:
 	rm -rf build output/*.pgm output/*.png
+
+# Coverage build with gcov
+coverage: CXXFLAGS := -O0 -std=c++20 -Wall -Wextra -Wpedantic -Iinclude --coverage -fprofile-arcs -ftest-coverage
+coverage: build
+	$(MAKE) CXXFLAGS="-O0 -std=c++20 -Wall -Wextra -Wpedantic -Iinclude --coverage -fprofile-arcs -ftest-coverage" build/rtm3d_tests_cov
+	./build/rtm3d_tests_cov
+	@echo "--- Coverage Summary ---"
+	@gcov -n src/rtm/*.cpp src/io/*.cpp src/model/*.cpp src/cli/*.cpp 2>/dev/null | grep -E "^File|^Lines" || echo "Run 'gcov src/*.gcda' for details"
+	rm -f src/**/*.gcda src/**/*.gcno
+
+build/rtm3d_tests_cov: build $(GTEST_DIR) $(SRC) $(TEST_SRC)
+	$(CXX) $(CXXFLAGS) $(GTEST_INC) $(SRC) $(TEST_SRC) \
+		$(GTEST_DIR)/googletest/src/gtest-all.cc $(GTEST_DIR)/googletest/src/gtest_main.cc \
+		-pthread --coverage -o $@
