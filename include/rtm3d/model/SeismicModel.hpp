@@ -104,7 +104,8 @@ enum class ModelPreset {
   Circle,       ///< Circular anomaly (camembert model)
   Marmousi2D,   ///< Marmousi benchmark (requires external data)
   SaltDome,     ///< Salt dome structure
-  CircleLens    ///< Gaussian lens anomaly
+  CircleLens,   ///< Gaussian lens anomaly
+  Fault         ///< Normal fault with offset layers
 };
 
 /**

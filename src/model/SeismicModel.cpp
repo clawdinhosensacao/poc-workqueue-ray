@@ -138,6 +138,49 @@ SeismicModel SeismicModel::from_preset(ModelPreset preset, const GridSpec& grid,
       break;
     }
 
+    case ModelPreset::Fault: {
+      // Normal fault with offset layers
+      // Fault dips at 60 degrees, displaces layers
+      float fault_x = static_cast<float>(grid.nx) * 0.45f;  // Fault location at surface
+      float dip = 60.0f * 3.14159265f / 180.0f;             // Dip angle in radians
+      float throw_amount = static_cast<float>(grid.nz) * 0.08f;  // Fault throw
+
+      // Create layered background first
+      std::vector<float> vp_layer(nlayers);
+      for (std::size_t i = 0; i < nlayers; ++i) {
+        vp_layer[i] = vp_top + (vp_bottom - vp_top) * static_cast<float>(i) /
+                                    static_cast<float>(nlayers - 1);
+      }
+
+      for (std::size_t k = 0; k < grid.nz; ++k) {
+        for (std::size_t i = 0; i < grid.nx; ++i) {
+          // Calculate fault position at this depth (fault plane)
+          float fault_at_depth = fault_x - static_cast<float>(k) / std::tan(dip);
+
+          // Determine which side of fault and apply offset
+          float effective_z = static_cast<float>(k);
+          if (static_cast<float>(i) > fault_at_depth) {
+            // Hanging wall (downthrown side)
+            effective_z -= throw_amount;
+          }
+
+          // Clamp to valid range
+          effective_z = std::max(0.0f, std::min(static_cast<float>(grid.nz - 1), effective_z));
+
+          // Determine layer
+          std::size_t layer = static_cast<std::size_t>(effective_z * static_cast<float>(nlayers) / static_cast<float>(grid.nz));
+          layer = std::min(layer, nlayers - 1);
+          float vel = vp_layer[layer];
+
+          for (std::size_t j = 0; j < grid.ny; ++j) {
+            std::size_t idx = j * grid.nz * grid.nx + k * grid.nx + i;
+            model.vp_[idx] = vel;
+          }
+        }
+      }
+      break;
+    }
+
     case ModelPreset::Marmousi2D:
       throw std::runtime_error("Preset requires external data file, use from_file()");
   }

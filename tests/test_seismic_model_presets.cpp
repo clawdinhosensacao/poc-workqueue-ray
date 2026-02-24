@@ -63,6 +63,26 @@ TEST(SeismicModelPreset, SaltDomeHasHighVelocityCore) {
   EXPECT_GT(vel[idx], 4000.0f);  // Salt body at center
 }
 
+TEST(SeismicModelPreset, FaultHasLayerOffset) {
+  rtm3d::GridSpec grid{.nx = 80, .nz = 60, .ny = 1, .dx = 10.0f, .dz = 10.0f};
+  auto model = rtm3d::SeismicModel::from_preset(
+      rtm3d::ModelPreset::Fault, grid, 1500.0f, 3500.0f, 5);
+
+  // Fault model should have velocity gradient
+  EXPECT_GT(model.max_velocity(), model.min_velocity());
+
+  // Check for layer offset across fault (discontinuity)
+  const auto& vel = model.velocity();
+  std::size_t mid_z = grid.nz / 2;
+  std::size_t left_x = static_cast<std::size_t>(grid.nx * 0.3);
+  std::size_t right_x = static_cast<std::size_t>(grid.nx * 0.7);
+
+  // Velocities at same depth but different sides should differ due to fault offset
+  float vel_left = vel[mid_z * grid.nx + left_x];
+  float vel_right = vel[mid_z * grid.nx + right_x];
+  EXPECT_NE(vel_left, vel_right);  // Fault creates offset
+}
+
 TEST(SeismicModelFromVelocity, AcceptsValidData) {
   rtm3d::GridSpec grid{.nx = 10, .nz = 8, .ny = 1};
   std::vector<float> vel(10 * 8, 2000.0f);
