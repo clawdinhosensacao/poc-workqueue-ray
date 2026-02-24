@@ -115,7 +115,7 @@ auto result = rtm3d::run_multi_shot_rtm(model, cfg, shots);
 
 GitHub Actions workflow runs on every push:
 - Build with g++ (C++20)
-- Unit tests (60 tests from 23 suites)
+- Unit tests (62 tests from 23 suites)
 - E2E synthetic benchmark
 - Quality metrics validation
 - Devito cross-validation (similarity metrics)
