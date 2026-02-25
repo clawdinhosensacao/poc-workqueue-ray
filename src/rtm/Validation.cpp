@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <numeric>
 #include <stdexcept>
 
 namespace rtm3d::rtm_internal {
@@ -16,10 +17,8 @@ void validate_cfg(const GridModel2D& model, const RtmConfig& cfg) {
 
   // CFL stability check: dt <= min(dx,dy,dz) / (v_max * sqrt(dim))
   // Uses actual max velocity from model for accurate CFL bound
-  float v_max = 0.0f;
-  for (float v : model.values) {
-    v_max = std::max(v_max, v);
-  }
+  float v_max = std::accumulate(model.values.begin(), model.values.end(), 0.0f,
+                                 [](float m, float v) { return std::max(m, v); });
   v_max = std::max(v_max, 1500.0f);  // Ensure minimum for water velocity
   
   float d_min = std::min({model.dx, model.dz, cfg.dy});

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <fstream>
+#include <numeric>
 #include <stdexcept>
 
 namespace rtm3d {
@@ -16,8 +17,9 @@ void write_pgm(const std::string& path, const std::vector<float>& image, std::si
                std::size_t nz) {
   validate_shape(image, nx, nz);
 
-  float max_abs = 1e-9f;
-  for (float v : image) max_abs = std::max(max_abs, std::abs(v));
+  // Find maximum absolute value for normalization
+  float max_abs = std::accumulate(image.begin(), image.end(), 1e-9f,
+                                   [](float m, float v) { return std::max(m, std::abs(v)); });
 
   std::ofstream f(path, std::ios::binary);
   if (!f) throw std::runtime_error("cannot write image: " + path);

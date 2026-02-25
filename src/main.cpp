@@ -13,13 +13,13 @@ rtm3d::MigrationResult run_rtm(const rtm3d::GridModel2D& model, const rtm3d::Rtm
     return rtm3d::run_single_shot_rtm(model, cfg);
   }
 
-  // Generate evenly spaced shot positions
+  // Generate evenly spaced shot positions (n_shots > 1 guaranteed by early return above)
   std::vector<rtm3d::ShotPosition> shots;
   shots.reserve(n_shots);
   const std::size_t sx_min = 4;
   const std::size_t sx_max = model.nx - 4;
   for (std::size_t i = 0; i < n_shots; ++i) {
-    const std::size_t sx = (n_shots == 1) ? model.nx / 2 : sx_min + i * (sx_max - sx_min) / (n_shots - 1);
+    const std::size_t sx = sx_min + i * (sx_max - sx_min) / (n_shots - 1);
     shots.push_back({.sx = sx, .sz = 2});
   }
   return rtm3d::run_multi_shot_rtm(model, cfg, shots);

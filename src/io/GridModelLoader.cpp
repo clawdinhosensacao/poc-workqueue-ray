@@ -19,8 +19,9 @@ GridModel2D load_grid_model_from_json_arrays(const std::string& x_file,
 
   if (x.size() < 2 || z.size() < 2) throw std::runtime_error("grid axes must have at least two samples");
   if (values.size() != z.size()) throw std::runtime_error("values row count must match z size");
-  for (const auto& row : values) {
-    if (row.size() != x.size()) throw std::runtime_error("values col count must match x size");
+  if (std::any_of(values.begin(), values.end(),
+                  [&x](const auto& row) { return row.size() != x.size(); })) {
+    throw std::runtime_error("values col count must match x size");
   }
 
   const std::size_t nx0 = x.size();

@@ -183,7 +183,7 @@ public:
   void validate_for_rtm(const TimeAxis& time) const;
 
 private:
-  SeismicModel(const GridSpec& grid) : grid_(grid) {}
+  explicit SeismicModel(const GridSpec& grid) : grid_(grid) {}
   GridSpec grid_;
   std::vector<float> vp_;
 };

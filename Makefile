@@ -40,6 +40,9 @@ static:
 	elif command -v cppcheck >/dev/null 2>&1; then \
 		echo "[static] running cppcheck"; \
 		cppcheck --enable=warning,style,performance --std=c++20 --language=c++ -Iinclude src; \
+	elif command -v /home/linuxbrew/.linuxbrew/bin/cppcheck >/dev/null 2>&1; then \
+		echo "[static] running cppcheck (linuxbrew)"; \
+		/home/linuxbrew/.linuxbrew/bin/cppcheck --enable=warning,style,performance --std=c++20 --language=c++ -Iinclude src; \
 	else \
 		echo "[static] clang-tidy/cppcheck not found; running g++ -fanalyzer fallback"; \
 		for f in src/io/*.cpp src/rtm/*.cpp src/cli/*.cpp src/main.cpp; do \
