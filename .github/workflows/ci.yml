@@ -23,6 +23,11 @@ jobs:
       run: |
         make
 
+    - name: Static analysis (cppcheck)
+      run: |
+        sudo apt-get install -y cppcheck
+        make static
+
     - name: Run unit tests
       run: |
         ./build/rtm3d_tests
