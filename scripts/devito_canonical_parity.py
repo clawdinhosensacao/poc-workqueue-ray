@@ -254,6 +254,15 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
+def validate_threshold_args(args: argparse.Namespace) -> None:
+    if not (-1.0 <= args.min_ncc <= 1.0):
+        raise RuntimeError("min-ncc must be in [-1, 1]")
+    if not (0.0 <= args.min_ssim <= 1.0):
+        raise RuntimeError("min-ssim must be in [0, 1]")
+    if args.max_nrmse < 0.0:
+        raise RuntimeError("max-nrmse must be >= 0")
+
+
 def validate_args(args: argparse.Namespace) -> None:
     if args.src_x < 0:
         args.src_x = args.nx // 2
@@ -278,6 +287,8 @@ def validate_args(args: argparse.Namespace) -> None:
         raise RuntimeError(f"rec-z out of bounds: {args.rec_z} (nz={args.nz})")
     if not os.path.exists(args.cli_bin):
         raise RuntimeError(f"cli-bin not found: {args.cli_bin}")
+
+    validate_threshold_args(args)
 
 
 def build_threshold_report(metrics: dict, args: argparse.Namespace) -> dict:
