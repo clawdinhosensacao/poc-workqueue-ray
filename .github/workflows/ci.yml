@@ -32,6 +32,10 @@ jobs:
       run: |
         ./build/rtm3d_tests
 
+    - name: Run canonical parity smoke checks
+      run: |
+        make parity-smoke
+
     - name: Run E2E synthetic benchmark
       run: |
         ./tests/e2e_synthetic.sh
