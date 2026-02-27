@@ -219,7 +219,7 @@ def test_wavefield_snapshot():
 
 def main() -> int:
     print("=" * 50)
-    print("RTM3D-CLI vs Devito Cross-Validation")
+    print("RTM3D-CLI reference cross-validation")
     print("=" * 50)
     
     tests = [

@@ -118,7 +118,7 @@ GitHub Actions workflow runs on every push:
 - Unit tests (62 tests from 23 suites)
 - E2E synthetic benchmark
 - Quality metrics validation
-- Devito cross-validation (similarity metrics)
+- Python reference cross-validation (similarity metrics)
 
 ```bash
 # Local CI simulation
@@ -127,20 +127,20 @@ python3 scripts/e2e_metrics.py --input artifacts/synthetic_migrated_inline.bin \
     --meta artifacts/synthetic_migrated_inline.bin.json --fail-on-threshold
 ```
 
-## Devito Cross-Validation
+## Python Reference Cross-Validation
 
-Validate rtm3d-cli against Devito reference implementation:
+Current comparison scripts validate `rtm3d-cli` against a **Python finite-difference reference workflow** (not a fully canonical Devito RTM pipeline yet):
 
 ```bash
 python3 scripts/devito_comparison.py
 ```
 
 Metrics used:
-- **NCC** (Normalized Cross-Correlation) - pattern similarity (threshold >= 0.60)
-- **SSIM** (Structural Similarity Index) - structural comparison (threshold >= 0.50)
-- **NRMSE** (Normalized RMSE) - scale-invariant error (threshold <= 0.85)
+- **NCC** (Normalized Cross-Correlation) - pattern similarity
+- **SSIM** (Structural Similarity Index) - structural comparison
+- **NRMSE** (Normalized RMSE) - scale-invariant error
 
-All tests passing with NCC ~0.70, SSIM ~0.51 - confirming correct RTM implementation.
+> Note: this is a pragmatic consistency check. A strict Devito RTM parity pipeline is tracked as follow-up work.
 
 ## Tests
 Unit + e2e:

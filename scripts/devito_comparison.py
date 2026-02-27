@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Devito vs rtm3d-cli: Real comparison with similarity metrics.
+Python reference vs rtm3d-cli comparison with similarity metrics.
 
-Runs identical RTM scenarios in both and compares results using:
+Runs aligned RTM scenarios and compares results using:
 - Normalized Cross-Correlation (NCC): pattern similarity
 - Normalized RMSE: relative error
 - Peak position match: event localization
@@ -117,7 +117,7 @@ def peak_positions_match(a: np.ndarray, b: np.ndarray, tolerance: int = 3) -> tu
 
 
 # =============================================================================
-# Devito Reference Implementation
+# Python Reference Implementation (simplified)
 # =============================================================================
 
 def ricker_wavelet(nt: int, dt: float, f0: float) -> np.ndarray:
@@ -134,11 +134,10 @@ def run_devito_rtm(nx: int, nz: int, dx: float, dz: float,
                    velocity: np.ndarray, pml: int,
                    source_x: int, source_z: int) -> np.ndarray:
     """
-    Run RTM using Devito (reference implementation).
+    Run a simplified Python RTM reference path.
     Returns migrated image as 2D array [nz, nx].
-    
-    Note: This is a simplified implementation for comparison.
-    Full Devito RTM would use J-wrapper and proper boundary handling.
+
+    Note: this is not a strict/canonical Devito RTM parity implementation.
     """
     # Create grid
     grid = Grid(shape=(nz, nx), extent=(nz * dz, nx * dx))
@@ -278,7 +277,7 @@ def test_constant_velocity():
     print(f"Time: nt={nt}, dt={dt}")
     
     # Run Devito
-    print("\nRunning Devito RTM...")
+    print("\nRunning Python reference RTM...")
     try:
         image_devito = run_devito_rtm(
             nx, nz, dx, dz, nt, dt, f0, velocity, pml,
@@ -343,7 +342,7 @@ def test_layered_velocity():
     print(f"Model: {nx}x{nz}, v=[1500-3500] m/s")
     
     # Run both
-    print("\nRunning Devito RTM...")
+    print("\nRunning Python reference RTM...")
     try:
         image_devito = run_devito_rtm(
             nx, nz, dx, dz, nt, dt, f0, velocity, pml,
@@ -413,7 +412,7 @@ def test_wavelet_comparison():
 
 def main():
     print("=" * 60)
-    print("Devito vs rtm3d-cli: Similarity Comparison")
+    print("Python reference vs rtm3d-cli: Similarity Comparison")
     print("=" * 60)
     print("\nMetrics:")
     print("  NCC  = Normalized Cross-Correlation (1.0 = perfect match)")

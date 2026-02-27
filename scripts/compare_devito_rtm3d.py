@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Devito vs rtm3d-cli RTM Comparison
+Python reference vs rtm3d-cli RTM Comparison
 
 Runs identical RTM migrations in both frameworks and compares results
 using multiple similarity metrics.
@@ -87,14 +87,14 @@ def compute_all_metrics(ref: np.ndarray, test: np.ndarray) -> dict:
 
 
 # =============================================================================
-# Devito RTM Implementation
+# Python Reference RTM Implementation (simplified)
 # =============================================================================
 
 def devito_rtm_2d(nx: int, nz: int, dx: float, dz: float,
                   nt: int, dt: float, f0: float,
                   velocity: np.ndarray, pml: int = 10) -> np.ndarray:
     """
-    Run 2D RTM using finite differences (NumPy reference implementation).
+    Run 2D RTM using a finite-difference NumPy reference implementation.
     
     This matches the rtm3d-cli algorithm for fair comparison.
     Returns migrated image (nz, nx).
@@ -429,7 +429,7 @@ def test_circle_anomaly():
 
 def main():
     print("="*60)
-    print("Devito vs rtm3d-cli RTM Comparison Suite")
+    print("Python reference vs rtm3d-cli RTM Comparison Suite")
     print("="*60)
     print("\nComparing RTM results using similarity metrics:")
     print("  - Pearson correlation: 1.0 = perfect")

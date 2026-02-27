@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Cross-validation suite: Devito vs rtm3d-cli
+Cross-validation suite: Python reference + Devito checks vs rtm3d-cli
 
 This script runs identical acoustic wave propagation scenarios in both
 Devito (reference) and rtm3d-cli, comparing results to validate correctness.
@@ -315,7 +315,7 @@ def test_rtm_3d_volume():
 def run_all_tests():
     """Run all cross-validation tests."""
     print("=" * 60)
-    print("Devito vs rtm3d-cli Cross-Validation Suite")
+    print("Reference/Devito checks vs rtm3d-cli suite")
     print("=" * 60)
     
     results = []
