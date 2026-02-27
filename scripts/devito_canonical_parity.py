@@ -269,12 +269,20 @@ def validate_args(args: argparse.Namespace) -> None:
 
     if args.nx <= 2 or args.nz <= 2:
         raise RuntimeError("nx and nz must be > 2")
+    if args.ny < 1:
+        raise RuntimeError("ny must be >= 1")
     if args.nt < 3:
         raise RuntimeError("nt must be >= 3")
     if args.dt <= 0 or args.dx <= 0 or args.dz <= 0 or args.dy <= 0:
         raise RuntimeError("dt/dx/dz/dy must be positive")
     if args.f0 <= 0:
         raise RuntimeError("f0 must be positive")
+    if args.vmin <= 0 or args.vmax <= 0:
+        raise RuntimeError("vmin and vmax must be positive")
+    if args.vmax < args.vmin:
+        raise RuntimeError("vmax must be >= vmin")
+    if args.space_order < 2 or args.space_order % 2 != 0:
+        raise RuntimeError("space-order must be an even integer >= 2")
     if args.pml < 0:
         raise RuntimeError("pml must be >= 0")
     if args.pml * 2 >= min(args.nx, args.nz):
