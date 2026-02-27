@@ -291,8 +291,8 @@ def validate_args(args: argparse.Namespace) -> None:
     validate_threshold_args(args)
 
 
-def build_threshold_report(metrics: dict, args: argparse.Namespace) -> dict:
-    config = {
+def build_run_config(args: argparse.Namespace) -> dict:
+    return {
         "nx": args.nx,
         "nz": args.nz,
         "dx": args.dx,
@@ -311,6 +311,10 @@ def build_threshold_report(metrics: dict, args: argparse.Namespace) -> dict:
         "rec_z": args.rec_z,
         "space_order": args.space_order,
     }
+
+
+def build_threshold_report(metrics: dict, args: argparse.Namespace) -> dict:
+    config = build_run_config(args)
     thresholds = {
         "min_ncc": args.min_ncc,
         "min_ssim": args.min_ssim,
