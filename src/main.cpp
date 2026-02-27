@@ -52,6 +52,10 @@ int main(int argc, char** argv) {
       std::cout << m;
       return 0;
     }
+    if (m.rfind("rtm3d-cli ", 0) == 0) {
+      std::cout << m;
+      return 0;
+    }
     std::cerr << "error: " << e.what() << "\n\n" << rtm3d::cli_help();
     return 2;
   }

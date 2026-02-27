@@ -130,8 +130,11 @@ std::string cli_help() {
          "  --output <path>               Output file path\n"
          "  --output-format <pgm8|float32_raw>\n"
          "Other:\n"
-         "  --help                         Show this message\n";
+         "  --help                        Show this message\n"
+         "  --version                     Show version\n";
 }
+
+std::string cli_version() { return std::string("rtm3d-cli ") + kVersion + "\n"; }
 
 CliOptions parse_cli_or_throw(int argc, char** argv) {
   CliOptions o;
@@ -139,6 +142,7 @@ CliOptions parse_cli_or_throw(int argc, char** argv) {
   for (int i = 1; i < argc; ++i) {
     const std::string arg = argv[i];
     if (arg == "--help" || arg == "-h") throw std::runtime_error(cli_help());
+    if (arg == "--version" || arg == "-V") throw std::runtime_error(cli_version());
 
     if (arg == "--config") {
       apply_json_config(o, require_value(argc, argv, i));

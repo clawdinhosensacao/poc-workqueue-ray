@@ -15,6 +15,9 @@
 
 namespace rtm3d {
 
+/// @brief Project version string (major.minor.patch)
+inline constexpr const char* kVersion = "0.2.1";
+
 /// @brief Output format for migrated images
 enum class OutputFormat {
   kPgm8,        ///< 8-bit PGM grayscale image
@@ -49,5 +52,8 @@ CliOptions parse_cli_or_throw(int argc, char** argv);
 
 /// @brief Get help text for command-line usage
 std::string cli_help();
+
+/// @brief Get version string
+std::string cli_version();
 
 }  // namespace rtm3d
