@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Added
+- `scripts/devito_canonical_parity.py`: canonical Devito RTM parity pipeline using Devito operators for forward modeling, receiver recording, reverse-time propagation, and cross-correlation imaging.
+- Robust parity CLI options for grid/time/source/PML controls and JSON metric output.
+
+### Changed
+- README updated with canonical Devito parity workflow, prerequisites, and usage examples.
+
+### Deprecated
+- `scripts/devito_comparison.py`
+- `scripts/compare_devito_rtm3d.py`
+- `scripts/devito_validation.py`
+
 ## [0.2.1] - 2026-02-25
 
 ### Changed

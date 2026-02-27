@@ -18,6 +18,7 @@ import json
 import subprocess
 import sys
 import tempfile
+import warnings
 from pathlib import Path
 
 import numpy as np
@@ -313,6 +314,8 @@ def test_rtm_3d_volume():
 
 
 def run_all_tests():
+    warnings.warn("Deprecated: use scripts/devito_canonical_parity.py for canonical Devito RTM parity.", FutureWarning)
+
     """Run all cross-validation tests."""
     print("=" * 60)
     print("Reference/Devito checks vs rtm3d-cli suite")

@@ -20,6 +20,7 @@ import json
 import subprocess
 import sys
 import tempfile
+import warnings
 from pathlib import Path
 
 import numpy as np
@@ -428,6 +429,8 @@ def test_circle_anomaly():
 # =============================================================================
 
 def main():
+    warnings.warn("Deprecated: use scripts/devito_canonical_parity.py for canonical Devito RTM parity.", FutureWarning)
+
     print("="*60)
     print("Python reference vs rtm3d-cli RTM Comparison Suite")
     print("="*60)

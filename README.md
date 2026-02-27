@@ -127,20 +127,56 @@ python3 scripts/e2e_metrics.py --input artifacts/synthetic_migrated_inline.bin \
     --meta artifacts/synthetic_migrated_inline.bin.json --fail-on-threshold
 ```
 
-## Python Reference Cross-Validation
+## Canonical Devito RTM Parity (Phase 2)
 
-Current comparison scripts validate `rtm3d-cli` against a **Python finite-difference reference workflow** (not a fully canonical Devito RTM pipeline yet):
+Use `scripts/devito_canonical_parity.py` for a canonical parity check against `rtm3d-cli`.
+
+This script uses Devito operators for the complete RTM chain:
+1. forward propagation + source injection,
+2. receiver recording,
+3. reverse-time propagation + receiver injection,
+4. cross-correlation imaging condition.
+
+### Prerequisites
 
 ```bash
-python3 scripts/devito_comparison.py
+pip install devito numpy scipy
 ```
 
-Metrics used:
-- **NCC** (Normalized Cross-Correlation) - pattern similarity
-- **SSIM** (Structural Similarity Index) - structural comparison
-- **NRMSE** (Normalized RMSE) - scale-invariant error
+Build `rtm3d-cli` first:
 
-> Note: this is a pragmatic consistency check. A strict Devito RTM parity pipeline is tracked as follow-up work.
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j
+```
+
+### Usage
+
+```bash
+python3 scripts/devito_canonical_parity.py \
+  --nx 80 --nz 60 --dx 10 --dz 10 \
+  --nt 180 --dt 0.0005 --f0 16 --pml 10 \
+  --model layered --ny 1 --dy 10 \
+  --cli-bin ./build/rtm3d_cli
+```
+
+Optional output:
+
+```bash
+python3 scripts/devito_canonical_parity.py --metrics-out artifacts/devito_parity_metrics.json
+```
+
+Reported metrics:
+- **NCC** (Normalized Cross-Correlation)
+- **SSIM** (Structural Similarity Index)
+- **NRMSE** (Normalized RMSE)
+
+### Deprecated scripts
+
+The following scripts are kept for compatibility but are deprecated in favor of the canonical parity script:
+- `scripts/devito_comparison.py`
+- `scripts/compare_devito_rtm3d.py`
+- `scripts/devito_validation.py`
 
 ## Tests
 Unit + e2e:
