@@ -251,6 +251,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--min-ncc", type=float, default=0.60)
     p.add_argument("--min-ssim", type=float, default=0.50)
     p.add_argument("--max-nrmse", type=float, default=0.85)
+    p.add_argument("--ssim-window", type=int, default=7,
+                   help="Window size for SSIM local statistics (odd integer >= 3)")
     return p.parse_args()
 
 
@@ -261,6 +263,8 @@ def validate_threshold_args(args: argparse.Namespace) -> None:
         raise RuntimeError("min-ssim must be in [0, 1]")
     if args.max_nrmse < 0.0:
         raise RuntimeError("max-nrmse must be >= 0")
+    if args.ssim_window < 3 or args.ssim_window % 2 == 0:
+        raise RuntimeError("ssim-window must be an odd integer >= 3")
 
 
 def validate_args(args: argparse.Namespace) -> None:
@@ -318,6 +322,7 @@ def build_run_config(args: argparse.Namespace) -> dict:
         "src_z": args.src_z,
         "rec_z": args.rec_z,
         "space_order": args.space_order,
+        "ssim_window": args.ssim_window,
     }
 
 
@@ -384,7 +389,7 @@ def main() -> int:
 
     metrics = {
         "ncc": normalized_cross_correlation(a, b),
-        "ssim": ssim_simple(a, b),
+        "ssim": ssim_simple(a, b, window_size=args.ssim_window),
         "nrmse": normalized_rmse(a, b),
     }
 
