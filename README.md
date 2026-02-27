@@ -150,6 +150,12 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j
 ```
 
+Quick smoke check for canonical parity script wiring:
+
+```bash
+make parity-smoke
+```
+
 ### Usage
 
 ```bash
