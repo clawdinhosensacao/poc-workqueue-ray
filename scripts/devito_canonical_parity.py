@@ -255,6 +255,23 @@ def main() -> int:
     if args.src_x < 0:
         args.src_x = args.nx // 2
 
+    if args.nx <= 2 or args.nz <= 2:
+        raise RuntimeError("nx and nz must be > 2")
+    if args.nt < 3:
+        raise RuntimeError("nt must be >= 3")
+    if args.dt <= 0 or args.dx <= 0 or args.dz <= 0 or args.dy <= 0:
+        raise RuntimeError("dt/dx/dz/dy must be positive")
+    if args.f0 <= 0:
+        raise RuntimeError("f0 must be positive")
+    if args.pml < 0:
+        raise RuntimeError("pml must be >= 0")
+    if not (0 <= args.src_x < args.nx):
+        raise RuntimeError(f"src-x out of bounds: {args.src_x} (nx={args.nx})")
+    if not (0 <= args.src_z < args.nz):
+        raise RuntimeError(f"src-z out of bounds: {args.src_z} (nz={args.nz})")
+    if not (0 <= args.rec_z < args.nz):
+        raise RuntimeError(f"rec-z out of bounds: {args.rec_z} (nz={args.nz})")
+
     velocity = build_velocity(args.model, args.nz, args.nx, args.vmin, args.vmax)
 
     print("[1/3] Running canonical Devito RTM pipeline...")
