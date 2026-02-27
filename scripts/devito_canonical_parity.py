@@ -292,6 +292,25 @@ def validate_args(args: argparse.Namespace) -> None:
 
 
 def build_threshold_report(metrics: dict, args: argparse.Namespace) -> dict:
+    config = {
+        "nx": args.nx,
+        "nz": args.nz,
+        "dx": args.dx,
+        "dz": args.dz,
+        "nt": args.nt,
+        "dt": args.dt,
+        "f0": args.f0,
+        "pml": args.pml,
+        "ny": args.ny,
+        "dy": args.dy,
+        "model": args.model,
+        "vmin": args.vmin,
+        "vmax": args.vmax,
+        "src_x": args.src_x,
+        "src_z": args.src_z,
+        "rec_z": args.rec_z,
+        "space_order": args.space_order,
+    }
     thresholds = {
         "min_ncc": args.min_ncc,
         "min_ssim": args.min_ssim,
@@ -303,6 +322,7 @@ def build_threshold_report(metrics: dict, args: argparse.Namespace) -> dict:
         "nrmse": metrics["nrmse"] <= thresholds["max_nrmse"],
     }
     return {
+        "config": config,
         "metrics": metrics,
         "thresholds": thresholds,
         "pass": all(pass_flags.values()),
