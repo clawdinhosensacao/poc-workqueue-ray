@@ -1,4 +1,5 @@
 #include <cmath>
+#include <vector>
 
 #include <gtest/gtest.h>
 
@@ -88,15 +89,22 @@ TEST(SeismicModelPreset, FaultHasLayerOffset) {
 
 TEST(SeismicModelPreset, PresetsReplicateConsistentlyAcrossYDimension) {
   rtm3d::GridSpec grid{.nx = 48, .nz = 40, .ny = 4, .dx = 10.0f, .dz = 10.0f};
-  auto model = rtm3d::SeismicModel::from_preset(
-      rtm3d::ModelPreset::SaltDome, grid, 2000.0f, 3500.0f);
-
-  const auto& vel = model.velocity();
   const std::size_t plane_size = grid.nx * grid.nz;
 
-  for (std::size_t j = 1; j < grid.ny; ++j) {
-    for (std::size_t idx = 0; idx < plane_size; ++idx) {
-      EXPECT_FLOAT_EQ(vel[idx], vel[j * plane_size + idx]);
+  const std::vector<rtm3d::ModelPreset> presets = {
+      rtm3d::ModelPreset::Constant, rtm3d::ModelPreset::Layers,
+      rtm3d::ModelPreset::Circle,   rtm3d::ModelPreset::CircleLens,
+      rtm3d::ModelPreset::SaltDome, rtm3d::ModelPreset::Fault};
+
+  for (const auto preset : presets) {
+    SCOPED_TRACE(static_cast<int>(preset));
+    auto model = rtm3d::SeismicModel::from_preset(preset, grid, 2000.0f, 3500.0f, 5);
+    const auto& vel = model.velocity();
+
+    for (std::size_t j = 1; j < grid.ny; ++j) {
+      for (std::size_t idx = 0; idx < plane_size; ++idx) {
+        EXPECT_FLOAT_EQ(vel[idx], vel[j * plane_size + idx]);
+      }
     }
   }
 }
