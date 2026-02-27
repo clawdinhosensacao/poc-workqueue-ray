@@ -276,6 +276,25 @@ def validate_args(args: argparse.Namespace) -> None:
         raise RuntimeError(f"cli-bin not found: {args.cli_bin}")
 
 
+def build_threshold_report(metrics: dict, args: argparse.Namespace) -> dict:
+    thresholds = {
+        "min_ncc": args.min_ncc,
+        "min_ssim": args.min_ssim,
+        "max_nrmse": args.max_nrmse,
+    }
+    pass_flags = {
+        "ncc": metrics["ncc"] >= thresholds["min_ncc"],
+        "ssim": metrics["ssim"] >= thresholds["min_ssim"],
+        "nrmse": metrics["nrmse"] <= thresholds["max_nrmse"],
+    }
+    return {
+        "metrics": metrics,
+        "thresholds": thresholds,
+        "pass": all(pass_flags.values()),
+        "checks": pass_flags,
+    }
+
+
 def main() -> int:
     args = parse_args()
     validate_args(args)
@@ -322,23 +341,7 @@ def main() -> int:
         "nrmse": normalized_rmse(a, b),
     }
 
-    thresholds = {
-        "min_ncc": args.min_ncc,
-        "min_ssim": args.min_ssim,
-        "max_nrmse": args.max_nrmse,
-    }
-    pass_flags = {
-        "ncc": metrics["ncc"] >= thresholds["min_ncc"],
-        "ssim": metrics["ssim"] >= thresholds["min_ssim"],
-        "nrmse": metrics["nrmse"] <= thresholds["max_nrmse"],
-    }
-
-    report = {
-        "metrics": metrics,
-        "thresholds": thresholds,
-        "pass": all(pass_flags.values()),
-        "checks": pass_flags,
-    }
+    report = build_threshold_report(metrics, args)
 
     print(json.dumps(report, indent=2))
 
