@@ -178,6 +178,11 @@ Reported metrics:
 - **SSIM** (Structural Similarity Index)
 - **NRMSE** (Normalized RMSE)
 
+Quick interpretation guide:
+- **Good alignment**: NCC ≥ 0.60, SSIM ≥ 0.50, NRMSE ≤ 0.85
+- **Excellent alignment**: NCC ≥ 0.80, SSIM ≥ 0.70, NRMSE ≤ 0.50
+- **Investigate**: any metric outside the configured thresholds
+
 ### Deprecated scripts
 
 The following scripts are kept for compatibility but are deprecated in favor of the canonical parity script:
