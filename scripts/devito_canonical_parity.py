@@ -51,6 +51,10 @@ def normalized_rmse(a: np.ndarray, b: np.ndarray) -> float:
     return float(rmse / denom)
 
 
+def zscore_normalize(x: np.ndarray) -> np.ndarray:
+    return (x - np.mean(x)) / (np.std(x) + 1e-10)
+
+
 def ssim_simple(a: np.ndarray, b: np.ndarray, window_size: int = 7) -> float:
     try:
         from scipy.ndimage import uniform_filter
@@ -332,8 +336,8 @@ def main() -> int:
 
     print("[3/3] Computing parity metrics...")
     # z-score normalize both before comparison to reduce scale bias
-    a = (devito_image - np.mean(devito_image)) / (np.std(devito_image) + 1e-10)
-    b = (cli_image - np.mean(cli_image)) / (np.std(cli_image) + 1e-10)
+    a = zscore_normalize(devito_image)
+    b = zscore_normalize(cli_image)
 
     metrics = {
         "ncc": normalized_cross_correlation(a, b),
