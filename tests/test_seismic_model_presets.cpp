@@ -86,6 +86,21 @@ TEST(SeismicModelPreset, FaultHasLayerOffset) {
   EXPECT_NE(vel_footwall, vel_hanging);  // Fault creates offset
 }
 
+TEST(SeismicModelPreset, PresetsReplicateConsistentlyAcrossYDimension) {
+  rtm3d::GridSpec grid{.nx = 48, .nz = 40, .ny = 4, .dx = 10.0f, .dz = 10.0f};
+  auto model = rtm3d::SeismicModel::from_preset(
+      rtm3d::ModelPreset::SaltDome, grid, 2000.0f, 3500.0f);
+
+  const auto& vel = model.velocity();
+  const std::size_t plane_size = grid.nx * grid.nz;
+
+  for (std::size_t j = 1; j < grid.ny; ++j) {
+    for (std::size_t idx = 0; idx < plane_size; ++idx) {
+      EXPECT_FLOAT_EQ(vel[idx], vel[j * plane_size + idx]);
+    }
+  }
+}
+
 TEST(SeismicModelFromVelocity, AcceptsValidData) {
   rtm3d::GridSpec grid{.nx = 10, .nz = 8, .ny = 1};
   std::vector<float> vel(10 * 8, 2000.0f);
