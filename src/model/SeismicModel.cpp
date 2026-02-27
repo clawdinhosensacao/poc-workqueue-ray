@@ -6,180 +6,191 @@
 #include <stdexcept>
 
 namespace rtm3d {
+namespace {
+
+std::size_t velocity_index(const GridSpec& grid, std::size_t i, std::size_t k,
+                           std::size_t j) {
+  return j * grid.nz * grid.nx + k * grid.nx + i;
+}
+
+void fill_layered_background(std::vector<float>& vp, const GridSpec& grid,
+                             float vp_top, float vp_bottom,
+                             std::size_t nlayers) {
+  std::vector<float> vp_layer(nlayers);
+  for (std::size_t layer_idx = 0; layer_idx < nlayers; ++layer_idx) {
+    vp_layer[layer_idx] = vp_top +
+                          (vp_bottom - vp_top) * static_cast<float>(layer_idx) /
+                              static_cast<float>(nlayers - 1);
+  }
+
+  for (std::size_t k = 0; k < grid.nz; ++k) {
+    std::size_t layer = std::min(k * nlayers / grid.nz, nlayers - 1);
+    float vel = vp_layer[layer];
+    for (std::size_t i = 0; i < grid.nx; ++i) {
+      for (std::size_t j = 0; j < grid.ny; ++j) {
+        vp[velocity_index(grid, i, k, j)] = vel;
+      }
+    }
+  }
+}
+
+void build_constant_model(std::vector<float>& vp, float velocity) {
+  std::fill(vp.begin(), vp.end(), velocity);
+}
+
+void build_circle_model(std::vector<float>& vp, const GridSpec& grid, float vp_top,
+                        float vp_bottom) {
+  std::fill(vp.begin(), vp.end(), vp_top);
+  float cx = static_cast<float>(grid.nx) / 2.0f;
+  float cz = static_cast<float>(grid.nz) / 2.0f;
+  float radius = static_cast<float>(std::min(grid.nx, grid.nz)) / 4.0f;
+
+  for (std::size_t k = 0; k < grid.nz; ++k) {
+    for (std::size_t i = 0; i < grid.nx; ++i) {
+      float dx = static_cast<float>(i) - cx;
+      float dz = static_cast<float>(k) - cz;
+      if (dx * dx + dz * dz <= radius * radius) {
+        for (std::size_t j = 0; j < grid.ny; ++j) {
+          vp[velocity_index(grid, i, k, j)] = vp_bottom;
+        }
+      }
+    }
+  }
+}
+
+void build_circle_lens_model(std::vector<float>& vp, const GridSpec& grid,
+                             float vp_top, float vp_bottom) {
+  std::fill(vp.begin(), vp.end(), vp_top);
+  float cx = static_cast<float>(grid.nx) * 0.48f;
+  float cz = static_cast<float>(grid.nz) * 0.52f;
+  float sx = static_cast<float>(grid.nx) * 0.14f;
+  float sz = static_cast<float>(grid.nz) * 0.14f;
+
+  for (std::size_t k = 0; k < grid.nz; ++k) {
+    for (std::size_t i = 0; i < grid.nx; ++i) {
+      float dx = (static_cast<float>(i) - cx) / sx;
+      float dz = (static_cast<float>(k) - cz) / sz;
+      float gaussian = std::exp(-(dx * dx + dz * dz));
+      for (std::size_t j = 0; j < grid.ny; ++j) {
+        vp[velocity_index(grid, i, k, j)] =
+            vp_top + (vp_bottom - vp_top) * gaussian;
+      }
+    }
+  }
+}
+
+void build_salt_dome_model(std::vector<float>& vp, const GridSpec& grid,
+                           float vp_top, float vp_bottom) {
+  constexpr float kSaltVelocity = 4500.0f;
+
+  for (std::size_t k = 0; k < grid.nz; ++k) {
+    float depth_ratio = static_cast<float>(k) / static_cast<float>(grid.nz - 1);
+    float bg_vel = vp_top + (vp_bottom - vp_top) * depth_ratio;
+    for (std::size_t i = 0; i < grid.nx; ++i) {
+      for (std::size_t j = 0; j < grid.ny; ++j) {
+        vp[velocity_index(grid, i, k, j)] = bg_vel;
+      }
+    }
+  }
+
+  float cx = static_cast<float>(grid.nx) / 2.0f;
+  float base_radius = static_cast<float>(grid.nx) * 0.18f;
+  float top_z = static_cast<float>(grid.nz) * 0.12f;
+  float base_z = static_cast<float>(grid.nz) * 0.75f;
+
+  for (std::size_t k = 0; k < grid.nz; ++k) {
+    float z = static_cast<float>(k);
+    if (z < top_z) continue;
+
+    float z_norm = (z - top_z) / (base_z - top_z);
+    z_norm = std::max(0.0f, std::min(1.0f, z_norm));
+
+    float taper = std::sqrt(z_norm);
+    float radius = base_radius * taper;
+    if (z_norm < 0.3f) {
+      radius *= 0.6f + 0.4f * (z_norm / 0.3f);
+    }
+
+    for (std::size_t i = 0; i < grid.nx; ++i) {
+      float dx = static_cast<float>(i) - cx;
+      if (dx * dx <= radius * radius) {
+        for (std::size_t j = 0; j < grid.ny; ++j) {
+          vp[velocity_index(grid, i, k, j)] = kSaltVelocity;
+        }
+      }
+    }
+  }
+}
+
+void build_fault_model(std::vector<float>& vp, const GridSpec& grid, float vp_top,
+                       float vp_bottom, std::size_t nlayers) {
+  float fault_x = static_cast<float>(grid.nx) * 0.45f;
+  float dip = 60.0f * 3.14159265f / 180.0f;
+  float throw_amount = static_cast<float>(grid.nz) * 0.08f;
+
+  std::vector<float> vp_layer(nlayers);
+  for (std::size_t layer_idx = 0; layer_idx < nlayers; ++layer_idx) {
+    vp_layer[layer_idx] = vp_top +
+                          (vp_bottom - vp_top) * static_cast<float>(layer_idx) /
+                              static_cast<float>(nlayers - 1);
+  }
+
+  for (std::size_t k = 0; k < grid.nz; ++k) {
+    for (std::size_t i = 0; i < grid.nx; ++i) {
+      float fault_at_depth = fault_x - static_cast<float>(k) / std::tan(dip);
+
+      float effective_z = static_cast<float>(k);
+      if (static_cast<float>(i) > fault_at_depth) {
+        effective_z -= throw_amount;
+      }
+
+      effective_z =
+          std::max(0.0f, std::min(static_cast<float>(grid.nz - 1), effective_z));
+
+      std::size_t layer = static_cast<std::size_t>(
+          effective_z * static_cast<float>(nlayers) / static_cast<float>(grid.nz));
+      layer = std::min(layer, nlayers - 1);
+      float vel = vp_layer[layer];
+
+      for (std::size_t j = 0; j < grid.ny; ++j) {
+        vp[velocity_index(grid, i, k, j)] = vel;
+      }
+    }
+  }
+}
+
+}  // namespace
 
 SeismicModel SeismicModel::from_preset(ModelPreset preset, const GridSpec& grid,
-                                        float vp_top, float vp_bottom,
-                                        std::size_t nlayers) {
+                                       float vp_top, float vp_bottom,
+                                       std::size_t nlayers) {
   SeismicModel model(grid);
   model.vp_.resize(grid.nx * grid.nz * grid.ny);
 
   switch (preset) {
     case ModelPreset::Constant:
-      std::fill(model.vp_.begin(), model.vp_.end(), vp_top);
+      build_constant_model(model.vp_, vp_top);
       break;
 
-    case ModelPreset::Layers: {
-      // Layered model with velocity gradient
-      std::vector<float> vp_layer(nlayers);
-      for (std::size_t i = 0; i < nlayers; ++i) {
-        vp_layer[i] = vp_top + (vp_bottom - vp_top) * static_cast<float>(i) /
-                                    static_cast<float>(nlayers - 1);
-      }
-      for (std::size_t k = 0; k < grid.nz; ++k) {
-        std::size_t layer = std::min(k * nlayers / grid.nz, nlayers - 1);
-        float vel = vp_layer[layer];
-        for (std::size_t i = 0; i < grid.nx; ++i) {
-          for (std::size_t j = 0; j < grid.ny; ++j) {
-            std::size_t idx = j * grid.nz * grid.nx + k * grid.nx + i;
-            model.vp_[idx] = vel;
-          }
-        }
-      }
+    case ModelPreset::Layers:
+      fill_layered_background(model.vp_, grid, vp_top, vp_bottom, nlayers);
       break;
-    }
 
-    case ModelPreset::Circle: {
-      // Circle anomaly (camembert model)
-      std::fill(model.vp_.begin(), model.vp_.end(), vp_top);
-      float cx = static_cast<float>(grid.nx) / 2.0f;
-      float cz = static_cast<float>(grid.nz) / 2.0f;
-      float radius = static_cast<float>(std::min(grid.nx, grid.nz)) / 4.0f;
-      for (std::size_t k = 0; k < grid.nz; ++k) {
-        for (std::size_t i = 0; i < grid.nx; ++i) {
-          float dx = static_cast<float>(i) - cx;
-          float dz = static_cast<float>(k) - cz;
-          if (dx * dx + dz * dz <= radius * radius) {
-            for (std::size_t j = 0; j < grid.ny; ++j) {
-              std::size_t idx = j * grid.nz * grid.nx + k * grid.nx + i;
-              model.vp_[idx] = vp_bottom;
-            }
-          }
-        }
-      }
+    case ModelPreset::Circle:
+      build_circle_model(model.vp_, grid, vp_top, vp_bottom);
       break;
-    }
 
-    case ModelPreset::CircleLens: {
-      // Gaussian lens anomaly
-      std::fill(model.vp_.begin(), model.vp_.end(), vp_top);
-      float cx = static_cast<float>(grid.nx) * 0.48f;
-      float cz = static_cast<float>(grid.nz) * 0.52f;
-      float sx = static_cast<float>(grid.nx) * 0.14f;
-      float sz = static_cast<float>(grid.nz) * 0.14f;
-      for (std::size_t k = 0; k < grid.nz; ++k) {
-        for (std::size_t i = 0; i < grid.nx; ++i) {
-          float dx = (static_cast<float>(i) - cx) / sx;
-          float dz = (static_cast<float>(k) - cz) / sz;
-          float gaussian = std::exp(-(dx * dx + dz * dz));
-          for (std::size_t j = 0; j < grid.ny; ++j) {
-            std::size_t idx = j * grid.nz * grid.nx + k * grid.nx + i;
-            model.vp_[idx] = vp_top + (vp_bottom - vp_top) * gaussian;
-          }
-        }
-      }
+    case ModelPreset::CircleLens:
+      build_circle_lens_model(model.vp_, grid, vp_top, vp_bottom);
       break;
-    }
 
-    case ModelPreset::SaltDome: {
-      // Salt dome with background velocity gradient
-      // Salt velocity ~4500 m/s, sediments 2000-3500 m/s
-      float salt_vel = 4500.0f;
-
-      // Background gradient
-      for (std::size_t k = 0; k < grid.nz; ++k) {
-        float depth_ratio = static_cast<float>(k) / static_cast<float>(grid.nz - 1);
-        float bg_vel = vp_top + (vp_bottom - vp_top) * depth_ratio;
-        for (std::size_t i = 0; i < grid.nx; ++i) {
-          for (std::size_t j = 0; j < grid.ny; ++j) {
-            std::size_t idx = j * grid.nz * grid.nx + k * grid.nx + i;
-            model.vp_[idx] = bg_vel;
-          }
-        }
-      }
-
-      // Salt dome geometry: teardrop/diapir shape
-      float cx = static_cast<float>(grid.nx) / 2.0f;
-      float base_radius = static_cast<float>(grid.nx) * 0.18f;
-      float top_z = static_cast<float>(grid.nz) * 0.12f;   // Top of dome near surface
-      float base_z = static_cast<float>(grid.nz) * 0.75f;  // Base of dome deeper
-
-      for (std::size_t k = 0; k < grid.nz; ++k) {
-        float z = static_cast<float>(k);
-
-        // Skip if above top of dome
-        if (z < top_z) continue;
-
-        // Radius decreases toward top (diapir shape)
-        float z_norm = (z - top_z) / (base_z - top_z);
-        z_norm = std::max(0.0f, std::min(1.0f, z_norm));
-
-        // Tapered radius: wider at base, narrower at top
-        float taper = std::sqrt(z_norm);  // Makes it narrower at top
-        float radius = base_radius * taper;
-
-        // Add slight overhang near top
-        if (z_norm < 0.3f) {
-          radius *= 0.6f + 0.4f * (z_norm / 0.3f);
-        }
-
-        for (std::size_t i = 0; i < grid.nx; ++i) {
-          float dx = static_cast<float>(i) - cx;
-          float dist_sq = dx * dx;
-
-          // Elliptical cross-section (slightly wider in x)
-          if (dist_sq <= radius * radius) {
-            for (std::size_t j = 0; j < grid.ny; ++j) {
-              std::size_t idx = j * grid.nz * grid.nx + k * grid.nx + i;
-              model.vp_[idx] = salt_vel;
-            }
-          }
-        }
-      }
+    case ModelPreset::SaltDome:
+      build_salt_dome_model(model.vp_, grid, vp_top, vp_bottom);
       break;
-    }
 
-    case ModelPreset::Fault: {
-      // Normal fault with offset layers
-      // Fault dips at 60 degrees, displaces layers
-      float fault_x = static_cast<float>(grid.nx) * 0.45f;  // Fault location at surface
-      float dip = 60.0f * 3.14159265f / 180.0f;             // Dip angle in radians
-      float throw_amount = static_cast<float>(grid.nz) * 0.08f;  // Fault throw
-
-      // Create layered background first
-      std::vector<float> vp_layer(nlayers);
-      for (std::size_t i = 0; i < nlayers; ++i) {
-        vp_layer[i] = vp_top + (vp_bottom - vp_top) * static_cast<float>(i) /
-                                    static_cast<float>(nlayers - 1);
-      }
-
-      for (std::size_t k = 0; k < grid.nz; ++k) {
-        for (std::size_t i = 0; i < grid.nx; ++i) {
-          // Calculate fault position at this depth (fault plane)
-          float fault_at_depth = fault_x - static_cast<float>(k) / std::tan(dip);
-
-          // Determine which side of fault and apply offset
-          float effective_z = static_cast<float>(k);
-          if (static_cast<float>(i) > fault_at_depth) {
-            // Hanging wall (downthrown side)
-            effective_z -= throw_amount;
-          }
-
-          // Clamp to valid range
-          effective_z = std::max(0.0f, std::min(static_cast<float>(grid.nz - 1), effective_z));
-
-          // Determine layer
-          std::size_t layer = static_cast<std::size_t>(effective_z * static_cast<float>(nlayers) / static_cast<float>(grid.nz));
-          layer = std::min(layer, nlayers - 1);
-          float vel = vp_layer[layer];
-
-          for (std::size_t j = 0; j < grid.ny; ++j) {
-            std::size_t idx = j * grid.nz * grid.nx + k * grid.nx + i;
-            model.vp_[idx] = vel;
-          }
-        }
-      }
+    case ModelPreset::Fault:
+      build_fault_model(model.vp_, grid, vp_top, vp_bottom, nlayers);
       break;
-    }
 
     case ModelPreset::Marmousi2D:
       throw std::runtime_error("Preset requires external data file, use from_file()");
@@ -189,7 +200,7 @@ SeismicModel SeismicModel::from_preset(ModelPreset preset, const GridSpec& grid,
 }
 
 SeismicModel SeismicModel::from_velocity(const std::vector<float>& vp,
-                                          const GridSpec& grid) {
+                                         const GridSpec& grid) {
   if (vp.size() != grid.nx * grid.nz * grid.ny) {
     throw std::runtime_error("Velocity array size mismatch with grid dimensions");
   }
@@ -241,8 +252,8 @@ void SeismicModel::validate_for_rtm(const TimeAxis& time) const {
 
   if (time.step > dt_max) {
     throw std::runtime_error("CFL condition violated: dt=" +
-                              std::to_string(time.step) +
-                              " > max_dt=" + std::to_string(dt_max));
+                             std::to_string(time.step) +
+                             " > max_dt=" + std::to_string(dt_max));
   }
 }
 
