@@ -15,6 +15,10 @@ It then runs rtm3d-cli on the same model and reports parity metrics:
 
 Usage example:
     python3 scripts/devito_canonical_parity.py --nx 80 --nz 60 --nt 180 --dt 0.0005 --f0 16 --pml 10
+
+CI-friendly threshold example:
+    python3 scripts/devito_canonical_parity.py --fail-on-threshold \
+      --min-ncc 0.60 --min-ssim 0.50 --max-nrmse 0.85
 """
 
 from __future__ import annotations
@@ -237,6 +241,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--space-order", type=int, default=4)
     p.add_argument("--cli-bin", type=str, default="./build/rtm3d_cli")
     p.add_argument("--metrics-out", type=str, default="")
+    p.add_argument("--fail-on-threshold", action="store_true",
+                   help="Return non-zero exit code if thresholds are not met")
+    p.add_argument("--min-ncc", type=float, default=0.60)
+    p.add_argument("--min-ssim", type=float, default=0.50)
+    p.add_argument("--max-nrmse", type=float, default=0.85)
     return p.parse_args()
 
 
@@ -288,11 +297,32 @@ def main() -> int:
         "nrmse": normalized_rmse(a, b),
     }
 
-    print(json.dumps(metrics, indent=2))
+    thresholds = {
+        "min_ncc": args.min_ncc,
+        "min_ssim": args.min_ssim,
+        "max_nrmse": args.max_nrmse,
+    }
+    pass_flags = {
+        "ncc": metrics["ncc"] >= thresholds["min_ncc"],
+        "ssim": metrics["ssim"] >= thresholds["min_ssim"],
+        "nrmse": metrics["nrmse"] <= thresholds["max_nrmse"],
+    }
+
+    report = {
+        "metrics": metrics,
+        "thresholds": thresholds,
+        "pass": all(pass_flags.values()),
+        "checks": pass_flags,
+    }
+
+    print(json.dumps(report, indent=2))
 
     if args.metrics_out:
-        Path(args.metrics_out).write_text(json.dumps(metrics, indent=2))
+        Path(args.metrics_out).write_text(json.dumps(report, indent=2))
         print(f"Saved metrics to: {args.metrics_out}")
+
+    if args.fail_on_threshold and not report["pass"]:
+        return 2
 
     return 0
 

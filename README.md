@@ -166,6 +166,13 @@ Optional output:
 python3 scripts/devito_canonical_parity.py --metrics-out artifacts/devito_parity_metrics.json
 ```
 
+CI threshold mode (returns non-zero if thresholds fail):
+
+```bash
+python3 scripts/devito_canonical_parity.py \
+  --fail-on-threshold --min-ncc 0.60 --min-ssim 0.50 --max-nrmse 0.85
+```
+
 Reported metrics:
 - **NCC** (Normalized Cross-Correlation)
 - **SSIM** (Structural Similarity Index)
