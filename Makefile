@@ -26,6 +26,11 @@ build/rtm3d_tests: build $(GTEST_DIR) $(SRC) $(TEST_SRC)
 test: build/rtm3d_tests
 	./build/rtm3d_tests
 
+parity-smoke:
+	python3 -m py_compile scripts/devito_canonical_parity.py
+	python3 scripts/devito_canonical_parity.py --help >/dev/null
+	python3 scripts/devito_canonical_parity.py --nx 1 >/dev/null 2>&1; test $$? -eq 1
+
 e2e: build/rtm3d_cli
 	bash tests/e2e_synthetic.sh
 
