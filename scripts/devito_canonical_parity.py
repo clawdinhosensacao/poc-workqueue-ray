@@ -250,9 +250,7 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
-def main() -> int:
-    args = parse_args()
-
+def validate_args(args: argparse.Namespace) -> None:
     if args.src_x < 0:
         args.src_x = args.nx // 2
 
@@ -274,9 +272,13 @@ def main() -> int:
         raise RuntimeError(f"src-z out of bounds: {args.src_z} (nz={args.nz})")
     if not (0 <= args.rec_z < args.nz):
         raise RuntimeError(f"rec-z out of bounds: {args.rec_z} (nz={args.nz})")
-
     if not os.path.exists(args.cli_bin):
         raise RuntimeError(f"cli-bin not found: {args.cli_bin}")
+
+
+def main() -> int:
+    args = parse_args()
+    validate_args(args)
 
     velocity = build_velocity(args.model, args.nz, args.nx, args.vmin, args.vmax)
 
