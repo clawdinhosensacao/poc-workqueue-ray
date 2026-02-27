@@ -30,6 +30,9 @@ parity-smoke:
 	python3 -m py_compile scripts/devito_canonical_parity.py
 	python3 scripts/devito_canonical_parity.py --help >/dev/null
 	python3 scripts/devito_canonical_parity.py --nx 1 >/dev/null 2>&1; test $$? -eq 1
+	python3 scripts/devito_canonical_parity.py --min-ssim 2 >/dev/null 2>&1; test $$? -eq 1
+	python3 scripts/devito_canonical_parity.py --min-ncc 2 >/dev/null 2>&1; test $$? -eq 1
+	python3 scripts/devito_canonical_parity.py --max-nrmse -1 >/dev/null 2>&1; test $$? -eq 1
 
 e2e: build/rtm3d_cli
 	bash tests/e2e_synthetic.sh
