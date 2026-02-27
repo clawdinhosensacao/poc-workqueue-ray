@@ -160,7 +160,7 @@ python3 scripts/devito_canonical_parity.py \
   --cli-bin ./build/rtm3d_cli
 ```
 
-Optional output:
+Optional output (full report with metrics + threshold checks):
 
 ```bash
 python3 scripts/devito_canonical_parity.py --metrics-out artifacts/devito_parity_metrics.json
@@ -172,6 +172,11 @@ CI threshold mode (returns non-zero if thresholds fail):
 python3 scripts/devito_canonical_parity.py \
   --fail-on-threshold --min-ncc 0.60 --min-ssim 0.50 --max-nrmse 0.85
 ```
+
+Exit codes:
+- `0`: parity run completed (and thresholds passed, if enabled)
+- `1`: runtime/config error (e.g., missing Devito, invalid args)
+- `2`: thresholds enabled and at least one metric failed
 
 Reported metrics:
 - **NCC** (Normalized Cross-Correlation)
