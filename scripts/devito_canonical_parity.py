@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -265,12 +266,17 @@ def main() -> int:
         raise RuntimeError("f0 must be positive")
     if args.pml < 0:
         raise RuntimeError("pml must be >= 0")
+    if args.pml * 2 >= min(args.nx, args.nz):
+        raise RuntimeError("pml too large for grid: require 2*pml < min(nx, nz)")
     if not (0 <= args.src_x < args.nx):
         raise RuntimeError(f"src-x out of bounds: {args.src_x} (nx={args.nx})")
     if not (0 <= args.src_z < args.nz):
         raise RuntimeError(f"src-z out of bounds: {args.src_z} (nz={args.nz})")
     if not (0 <= args.rec_z < args.nz):
         raise RuntimeError(f"rec-z out of bounds: {args.rec_z} (nz={args.nz})")
+
+    if not os.path.exists(args.cli_bin):
+        raise RuntimeError(f"cli-bin not found: {args.cli_bin}")
 
     velocity = build_velocity(args.model, args.nz, args.nx, args.vmin, args.vmax)
 
