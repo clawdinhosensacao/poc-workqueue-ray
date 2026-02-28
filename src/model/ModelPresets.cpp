@@ -55,6 +55,10 @@ float default_circle_radius(const GridSpec& grid) {
 
 float sqr(float value) { return value * value; }
 
+float radial_distance_squared(float dx, float dz) {
+  return sqr(dx) + sqr(dz);
+}
+
 float clampf(float value, float lo, float hi) {
   return std::max(lo, std::min(hi, value));
 }
@@ -128,7 +132,7 @@ void build_circle_model(std::vector<float>& vp, const GridSpec& grid, float vp_t
     for (std::size_t i = 0; i < grid.nx; ++i) {
       float dx = static_cast<float>(i) - cx;
       float dz = static_cast<float>(k) - cz;
-      if (sqr(dx) + sqr(dz) <= sqr(radius)) {
+      if (radial_distance_squared(dx, dz) <= sqr(radius)) {
         set_velocity_along_y(vp, grid, i, k, vp_bottom);
       }
     }
@@ -147,7 +151,7 @@ void build_circle_lens_model(std::vector<float>& vp, const GridSpec& grid,
     for (std::size_t i = 0; i < grid.nx; ++i) {
       float dx = (static_cast<float>(i) - cx) / sx;
       float dz = (static_cast<float>(k) - cz) / sz;
-      float gaussian = std::exp(-(sqr(dx) + sqr(dz)));
+      float gaussian = std::exp(-radial_distance_squared(dx, dz));
       set_velocity_along_y(vp, grid, i, k,
                            vp_top + (vp_bottom - vp_top) * gaussian);
     }
