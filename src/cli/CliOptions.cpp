@@ -114,15 +114,29 @@ void apply_json_config(CliOptions& o, const std::string& path) {
   set_size_if_present("n_shots", o.n_shots);
 }
 
-void validate(const CliOptions& o) {
+void validate_input_files(const CliOptions& o) {
   if (o.x_file.empty() || o.z_file.empty() || o.values_file.empty()) {
     throw std::runtime_error("x/z/values input files are required (or --data-dir / --config)");
   }
-  if (o.load.decim_x == 0 || o.load.decim_z == 0) throw std::runtime_error("decimation must be >= 1");
+}
+
+void validate_load_options(const CliOptions& o) {
+  if (o.load.decim_x == 0 || o.load.decim_z == 0) {
+    throw std::runtime_error("decimation must be >= 1");
+  }
+}
+
+void validate_rtm_options(const CliOptions& o) {
   if (o.rtm.ny < 4 || o.rtm.nt < 2) throw std::runtime_error("ny>=4 and nt>=2 required");
   if (o.rtm.dy <= 0 || o.rtm.dt <= 0 || o.rtm.f0 <= 0) throw std::runtime_error("dy/dt/f0 must be > 0");
   if (o.rtm.pml == 0) throw std::runtime_error("pml must be > 0");
   if (o.rtm.receiver_stride == 0) throw std::runtime_error("receiver-stride must be > 0");
+}
+
+void validate(const CliOptions& o) {
+  validate_input_files(o);
+  validate_load_options(o);
+  validate_rtm_options(o);
 }
 
 }  // namespace
