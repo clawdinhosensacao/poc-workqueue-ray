@@ -8,10 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - `scripts/devito_canonical_parity.py`: canonical Devito RTM parity pipeline using Devito operators for forward modeling, receiver recording, reverse-time propagation, and cross-correlation imaging.
-- Robust parity CLI options for grid/time/source/PML controls and JSON metric output.
+- Robust parity CLI options for grid/time/source/PML controls and JSON report output.
+- Threshold gating options for parity runs (`--fail-on-threshold`, `--min-ncc`, `--min-ssim`, `--max-nrmse`).
+- Configurable SSIM window via `--ssim-window`.
+- `make parity-smoke` target to validate canonical parity script wiring and argument guards.
+- `make check` unified verification target (unit tests + parity smoke + static analysis).
 
 ### Changed
-- README updated with canonical Devito parity workflow, prerequisites, and usage examples.
+- CI now uses `make check` as the unified validation stage before E2E.
+- README updated with canonical parity workflow, thresholds, exit codes, SSIM tuning, and `make check`/`parity-smoke` guidance.
+- Canonical parity report now includes full run configuration for reproducibility.
+- Preset consistency test now validates Y-slice replication across all built-in presets.
 
 ### Deprecated
 - `scripts/devito_comparison.py`
