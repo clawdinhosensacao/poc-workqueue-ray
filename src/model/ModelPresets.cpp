@@ -11,6 +11,7 @@ constexpr float kPi = 3.14159265f;
 constexpr float kFaultDipDegrees = 60.0f;
 constexpr float kFaultXRatio = 0.45f;
 constexpr float kFaultThrowRatio = 0.08f;
+constexpr float kCircleRadiusDivisor = 4.0f;
 constexpr float kCircleLensCenterXRatio = 0.48f;
 constexpr float kCircleLensCenterZRatio = 0.52f;
 constexpr float kCircleLensSigmaXRatio = 0.14f;
@@ -31,6 +32,10 @@ float grid_center_x(const GridSpec& grid) {
 
 float grid_center_z(const GridSpec& grid) {
   return static_cast<float>(grid.nz) / 2.0f;
+}
+
+float default_circle_radius(const GridSpec& grid) {
+  return static_cast<float>(std::min(grid.nx, grid.nz)) / kCircleRadiusDivisor;
 }
 
 float clampf(float value, float lo, float hi) {
@@ -96,7 +101,7 @@ void build_circle_model(std::vector<float>& vp, const GridSpec& grid, float vp_t
   std::fill(vp.begin(), vp.end(), vp_top);
   float cx = grid_center_x(grid);
   float cz = grid_center_z(grid);
-  float radius = static_cast<float>(std::min(grid.nx, grid.nz)) / 4.0f;
+  float radius = default_circle_radius(grid);
 
   for (std::size_t k = 0; k < grid.nz; ++k) {
     for (std::size_t i = 0; i < grid.nx; ++i) {
