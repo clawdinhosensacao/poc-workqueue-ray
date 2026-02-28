@@ -7,6 +7,9 @@
 namespace rtm3d::model_internal {
 namespace {
 
+constexpr float kPi = 3.14159265f;
+constexpr float kFaultDipDegrees = 60.0f;
+
 std::size_t velocity_index(const GridSpec& grid, std::size_t i, std::size_t k,
                            std::size_t j) {
   return j * grid.nz * grid.nx + k * grid.nx + i;
@@ -130,7 +133,7 @@ void build_salt_dome_model(std::vector<float>& vp, const GridSpec& grid,
 void build_fault_model(std::vector<float>& vp, const GridSpec& grid, float vp_top,
                        float vp_bottom, std::size_t nlayers) {
   float fault_x = static_cast<float>(grid.nx) * 0.45f;
-  float dip = 60.0f * 3.14159265f / 180.0f;
+  float dip = kFaultDipDegrees * kPi / 180.0f;
   float throw_amount = static_cast<float>(grid.nz) * 0.08f;
 
   std::vector<float> vp_layer = build_layer_velocities(vp_top, vp_bottom, nlayers);
