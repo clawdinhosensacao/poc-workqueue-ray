@@ -25,6 +25,14 @@ float ratio(std::size_t value, std::size_t max_value) {
   return static_cast<float>(value) / static_cast<float>(max_value);
 }
 
+float grid_center_x(const GridSpec& grid) {
+  return static_cast<float>(grid.nx) / 2.0f;
+}
+
+float grid_center_z(const GridSpec& grid) {
+  return static_cast<float>(grid.nz) / 2.0f;
+}
+
 float clampf(float value, float lo, float hi) {
   return std::max(lo, std::min(hi, value));
 }
@@ -86,8 +94,8 @@ void build_constant_model(std::vector<float>& vp, float velocity) {
 void build_circle_model(std::vector<float>& vp, const GridSpec& grid, float vp_top,
                         float vp_bottom) {
   std::fill(vp.begin(), vp.end(), vp_top);
-  float cx = static_cast<float>(grid.nx) / 2.0f;
-  float cz = static_cast<float>(grid.nz) / 2.0f;
+  float cx = grid_center_x(grid);
+  float cz = grid_center_z(grid);
   float radius = static_cast<float>(std::min(grid.nx, grid.nz)) / 4.0f;
 
   for (std::size_t k = 0; k < grid.nz; ++k) {
@@ -132,7 +140,7 @@ void build_salt_dome_model(std::vector<float>& vp, const GridSpec& grid,
     }
   }
 
-  float cx = static_cast<float>(grid.nx) / 2.0f;
+  float cx = grid_center_x(grid);
   float base_radius = static_cast<float>(grid.nx) * kSaltBaseRadiusRatio;
   float top_z = static_cast<float>(grid.nz) * kSaltTopDepthRatio;
   float base_z = static_cast<float>(grid.nz) * kSaltBaseDepthRatio;
