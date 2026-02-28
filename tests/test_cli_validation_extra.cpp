@@ -27,3 +27,19 @@ TEST(CliOptionsExtra, RejectsNegativeUnsignedOption) {
   const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--decim-x", "-1"};
   EXPECT_THROW((void)rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)), const_cast<char**>(argv)), std::runtime_error);
 }
+
+TEST(CliOptionsExtra, ConfigOutputAliasOverridesOutputFile) {
+  std::filesystem::create_directories("tests/tmp_loader");
+  {
+    std::ofstream c("tests/tmp_loader/cfg_output_alias.json");
+    c << "{\n"
+      << "  \"data_dir\": \"data\",\n"
+      << "  \"output_file\": \"output/from_output_file.pgm\",\n"
+      << "  \"output\": \"output/from_output_alias.pgm\"\n"
+      << "}\n";
+  }
+
+  const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_output_alias.json"};
+  const auto o = rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)), const_cast<char**>(argv));
+  EXPECT_EQ(o.output_file, "output/from_output_alias.pgm");
+}
