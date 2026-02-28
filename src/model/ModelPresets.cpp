@@ -21,6 +21,10 @@ constexpr float kSaltBaseRadiusRatio = 0.18f;
 
 float degrees_to_radians(float degrees) { return degrees * kPi / 180.0f; }
 
+float ratio(std::size_t value, std::size_t max_value) {
+  return static_cast<float>(value) / static_cast<float>(max_value);
+}
+
 float clampf(float value, float lo, float hi) {
   return std::max(lo, std::min(hi, value));
 }
@@ -121,7 +125,7 @@ void build_salt_dome_model(std::vector<float>& vp, const GridSpec& grid,
   constexpr float kSaltVelocity = 4500.0f;
 
   for (std::size_t k = 0; k < grid.nz; ++k) {
-    float depth_ratio = static_cast<float>(k) / static_cast<float>(grid.nz - 1);
+    float depth_ratio = ratio(k, grid.nz - 1);
     float bg_vel = vp_top + (vp_bottom - vp_top) * depth_ratio;
     for (std::size_t i = 0; i < grid.nx; ++i) {
       set_velocity_along_y(vp, grid, i, k, bg_vel);
