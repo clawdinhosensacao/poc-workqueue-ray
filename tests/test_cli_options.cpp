@@ -83,3 +83,25 @@ TEST(CliOptions, ExplicitOutputOverridesConfigOutputFile) {
 
   ASSERT_EQ(o.output_file, "output/from_cli.pgm");
 }
+
+TEST(CliOptions, ExplicitOutputFormatOverridesConfigOutputFormat) {
+  std::filesystem::create_directories("tests/tmp_loader");
+  {
+    std::ofstream c("tests/tmp_loader/cfg_output_format_base.json");
+    c << "{\n"
+      << "  \"data_dir\": \"data\",\n"
+      << "  \"output_format\": \"pgm8\"\n"
+      << "}\n";
+  }
+
+  const char* argv[] = {"rtm3d_cli",
+                        "--config",
+                        "tests/tmp_loader/cfg_output_format_base.json",
+                        "--output-format",
+                        "float32_raw"};
+  const auto o =
+      rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
+                                const_cast<char**>(argv));
+
+  ASSERT_EQ(o.output_format, rtm3d::OutputFormat::kFloat32Raw);
+}
