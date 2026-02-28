@@ -190,3 +190,27 @@ TEST(CliOptions, LaterCliOutputFormatOverridesEarlierConfig) {
 
   ASSERT_EQ(o.output_format, rtm3d::OutputFormat::kFloat32Raw);
 }
+
+TEST(CliOptions, LaterConfigOutputOverridesEarlierCliOutput) {
+  std::filesystem::create_directories("tests/tmp_loader");
+  {
+    std::ofstream c("tests/tmp_loader/cfg_later_output.json");
+    c << "{\n"
+      << "  \"data_dir\": \"data\",\n"
+      << "  \"output_file\": \"output/from_later_config.pgm\"\n"
+      << "}\n";
+  }
+
+  const char* argv[] = {"rtm3d_cli",
+                        "--data-dir",
+                        "data",
+                        "--output",
+                        "output/from_earlier_cli.pgm",
+                        "--config",
+                        "tests/tmp_loader/cfg_later_output.json"};
+  const auto o =
+      rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
+                                const_cast<char**>(argv));
+
+  ASSERT_EQ(o.output_file, "output/from_later_config.pgm");
+}
