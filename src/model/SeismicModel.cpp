@@ -44,14 +44,18 @@ float compute_max_stable_dt(const GridSpec& grid, float v_max) {
   return d_min / (bounded_vmax * cfl_factor);
 }
 
-float max_or_zero(const std::vector<float>& values) {
+template <typename ExtremumFn>
+float extremum_or_zero(const std::vector<float>& values, ExtremumFn extremum_fn) {
   if (values.empty()) return 0.0f;
-  return *std::max_element(values.begin(), values.end());
+  return *extremum_fn(values.begin(), values.end());
+}
+
+float max_or_zero(const std::vector<float>& values) {
+  return extremum_or_zero(values, std::max_element<decltype(values.begin())>);
 }
 
 float min_or_zero(const std::vector<float>& values) {
-  if (values.empty()) return 0.0f;
-  return *std::min_element(values.begin(), values.end());
+  return extremum_or_zero(values, std::min_element<decltype(values.begin())>);
 }
 
 }  // namespace
