@@ -340,6 +340,7 @@ def build_threshold_report(metrics: dict, args: argparse.Namespace) -> dict:
         "nrmse": metrics["nrmse"] <= thresholds["max_nrmse"],
     }
     return {
+        "schema_version": 1,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "config": config,
         "metrics": metrics,
