@@ -166,7 +166,7 @@ python3 scripts/devito_canonical_parity.py \
   --cli-bin ./build/rtm3d_cli
 ```
 
-Optional output (full report with run config + metrics + threshold checks):
+Optional output (full report with generation timestamp + run config + metrics + threshold checks):
 
 ```bash
 python3 scripts/devito_canonical_parity.py --metrics-out artifacts/devito_parity_metrics.json
