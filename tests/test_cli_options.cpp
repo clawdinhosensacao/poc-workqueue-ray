@@ -61,3 +61,25 @@ TEST(CliOptions, ExplicitInputPathOverridesDataDirDefault) {
   ASSERT_EQ(o.z_file, "data/z.json");
   ASSERT_EQ(o.values_file, "data/vel.json");
 }
+
+TEST(CliOptions, ExplicitOutputOverridesConfigOutputFile) {
+  std::filesystem::create_directories("tests/tmp_loader");
+  {
+    std::ofstream c("tests/tmp_loader/cfg_output_base.json");
+    c << "{\n"
+      << "  \"data_dir\": \"data\",\n"
+      << "  \"output_file\": \"output/from_config.pgm\"\n"
+      << "}\n";
+  }
+
+  const char* argv[] = {"rtm3d_cli",
+                        "--config",
+                        "tests/tmp_loader/cfg_output_base.json",
+                        "--output",
+                        "output/from_cli.pgm"};
+  const auto o =
+      rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
+                                const_cast<char**>(argv));
+
+  ASSERT_EQ(o.output_file, "output/from_cli.pgm");
+}
