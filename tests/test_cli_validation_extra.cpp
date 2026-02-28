@@ -50,3 +50,10 @@ TEST(CliOptionsExtra, RejectsInvalidCliOutputFormat) {
                                                const_cast<char**>(argv)),
                std::runtime_error);
 }
+
+TEST(CliOptionsExtra, RejectsInvalidCliFloatOption) {
+  const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--dy", "bad"};
+  EXPECT_THROW((void)rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
+                                               const_cast<char**>(argv)),
+               std::runtime_error);
+}
