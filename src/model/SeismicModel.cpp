@@ -7,6 +7,20 @@
 #include "rtm3d/model/ModelPresetsInternal.hpp"
 
 namespace rtm3d {
+namespace {
+
+constexpr float kMinReferenceVelocity = 1500.0f;
+constexpr float kSqrt2 = 1.41421356f;
+constexpr float kSqrt3 = 1.7320508f;
+
+float compute_max_stable_dt(const GridSpec& grid, float v_max) {
+  const float bounded_vmax = std::max(v_max, kMinReferenceVelocity);
+  const float d_min = std::min({grid.dx, grid.dz, grid.dy});
+  const float cfl_factor = grid.ny > 1 ? kSqrt3 : kSqrt2;
+  return d_min / (bounded_vmax * cfl_factor);
+}
+
+}  // namespace
 
 SeismicModel SeismicModel::from_preset(ModelPreset preset, const GridSpec& grid,
                                        float vp_top, float vp_bottom,
@@ -62,12 +76,7 @@ void SeismicModel::validate_for_rtm(const TimeAxis& time) const {
   }
 
   // CFL check: dt <= min(dx,dy,dz) / (v_max * sqrt(dim))
-  float v_max = max_velocity();
-  v_max = std::max(v_max, 1500.0f);
-
-  float d_min = std::min({grid_.dx, grid_.dz, grid_.dy});
-  float cfl_factor = grid_.ny > 1 ? 1.7320508f : 1.41421356f;  // sqrt(3) or sqrt(2)
-  float dt_max = d_min / (v_max * cfl_factor);
+  const float dt_max = compute_max_stable_dt(grid_, max_velocity());
 
   if (time.step > dt_max) {
     throw std::runtime_error("CFL condition violated: dt=" +
