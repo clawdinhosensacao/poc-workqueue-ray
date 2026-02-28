@@ -169,9 +169,18 @@ void build_fault_model(std::vector<float>& vp, const GridSpec& grid, float vp_to
 
 }  // namespace
 
+void ensure_velocity_size_matches_grid_or_throw(const std::vector<float>& vp,
+                                         const GridSpec& grid) {
+  const std::size_t expected = grid.nx * grid.nz * grid.ny;
+  if (vp.size() != expected) {
+    throw std::runtime_error("velocity vector size mismatch with grid dimensions");
+  }
+}
+
 void fill_preset_velocity(std::vector<float>& vp, ModelPreset preset,
                           const GridSpec& grid, float vp_top,
                           float vp_bottom, std::size_t nlayers) {
+  ensure_velocity_size_matches_grid_or_throw(vp, grid);
   switch (preset) {
     case ModelPreset::Constant:
       build_constant_model(vp, vp_top);
