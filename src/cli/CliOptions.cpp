@@ -67,6 +67,8 @@ OutputFormat parse_cli_output_format_or_throw(const std::string& token) {
 template <typename T>
 T parse_num(const std::string& s, const std::string& name);
 
+void apply_json_config(CliOptions& o, const std::string& path);
+
 std::runtime_error invalid_value_error(const std::string& name,
                                        const std::string& value) {
   return std::runtime_error("invalid value for " + name + ": " + value);
@@ -108,6 +110,16 @@ void apply_input_paths_from_json(const std::string& s, CliOptions& o) {
   if (const auto v = json_find_string(s, "x_file"); !v.empty()) o.x_file = v;
   if (const auto v = json_find_string(s, "z_file"); !v.empty()) o.z_file = v;
   if (const auto v = json_find_string(s, "values_file"); !v.empty()) o.values_file = v;
+}
+
+void apply_cli_input_source_option(const std::string& arg,
+                                    const std::string& value,
+                                    CliOptions& o) {
+  if (arg == "--config") {
+    apply_json_config(o, value);
+  } else if (arg == "--data-dir") {
+    apply_data_dir(o, value);
+  }
 }
 
 void apply_cli_input_path_option(const std::string& arg,
@@ -245,10 +257,8 @@ CliOptions parse_cli_or_throw(int argc, char** argv) {
     if (is_help_flag(arg)) throw std::runtime_error(cli_help());
     if (is_version_flag(arg)) throw std::runtime_error(cli_version());
 
-    if (arg == "--config") {
-      apply_json_config(o, parse_string_option(i));
-    } else if (arg == "--data-dir") {
-      apply_data_dir(o, parse_string_option(i));
+    if (arg == "--config" || arg == "--data-dir") {
+      apply_cli_input_source_option(arg, parse_string_option(i), o);
     } else if (arg == "--x-file" || arg == "--z-file" ||
                arg == "--values-file") {
       apply_cli_input_path_option(arg, parse_string_option(i), o);
