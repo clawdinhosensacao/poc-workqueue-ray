@@ -110,6 +110,18 @@ void apply_input_paths_from_json(const std::string& s, CliOptions& o) {
   if (const auto v = json_find_string(s, "values_file"); !v.empty()) o.values_file = v;
 }
 
+void apply_cli_input_path_option(const std::string& arg,
+                                 const std::string& value,
+                                 CliOptions& o) {
+  if (arg == "--x-file") {
+    o.x_file = value;
+  } else if (arg == "--z-file") {
+    o.z_file = value;
+  } else if (arg == "--values-file") {
+    o.values_file = value;
+  }
+}
+
 void apply_output_path_aliases_from_json(const std::string& s, CliOptions& o) {
   if (const auto v = json_find_string(s, "output_file"); !v.empty()) o.output_file = v;
   if (const auto v = json_find_string(s, "output"); !v.empty()) o.output_file = v;  // alias
@@ -237,12 +249,9 @@ CliOptions parse_cli_or_throw(int argc, char** argv) {
       apply_json_config(o, parse_string_option(i));
     } else if (arg == "--data-dir") {
       apply_data_dir(o, parse_string_option(i));
-    } else if (arg == "--x-file") {
-      o.x_file = parse_string_option(i);
-    } else if (arg == "--z-file") {
-      o.z_file = parse_string_option(i);
-    } else if (arg == "--values-file") {
-      o.values_file = parse_string_option(i);
+    } else if (arg == "--x-file" || arg == "--z-file" ||
+               arg == "--values-file") {
+      apply_cli_input_path_option(arg, parse_string_option(i), o);
     } else if (arg == "--output") {
       o.output_file = parse_string_option(i);
     } else if (arg == "--output-format") {
