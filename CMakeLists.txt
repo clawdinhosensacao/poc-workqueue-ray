@@ -12,6 +12,7 @@ add_library(rtm3d
     src/io/GridModelLoader.cpp
     src/io/ImageIO.cpp
     src/model/SeismicModel.cpp
+    src/model/ModelPresets.cpp
     src/rtm/RtmEngine.cpp
     src/rtm/Geometry.cpp
     src/rtm/InlineSlice.cpp
