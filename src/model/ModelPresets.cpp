@@ -22,6 +22,7 @@ constexpr float kSaltBaseRadiusRatio = 0.18f;
 float degrees_to_radians(float degrees) { return degrees * kPi / 180.0f; }
 
 float ratio(std::size_t value, std::size_t max_value) {
+  if (max_value == 0) return 0.0f;
   return static_cast<float>(value) / static_cast<float>(max_value);
 }
 
