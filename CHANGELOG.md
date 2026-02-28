@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Robust parity CLI options for grid/time/source/PML controls and JSON report output.
 - Threshold gating options for parity runs (`--fail-on-threshold`, `--min-ncc`, `--min-ssim`, `--max-nrmse`).
 - Configurable SSIM window via `--ssim-window`.
+- Canonical parity report metadata fields: `schema_version` and `generated_at_utc`.
 - `make parity-smoke` target to validate canonical parity script wiring and argument guards.
 - `make check` unified verification target (unit tests + parity smoke + static analysis).
 
@@ -18,6 +19,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - CI now uses `make check` as the unified validation stage before E2E.
 - README updated with canonical parity workflow, thresholds, exit codes, SSIM tuning, and `make check`/`parity-smoke` guidance.
 - Canonical parity report now includes full run configuration for reproducibility.
+- Canonical parity argument validation hardened (grid/time/velocity/geometry/threshold/space-order/CLI path checks).
+- `parity-smoke` expanded to cover invalid threshold, geometry bounds, velocity range, PML bounds, space-order, and missing CLI binary cases.
+- CI setup docs aligned with current `make check` + E2E workflow.
 - Preset consistency test now validates Y-slice replication across all built-in presets.
 
 ### Deprecated
