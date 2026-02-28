@@ -60,6 +60,10 @@ float radial_distance_squared(float dx, float dz) {
   return sqr(dx) + sqr(dz);
 }
 
+bool is_within_radius(float dx, float dz, float radius) {
+  return radial_distance_squared(dx, dz) <= sqr(radius);
+}
+
 float clampf(float value, float lo, float hi) {
   return std::max(lo, std::min(hi, value));
 }
@@ -133,7 +137,7 @@ void build_circle_model(std::vector<float>& vp, const GridSpec& grid, float vp_t
     for (std::size_t i = 0; i < grid.nx; ++i) {
       float dx = static_cast<float>(i) - cx;
       float dz = static_cast<float>(k) - cz;
-      if (radial_distance_squared(dx, dz) <= sqr(radius)) {
+      if (is_within_radius(dx, dz, radius)) {
         set_velocity_along_y(vp, grid, i, k, vp_bottom);
       }
     }
