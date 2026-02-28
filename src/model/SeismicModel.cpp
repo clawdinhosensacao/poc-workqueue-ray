@@ -17,6 +17,14 @@ std::size_t velocity_cell_count(const GridSpec& grid) {
   return grid.nx * grid.nz * grid.ny;
 }
 
+void read_velocity_file_or_throw(std::ifstream& file, std::vector<float>& vp,
+                                 const std::string& path) {
+  file.read(reinterpret_cast<char*>(vp.data()), vp.size() * sizeof(float));
+  if (!file) {
+    throw std::runtime_error("Failed to read velocity file: " + path);
+  }
+}
+
 float compute_max_stable_dt(const GridSpec& grid, float v_max) {
   const float bounded_vmax = std::max(v_max, kMinReferenceVelocity);
   const float d_min = std::min({grid.dx, grid.dz, grid.dy});
@@ -54,12 +62,7 @@ SeismicModel SeismicModel::from_file(const std::string& path, const GridSpec& gr
 
   SeismicModel model(grid);
   model.vp_.resize(velocity_cell_count(grid));
-  file.read(reinterpret_cast<char*>(model.vp_.data()),
-            model.vp_.size() * sizeof(float));
-
-  if (!file) {
-    throw std::runtime_error("Failed to read velocity file: " + path);
-  }
+  read_velocity_file_or_throw(file, model.vp_, path);
 
   return model;
 }
