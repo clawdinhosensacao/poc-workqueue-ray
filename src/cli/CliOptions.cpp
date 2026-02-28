@@ -100,6 +100,12 @@ float parse_num<float>(const std::string& s, const std::string& name) {
   }
 }
 
+void apply_input_paths_from_json(const std::string& s, CliOptions& o) {
+  if (const auto v = json_find_string(s, "x_file"); !v.empty()) o.x_file = v;
+  if (const auto v = json_find_string(s, "z_file"); !v.empty()) o.z_file = v;
+  if (const auto v = json_find_string(s, "values_file"); !v.empty()) o.values_file = v;
+}
+
 void apply_output_path_aliases_from_json(const std::string& s, CliOptions& o) {
   if (const auto v = json_find_string(s, "output_file"); !v.empty()) o.output_file = v;
   if (const auto v = json_find_string(s, "output"); !v.empty()) o.output_file = v;  // alias
@@ -107,10 +113,6 @@ void apply_output_path_aliases_from_json(const std::string& s, CliOptions& o) {
 
 void apply_json_config(CliOptions& o, const std::string& path) {
   const auto s = slurp_file(path);
-
-  const auto set_string_if_present = [&](const std::string& key, std::string& out) {
-    if (const auto v = json_find_string(s, key); !v.empty()) out = v;
-  };
 
   const auto set_numeric_if_present =
       [&](const std::string& key, auto& out) {
@@ -122,9 +124,7 @@ void apply_json_config(CliOptions& o, const std::string& path) {
   if (const auto dir = json_find_string(s, "data_dir"); !dir.empty()) {
     apply_data_dir(o, dir);
   }
-  set_string_if_present("x_file", o.x_file);
-  set_string_if_present("z_file", o.z_file);
-  set_string_if_present("values_file", o.values_file);
+  apply_input_paths_from_json(s, o);
   apply_output_path_aliases_from_json(s, o);
 
   if (const auto v = json_find_string(s, "output_format"); !v.empty()) {
