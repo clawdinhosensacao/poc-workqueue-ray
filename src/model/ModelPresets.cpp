@@ -50,6 +50,8 @@ float default_circle_radius(const GridSpec& grid) {
   return scaled_min_nx_nz(grid, 1.0f / kCircleRadiusDivisor);
 }
 
+float sqr(float value) { return value * value; }
+
 float clampf(float value, float lo, float hi) {
   return std::max(lo, std::min(hi, value));
 }
@@ -123,7 +125,7 @@ void build_circle_model(std::vector<float>& vp, const GridSpec& grid, float vp_t
     for (std::size_t i = 0; i < grid.nx; ++i) {
       float dx = static_cast<float>(i) - cx;
       float dz = static_cast<float>(k) - cz;
-      if (dx * dx + dz * dz <= radius * radius) {
+      if (sqr(dx) + sqr(dz) <= sqr(radius)) {
         set_velocity_along_y(vp, grid, i, k, vp_bottom);
       }
     }
@@ -142,7 +144,7 @@ void build_circle_lens_model(std::vector<float>& vp, const GridSpec& grid,
     for (std::size_t i = 0; i < grid.nx; ++i) {
       float dx = (static_cast<float>(i) - cx) / sx;
       float dz = (static_cast<float>(k) - cz) / sz;
-      float gaussian = std::exp(-(dx * dx + dz * dz));
+      float gaussian = std::exp(-(sqr(dx) + sqr(dz)));
       set_velocity_along_y(vp, grid, i, k,
                            vp_top + (vp_bottom - vp_top) * gaussian);
     }
@@ -181,7 +183,7 @@ void build_salt_dome_model(std::vector<float>& vp, const GridSpec& grid,
 
     for (std::size_t i = 0; i < grid.nx; ++i) {
       float dx = static_cast<float>(i) - cx;
-      if (dx * dx <= radius * radius) {
+      if (sqr(dx) <= sqr(radius)) {
         set_velocity_along_y(vp, grid, i, k, kSaltVelocity);
       }
     }
