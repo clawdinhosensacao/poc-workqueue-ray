@@ -218,6 +218,20 @@ void apply_cli_rtm_float_option(const std::string& arg,
   }
 }
 
+void apply_cli_numeric_option(const std::string& arg,
+                              int& i,
+                              CliOptions& o,
+                              const auto& parse_size_option,
+                              const auto& parse_float_option) {
+  if (is_load_option(arg)) {
+    apply_cli_load_option(arg, parse_size_option(i, arg), o);
+  } else if (is_rtm_size_option(arg)) {
+    apply_cli_rtm_size_option(arg, parse_size_option(i, arg), o);
+  } else {
+    apply_cli_rtm_float_option(arg, parse_float_option(i, arg), o);
+  }
+}
+
 void apply_output_path_aliases_from_json(const std::string& s, CliOptions& o) {
   if (const auto v = json_find_string(s, "output_file"); !v.empty()) o.output_file = v;
   if (const auto v = json_find_string(s, "output"); !v.empty()) o.output_file = v;  // alias
@@ -348,13 +362,7 @@ CliOptions parse_cli_or_throw(int argc, char** argv) {
     } else if (is_output_option(arg)) {
       apply_cli_output_option(arg, parse_string_option(i), o);
     } else if (is_numeric_option(arg)) {
-      if (is_load_option(arg)) {
-        apply_cli_load_option(arg, parse_size_option(i, arg), o);
-      } else if (is_rtm_size_option(arg)) {
-        apply_cli_rtm_size_option(arg, parse_size_option(i, arg), o);
-      } else {
-        apply_cli_rtm_float_option(arg, parse_float_option(i, arg), o);
-      }
+      apply_cli_numeric_option(arg, i, o, parse_size_option, parse_float_option);
     } else if (is_flag(arg)) {
       throw std::runtime_error("unknown option: " + arg);
     } else {
