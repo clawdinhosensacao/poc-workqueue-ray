@@ -149,14 +149,11 @@ TEST(CliOptions, LaterConfigOverridesEarlierDataDir) {
 }
 
 TEST(CliOptions, LaterConfigOverridesEarlierOutputFormat) {
-  std::filesystem::create_directories("tests/tmp_loader");
-  {
-    std::ofstream c("tests/tmp_loader/cfg_override_output_format.json");
-    c << "{\n"
-      << "  \"data_dir\": \"data\",\n"
-      << "  \"output_format\": \"pgm8\"\n"
-      << "}\n";
-  }
+  write_config_file("tests/tmp_loader/cfg_override_output_format.json",
+                    "{\n"
+                    "  \"data_dir\": \"data\",\n"
+                    "  \"output_format\": \"pgm8\"\n"
+                    "}\n");
 
   const char* argv[] = {"rtm3d_cli",
                         "--data-dir",
@@ -173,14 +170,11 @@ TEST(CliOptions, LaterConfigOverridesEarlierOutputFormat) {
 }
 
 TEST(CliOptions, LaterCliOutputFormatOverridesEarlierConfig) {
-  std::filesystem::create_directories("tests/tmp_loader");
-  {
-    std::ofstream c("tests/tmp_loader/cfg_base_output_format.json");
-    c << "{\n"
-      << "  \"data_dir\": \"data\",\n"
-      << "  \"output_format\": \"pgm8\"\n"
-      << "}\n";
-  }
+  write_config_file("tests/tmp_loader/cfg_base_output_format.json",
+                    "{\n"
+                    "  \"data_dir\": \"data\",\n"
+                    "  \"output_format\": \"pgm8\"\n"
+                    "}\n");
 
   const char* argv[] = {"rtm3d_cli",
                         "--config",
@@ -195,14 +189,11 @@ TEST(CliOptions, LaterCliOutputFormatOverridesEarlierConfig) {
 }
 
 TEST(CliOptions, LaterConfigOutputOverridesEarlierCliOutput) {
-  std::filesystem::create_directories("tests/tmp_loader");
-  {
-    std::ofstream c("tests/tmp_loader/cfg_later_output.json");
-    c << "{\n"
-      << "  \"data_dir\": \"data\",\n"
-      << "  \"output_file\": \"output/from_later_config.pgm\"\n"
-      << "}\n";
-  }
+  write_config_file("tests/tmp_loader/cfg_later_output.json",
+                    "{\n"
+                    "  \"data_dir\": \"data\",\n"
+                    "  \"output_file\": \"output/from_later_config.pgm\"\n"
+                    "}\n");
 
   const char* argv[] = {"rtm3d_cli",
                         "--data-dir",
