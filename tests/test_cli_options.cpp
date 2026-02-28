@@ -46,3 +46,18 @@ TEST(CliOptions, ParsesConfigFileAndFormat) {
   ASSERT_EQ(o.rtm.nt, 90u);
   ASSERT_EQ(o.output_format, rtm3d::OutputFormat::kFloat32Raw);
 }
+
+TEST(CliOptions, ExplicitInputPathOverridesDataDirDefault) {
+  const char* argv[] = {"rtm3d_cli",
+                        "--data-dir",
+                        "data",
+                        "--x-file",
+                        "custom/x.json"};
+  const auto o =
+      rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
+                                const_cast<char**>(argv));
+
+  ASSERT_EQ(o.x_file, "custom/x.json");
+  ASSERT_EQ(o.z_file, "data/z.json");
+  ASSERT_EQ(o.values_file, "data/vel.json");
+}
