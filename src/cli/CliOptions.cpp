@@ -60,6 +60,10 @@ OutputFormat parse_output_format_or_throw(const std::string& token, const std::s
   throw std::runtime_error("invalid output format in " + source + ": " + token);
 }
 
+OutputFormat parse_cli_output_format_or_throw(const std::string& token) {
+  return parse_output_format_or_throw(token, "--output-format");
+}
+
 template <typename T>
 T parse_num(const std::string& s, const std::string& name);
 
@@ -242,7 +246,8 @@ CliOptions parse_cli_or_throw(int argc, char** argv) {
     } else if (arg == "--output") {
       o.output_file = parse_string_option(i, "--output");
     } else if (arg == "--output-format") {
-      o.output_format = parse_output_format_or_throw(parse_string_option(i, "--output-format"), "--output-format");
+      o.output_format = parse_cli_output_format_or_throw(
+          parse_string_option(i, "--output-format"));
     } else if (arg == "--decim-x") {
       o.load.decim_x = parse_size_option(i, "--decim-x");
     } else if (arg == "--decim-z") {
