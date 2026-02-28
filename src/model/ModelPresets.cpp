@@ -33,6 +33,14 @@ float grid_center_z(const GridSpec& grid) {
   return static_cast<float>(grid.nz) / 2.0f;
 }
 
+float scaled_nx(const GridSpec& grid, float ratio_value) {
+  return static_cast<float>(grid.nx) * ratio_value;
+}
+
+float scaled_nz(const GridSpec& grid, float ratio_value) {
+  return static_cast<float>(grid.nz) * ratio_value;
+}
+
 float default_circle_radius(const GridSpec& grid) {
   return static_cast<float>(std::min(grid.nx, grid.nz)) / kCircleRadiusDivisor;
 }
@@ -120,10 +128,10 @@ void build_circle_model(std::vector<float>& vp, const GridSpec& grid, float vp_t
 void build_circle_lens_model(std::vector<float>& vp, const GridSpec& grid,
                              float vp_top, float vp_bottom) {
   std::fill(vp.begin(), vp.end(), vp_top);
-  float cx = static_cast<float>(grid.nx) * kCircleLensCenterXRatio;
-  float cz = static_cast<float>(grid.nz) * kCircleLensCenterZRatio;
-  float sx = static_cast<float>(grid.nx) * kCircleLensSigmaRatio;
-  float sz = static_cast<float>(grid.nz) * kCircleLensSigmaRatio;
+  float cx = scaled_nx(grid, kCircleLensCenterXRatio);
+  float cz = scaled_nz(grid, kCircleLensCenterZRatio);
+  float sx = scaled_nx(grid, kCircleLensSigmaRatio);
+  float sz = scaled_nz(grid, kCircleLensSigmaRatio);
 
   for (std::size_t k = 0; k < grid.nz; ++k) {
     for (std::size_t i = 0; i < grid.nx; ++i) {
@@ -149,9 +157,9 @@ void build_salt_dome_model(std::vector<float>& vp, const GridSpec& grid,
   }
 
   float cx = grid_center_x(grid);
-  float base_radius = static_cast<float>(grid.nx) * kSaltBaseRadiusRatio;
-  float top_z = static_cast<float>(grid.nz) * kSaltTopDepthRatio;
-  float base_z = static_cast<float>(grid.nz) * kSaltBaseDepthRatio;
+  float base_radius = scaled_nx(grid, kSaltBaseRadiusRatio);
+  float top_z = scaled_nz(grid, kSaltTopDepthRatio);
+  float base_z = scaled_nz(grid, kSaltBaseDepthRatio);
 
   for (std::size_t k = 0; k < grid.nz; ++k) {
     float z = static_cast<float>(k);
@@ -177,9 +185,9 @@ void build_salt_dome_model(std::vector<float>& vp, const GridSpec& grid,
 
 void build_fault_model(std::vector<float>& vp, const GridSpec& grid, float vp_top,
                        float vp_bottom, std::size_t nlayers) {
-  float fault_x = static_cast<float>(grid.nx) * kFaultXRatio;
+  float fault_x = scaled_nx(grid, kFaultXRatio);
   float dip = degrees_to_radians(kFaultDipDegrees);
-  float throw_amount = static_cast<float>(grid.nz) * kFaultThrowRatio;
+  float throw_amount = scaled_nz(grid, kFaultThrowRatio);
 
   std::vector<float> vp_layer = build_layer_velocities(vp_top, vp_bottom, nlayers);
 
