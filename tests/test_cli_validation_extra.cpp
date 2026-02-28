@@ -43,3 +43,10 @@ TEST(CliOptionsExtra, ConfigOutputAliasOverridesOutputFile) {
   const auto o = rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)), const_cast<char**>(argv));
   EXPECT_EQ(o.output_file, "output/from_output_alias.pgm");
 }
+
+TEST(CliOptionsExtra, RejectsInvalidCliOutputFormat) {
+  const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--output-format", "bad"};
+  EXPECT_THROW((void)rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
+                                               const_cast<char**>(argv)),
+               std::runtime_error);
+}
