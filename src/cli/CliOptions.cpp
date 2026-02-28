@@ -50,6 +50,11 @@ bool is_rtm_float_option(const std::string& token) {
   return token == "--dy" || token == "--dt" || token == "--f0";
 }
 
+bool is_numeric_option(const std::string& token) {
+  return is_load_option(token) || is_rtm_size_option(token) ||
+         is_rtm_float_option(token);
+}
+
 std::string require_value(int argc, char** argv, int& i) {
   if (i + 1 >= argc) throw std::runtime_error("missing value for " + std::string(argv[i]));
   return argv[++i];
@@ -342,12 +347,14 @@ CliOptions parse_cli_or_throw(int argc, char** argv) {
       apply_cli_input_path_option(arg, parse_string_option(i), o);
     } else if (is_output_option(arg)) {
       apply_cli_output_option(arg, parse_string_option(i), o);
-    } else if (is_load_option(arg)) {
-      apply_cli_load_option(arg, parse_size_option(i, arg), o);
-    } else if (is_rtm_size_option(arg)) {
-      apply_cli_rtm_size_option(arg, parse_size_option(i, arg), o);
-    } else if (is_rtm_float_option(arg)) {
-      apply_cli_rtm_float_option(arg, parse_float_option(i, arg), o);
+    } else if (is_numeric_option(arg)) {
+      if (is_load_option(arg)) {
+        apply_cli_load_option(arg, parse_size_option(i, arg), o);
+      } else if (is_rtm_size_option(arg)) {
+        apply_cli_rtm_size_option(arg, parse_size_option(i, arg), o);
+      } else {
+        apply_cli_rtm_float_option(arg, parse_float_option(i, arg), o);
+      }
     } else if (is_flag(arg)) {
       throw std::runtime_error("unknown option: " + arg);
     } else {
