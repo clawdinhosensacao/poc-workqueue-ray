@@ -70,33 +70,48 @@ float parse_num<float>(const std::string& s, const std::string& name) {
 void apply_json_config(CliOptions& o, const std::string& path) {
   const auto s = slurp_file(path);
 
+  const auto set_string_if_present = [&](const std::string& key, std::string& out) {
+    if (const auto v = json_find_string(s, key); !v.empty()) out = v;
+  };
+
+  const auto set_size_if_present = [&](const std::string& key, std::size_t& out) {
+    if (const auto v = json_find_number_token(s, key); !v.empty()) {
+      out = parse_num<std::size_t>(v, key);
+    }
+  };
+
+  const auto set_float_if_present = [&](const std::string& key, float& out) {
+    if (const auto v = json_find_number_token(s, key); !v.empty()) {
+      out = parse_num<float>(v, key);
+    }
+  };
+
   if (const auto dir = json_find_string(s, "data_dir"); !dir.empty()) {
     apply_data_dir(o, dir);
   }
-  if (const auto v = json_find_string(s, "x_file"); !v.empty()) o.x_file = v;
-  if (const auto v = json_find_string(s, "z_file"); !v.empty()) o.z_file = v;
-  if (const auto v = json_find_string(s, "values_file"); !v.empty()) o.values_file = v;
-  if (const auto v = json_find_string(s, "output_file"); !v.empty()) o.output_file = v;
-  if (const auto v = json_find_string(s, "output"); !v.empty()) o.output_file = v;  // alias
+  set_string_if_present("x_file", o.x_file);
+  set_string_if_present("z_file", o.z_file);
+  set_string_if_present("values_file", o.values_file);
+  set_string_if_present("output_file", o.output_file);
+  set_string_if_present("output", o.output_file);  // alias
 
   if (const auto v = json_find_string(s, "output_format"); !v.empty()) {
     o.output_format = parse_output_format_or_throw(v, "config");
   }
 
-  if (const auto v = json_find_number_token(s, "decim_x"); !v.empty()) o.load.decim_x = parse_num<std::size_t>(v, "decim_x");
-  if (const auto v = json_find_number_token(s, "decim_z"); !v.empty()) o.load.decim_z = parse_num<std::size_t>(v, "decim_z");
-  if (const auto v = json_find_number_token(s, "crop_x"); !v.empty()) o.load.crop_x = parse_num<std::size_t>(v, "crop_x");
-  if (const auto v = json_find_number_token(s, "crop_z"); !v.empty()) o.load.crop_z = parse_num<std::size_t>(v, "crop_z");
+  set_size_if_present("decim_x", o.load.decim_x);
+  set_size_if_present("decim_z", o.load.decim_z);
+  set_size_if_present("crop_x", o.load.crop_x);
+  set_size_if_present("crop_z", o.load.crop_z);
 
-  if (const auto v = json_find_number_token(s, "ny"); !v.empty()) o.rtm.ny = parse_num<std::size_t>(v, "ny");
-  if (const auto v = json_find_number_token(s, "dy"); !v.empty()) o.rtm.dy = parse_num<float>(v, "dy");
-  if (const auto v = json_find_number_token(s, "dt"); !v.empty()) o.rtm.dt = parse_num<float>(v, "dt");
-  if (const auto v = json_find_number_token(s, "nt"); !v.empty()) o.rtm.nt = parse_num<std::size_t>(v, "nt");
-  if (const auto v = json_find_number_token(s, "f0"); !v.empty()) o.rtm.f0 = parse_num<float>(v, "f0");
-  if (const auto v = json_find_number_token(s, "pml"); !v.empty()) o.rtm.pml = parse_num<std::size_t>(v, "pml");
-  if (const auto v = json_find_number_token(s, "receiver_stride"); !v.empty())
-    o.rtm.receiver_stride = parse_num<std::size_t>(v, "receiver_stride");
-  if (const auto v = json_find_number_token(s, "n_shots"); !v.empty()) o.n_shots = parse_num<std::size_t>(v, "n_shots");
+  set_size_if_present("ny", o.rtm.ny);
+  set_float_if_present("dy", o.rtm.dy);
+  set_float_if_present("dt", o.rtm.dt);
+  set_size_if_present("nt", o.rtm.nt);
+  set_float_if_present("f0", o.rtm.f0);
+  set_size_if_present("pml", o.rtm.pml);
+  set_size_if_present("receiver_stride", o.rtm.receiver_stride);
+  set_size_if_present("n_shots", o.n_shots);
 }
 
 void validate(const CliOptions& o) {
