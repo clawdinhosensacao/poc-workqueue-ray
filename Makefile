@@ -26,6 +26,8 @@ build/rtm3d_tests: build $(GTEST_DIR) $(SRC) $(TEST_SRC)
 test: build/rtm3d_tests
 	./build/rtm3d_tests
 
+check: test parity-smoke static
+
 parity-smoke:
 	python3 -m py_compile scripts/devito_canonical_parity.py
 	python3 scripts/devito_canonical_parity.py --help >/dev/null
