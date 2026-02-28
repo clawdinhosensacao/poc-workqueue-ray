@@ -12,6 +12,12 @@ rtm3d::CliOptions parse_cli(const char* (&argv)[N]) {
   return rtm3d::parse_cli_or_throw(static_cast<int>(N), const_cast<char**>(argv));
 }
 
+void write_config_file(const std::string& path, const std::string& body) {
+  std::filesystem::create_directories("tests/tmp_loader");
+  std::ofstream c(path);
+  c << body;
+}
+
 }  // namespace
 
 TEST(CliOptions, ParsesDataDirAndRtmSettings) {
@@ -37,16 +43,13 @@ TEST(CliOptions, RejectsMissingInput) {
 }
 
 TEST(CliOptions, ParsesConfigFileAndFormat) {
-  std::filesystem::create_directories("tests/tmp_loader");
-  {
-    std::ofstream c("tests/tmp_loader/cfg.json");
-    c << "{\n"
-      << "  \"data_dir\": \"data\",\n"
-      << "  \"output_file\": \"output/out.bin\",\n"
-      << "  \"output_format\": \"float32_raw\",\n"
-      << "  \"nt\": 90\n"
-      << "}\n";
-  }
+  write_config_file("tests/tmp_loader/cfg.json",
+                    "{\n"
+                    "  \"data_dir\": \"data\",\n"
+                    "  \"output_file\": \"output/out.bin\",\n"
+                    "  \"output_format\": \"float32_raw\",\n"
+                    "  \"nt\": 90\n"
+                    "}\n");
 
   const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg.json"};
   const auto o = parse_cli(argv);
@@ -72,14 +75,11 @@ TEST(CliOptions, ExplicitInputPathOverridesDataDirDefault) {
 }
 
 TEST(CliOptions, ExplicitOutputOverridesConfigOutputFile) {
-  std::filesystem::create_directories("tests/tmp_loader");
-  {
-    std::ofstream c("tests/tmp_loader/cfg_output_base.json");
-    c << "{\n"
-      << "  \"data_dir\": \"data\",\n"
-      << "  \"output_file\": \"output/from_config.pgm\"\n"
-      << "}\n";
-  }
+  write_config_file("tests/tmp_loader/cfg_output_base.json",
+                    "{\n"
+                    "  \"data_dir\": \"data\",\n"
+                    "  \"output_file\": \"output/from_config.pgm\"\n"
+                    "}\n");
 
   const char* argv[] = {"rtm3d_cli",
                         "--config",
