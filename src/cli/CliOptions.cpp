@@ -32,6 +32,10 @@ bool is_input_path_option(const std::string& token) {
          token == "--values-file";
 }
 
+bool is_output_option(const std::string& token) {
+  return token == "--output" || token == "--output-format";
+}
+
 std::string require_value(int argc, char** argv, int& i) {
   if (i + 1 >= argc) throw std::runtime_error("missing value for " + std::string(argv[i]));
   return argv[++i];
@@ -140,6 +144,16 @@ void apply_cli_input_path_option(const std::string& arg,
     o.z_file = value;
   } else if (arg == "--values-file") {
     o.values_file = value;
+  }
+}
+
+void apply_cli_output_option(const std::string& arg,
+                             const std::string& value,
+                             CliOptions& o) {
+  if (arg == "--output") {
+    o.output_file = value;
+  } else if (arg == "--output-format") {
+    o.output_format = parse_cli_output_format_or_throw(value);
   }
 }
 
@@ -270,11 +284,8 @@ CliOptions parse_cli_or_throw(int argc, char** argv) {
       apply_cli_input_source_option(arg, parse_string_option(i), o);
     } else if (is_input_path_option(arg)) {
       apply_cli_input_path_option(arg, parse_string_option(i), o);
-    } else if (arg == "--output") {
-      o.output_file = parse_string_option(i);
-    } else if (arg == "--output-format") {
-      o.output_format = parse_cli_output_format_or_throw(
-          parse_string_option(i));
+    } else if (is_output_option(arg)) {
+      apply_cli_output_option(arg, parse_string_option(i), o);
     } else if (arg == "--decim-x") {
       o.load.decim_x = parse_size_option(i, "--decim-x");
     } else if (arg == "--decim-z") {
