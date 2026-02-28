@@ -29,10 +29,14 @@ void read_velocity_file_or_throw(std::ifstream& file, std::vector<float>& vp,
   }
 }
 
+float cfl_dimension_factor(const GridSpec& grid) {
+  return grid.ny > 1 ? kSqrt3 : kSqrt2;
+}
+
 float compute_max_stable_dt(const GridSpec& grid, float v_max) {
   const float bounded_vmax = std::max(v_max, kMinReferenceVelocity);
   const float d_min = std::min({grid.dx, grid.dz, grid.dy});
-  const float cfl_factor = grid.ny > 1 ? kSqrt3 : kSqrt2;
+  const float cfl_factor = cfl_dimension_factor(grid);
   return d_min / (bounded_vmax * cfl_factor);
 }
 
