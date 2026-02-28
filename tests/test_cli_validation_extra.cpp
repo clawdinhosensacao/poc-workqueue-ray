@@ -5,9 +5,20 @@
 
 #include "rtm3d/cli/CliOptions.hpp"
 
+namespace {
+
+template <std::size_t N>
+void expect_parse_throws(const char* (&argv)[N]) {
+  EXPECT_THROW(
+      (void)rtm3d::parse_cli_or_throw(static_cast<int>(N), const_cast<char**>(argv)),
+      std::runtime_error);
+}
+
+}  // namespace
+
 TEST(CliOptionsExtra, RejectsZeroStride) {
   const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--receiver-stride", "0"};
-  EXPECT_THROW((void)rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)), const_cast<char**>(argv)), std::runtime_error);
+  expect_parse_throws(argv);
 }
 
 TEST(CliOptionsExtra, RejectsInvalidConfigOutputFormat) {
@@ -19,13 +30,14 @@ TEST(CliOptionsExtra, RejectsInvalidConfigOutputFormat) {
       << "  \"output_format\": \"bad\"\n"
       << "}\n";
   }
+
   const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_bad_format.json"};
-  EXPECT_THROW((void)rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)), const_cast<char**>(argv)), std::runtime_error);
+  expect_parse_throws(argv);
 }
 
 TEST(CliOptionsExtra, RejectsNegativeUnsignedOption) {
   const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--decim-x", "-1"};
-  EXPECT_THROW((void)rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)), const_cast<char**>(argv)), std::runtime_error);
+  expect_parse_throws(argv);
 }
 
 TEST(CliOptionsExtra, ConfigOutputAliasOverridesOutputFile) {
@@ -40,90 +52,67 @@ TEST(CliOptionsExtra, ConfigOutputAliasOverridesOutputFile) {
   }
 
   const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_output_alias.json"};
-  const auto o = rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)), const_cast<char**>(argv));
+  const auto o = rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
+                                            const_cast<char**>(argv));
   EXPECT_EQ(o.output_file, "output/from_output_alias.pgm");
 }
 
 TEST(CliOptionsExtra, RejectsInvalidCliOutputFormat) {
   const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--output-format", "bad"};
-  EXPECT_THROW((void)rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
-                                               const_cast<char**>(argv)),
-               std::runtime_error);
+  expect_parse_throws(argv);
 }
 
 TEST(CliOptionsExtra, RejectsInvalidCliFloatOption) {
   const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--dy", "bad"};
-  EXPECT_THROW((void)rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
-                                               const_cast<char**>(argv)),
-               std::runtime_error);
+  expect_parse_throws(argv);
 }
 
 TEST(CliOptionsExtra, RejectsOutOfRangeCliFloatOption) {
   const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--dy", "1e999"};
-  EXPECT_THROW((void)rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
-                                               const_cast<char**>(argv)),
-               std::runtime_error);
+  expect_parse_throws(argv);
 }
 
 TEST(CliOptionsExtra, RejectsOutOfRangeCliSizeOption) {
   const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--nt", "18446744073709551616"};
-  EXPECT_THROW((void)rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
-                                               const_cast<char**>(argv)),
-               std::runtime_error);
+  expect_parse_throws(argv);
 }
 
 TEST(CliOptionsExtra, RejectsMissingValueForOutputFormat) {
   const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--output-format"};
-  EXPECT_THROW((void)rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
-                                               const_cast<char**>(argv)),
-               std::runtime_error);
+  expect_parse_throws(argv);
 }
 
 TEST(CliOptionsExtra, RejectsMissingValueForDy) {
   const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--dy"};
-  EXPECT_THROW((void)rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
-                                               const_cast<char**>(argv)),
-               std::runtime_error);
+  expect_parse_throws(argv);
 }
 
 TEST(CliOptionsExtra, RejectsMissingValueForNt) {
   const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--nt"};
-  EXPECT_THROW((void)rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
-                                               const_cast<char**>(argv)),
-               std::runtime_error);
+  expect_parse_throws(argv);
 }
 
 TEST(CliOptionsExtra, RejectsMissingValueForConfigPath) {
   const char* argv[] = {"rtm3d_cli", "--config"};
-  EXPECT_THROW((void)rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
-                                               const_cast<char**>(argv)),
-               std::runtime_error);
+  expect_parse_throws(argv);
 }
 
 TEST(CliOptionsExtra, RejectsMissingValueForDataDir) {
   const char* argv[] = {"rtm3d_cli", "--data-dir"};
-  EXPECT_THROW((void)rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
-                                               const_cast<char**>(argv)),
-               std::runtime_error);
+  expect_parse_throws(argv);
 }
 
 TEST(CliOptionsExtra, RejectsMissingValueForXFile) {
   const char* argv[] = {"rtm3d_cli", "--x-file"};
-  EXPECT_THROW((void)rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
-                                               const_cast<char**>(argv)),
-               std::runtime_error);
+  expect_parse_throws(argv);
 }
 
 TEST(CliOptionsExtra, RejectsMissingValueForZFile) {
   const char* argv[] = {"rtm3d_cli", "--z-file"};
-  EXPECT_THROW((void)rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
-                                               const_cast<char**>(argv)),
-               std::runtime_error);
+  expect_parse_throws(argv);
 }
 
 TEST(CliOptionsExtra, RejectsMissingValueForValuesFile) {
   const char* argv[] = {"rtm3d_cli", "--values-file"};
-  EXPECT_THROW((void)rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
-                                               const_cast<char**>(argv)),
-               std::runtime_error);
+  expect_parse_throws(argv);
 }
