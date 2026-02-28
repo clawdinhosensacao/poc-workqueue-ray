@@ -23,6 +23,15 @@ bool is_version_flag(const std::string& token) {
   return token == "--version" || token == "-V";
 }
 
+bool is_input_source_option(const std::string& token) {
+  return token == "--config" || token == "--data-dir";
+}
+
+bool is_input_path_option(const std::string& token) {
+  return token == "--x-file" || token == "--z-file" ||
+         token == "--values-file";
+}
+
 std::string require_value(int argc, char** argv, int& i) {
   if (i + 1 >= argc) throw std::runtime_error("missing value for " + std::string(argv[i]));
   return argv[++i];
@@ -257,10 +266,9 @@ CliOptions parse_cli_or_throw(int argc, char** argv) {
     if (is_help_flag(arg)) throw std::runtime_error(cli_help());
     if (is_version_flag(arg)) throw std::runtime_error(cli_version());
 
-    if (arg == "--config" || arg == "--data-dir") {
+    if (is_input_source_option(arg)) {
       apply_cli_input_source_option(arg, parse_string_option(i), o);
-    } else if (arg == "--x-file" || arg == "--z-file" ||
-               arg == "--values-file") {
+    } else if (is_input_path_option(arg)) {
       apply_cli_input_path_option(arg, parse_string_option(i), o);
     } else if (arg == "--output") {
       o.output_file = parse_string_option(i);
