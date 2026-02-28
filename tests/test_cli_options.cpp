@@ -144,3 +144,27 @@ TEST(CliOptions, LaterConfigOverridesEarlierDataDir) {
   ASSERT_EQ(o.z_file, "custom_data/z.json");
   ASSERT_EQ(o.values_file, "custom_data/vel.json");
 }
+
+TEST(CliOptions, LaterConfigOverridesEarlierOutputFormat) {
+  std::filesystem::create_directories("tests/tmp_loader");
+  {
+    std::ofstream c("tests/tmp_loader/cfg_override_output_format.json");
+    c << "{\n"
+      << "  \"data_dir\": \"data\",\n"
+      << "  \"output_format\": \"pgm8\"\n"
+      << "}\n";
+  }
+
+  const char* argv[] = {"rtm3d_cli",
+                        "--data-dir",
+                        "data",
+                        "--output-format",
+                        "float32_raw",
+                        "--config",
+                        "tests/tmp_loader/cfg_override_output_format.json"};
+  const auto o =
+      rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
+                                const_cast<char**>(argv));
+
+  ASSERT_EQ(o.output_format, rtm3d::OutputFormat::kPgm8);
+}
