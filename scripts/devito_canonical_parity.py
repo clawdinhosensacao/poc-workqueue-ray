@@ -29,6 +29,7 @@ import os
 import subprocess
 import sys
 import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
@@ -339,6 +340,7 @@ def build_threshold_report(metrics: dict, args: argparse.Namespace) -> dict:
         "nrmse": metrics["nrmse"] <= thresholds["max_nrmse"],
     }
     return {
+        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "config": config,
         "metrics": metrics,
         "thresholds": thresholds,
