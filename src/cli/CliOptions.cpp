@@ -154,14 +154,15 @@ std::string cli_version() { return std::string("rtm3d-cli ") + kVersion + "\n"; 
 CliOptions parse_cli_or_throw(int argc, char** argv) {
   CliOptions o;
 
+  const auto parse_size_option = [&](int& idx, const std::string& name) {
+    return parse_num<std::size_t>(require_value(argc, argv, idx), name);
+  };
+  const auto parse_float_option = [&](int& idx, const std::string& name) {
+    return parse_num<float>(require_value(argc, argv, idx), name);
+  };
+
   for (int i = 1; i < argc; ++i) {
     const std::string arg = argv[i];
-    const auto parse_size_option = [&](const std::string& name) {
-      return parse_num<std::size_t>(require_value(argc, argv, i), name);
-    };
-    const auto parse_float_option = [&](const std::string& name) {
-      return parse_num<float>(require_value(argc, argv, i), name);
-    };
     if (arg == "--help" || arg == "-h") throw std::runtime_error(cli_help());
     if (arg == "--version" || arg == "-V") throw std::runtime_error(cli_version());
 
@@ -180,29 +181,29 @@ CliOptions parse_cli_or_throw(int argc, char** argv) {
     } else if (arg == "--output-format") {
       o.output_format = parse_output_format_or_throw(require_value(argc, argv, i), "--output-format");
     } else if (arg == "--decim-x") {
-      o.load.decim_x = parse_size_option("--decim-x");
+      o.load.decim_x = parse_size_option(i, "--decim-x");
     } else if (arg == "--decim-z") {
-      o.load.decim_z = parse_size_option("--decim-z");
+      o.load.decim_z = parse_size_option(i, "--decim-z");
     } else if (arg == "--crop-x") {
-      o.load.crop_x = parse_size_option("--crop-x");
+      o.load.crop_x = parse_size_option(i, "--crop-x");
     } else if (arg == "--crop-z") {
-      o.load.crop_z = parse_size_option("--crop-z");
+      o.load.crop_z = parse_size_option(i, "--crop-z");
     } else if (arg == "--ny") {
-      o.rtm.ny = parse_size_option("--ny");
+      o.rtm.ny = parse_size_option(i, "--ny");
     } else if (arg == "--dy") {
-      o.rtm.dy = parse_float_option("--dy");
+      o.rtm.dy = parse_float_option(i, "--dy");
     } else if (arg == "--dt") {
-      o.rtm.dt = parse_float_option("--dt");
+      o.rtm.dt = parse_float_option(i, "--dt");
     } else if (arg == "--nt") {
-      o.rtm.nt = parse_size_option("--nt");
+      o.rtm.nt = parse_size_option(i, "--nt");
     } else if (arg == "--f0") {
-      o.rtm.f0 = parse_float_option("--f0");
+      o.rtm.f0 = parse_float_option(i, "--f0");
     } else if (arg == "--pml") {
-      o.rtm.pml = parse_size_option("--pml");
+      o.rtm.pml = parse_size_option(i, "--pml");
     } else if (arg == "--receiver-stride") {
-      o.rtm.receiver_stride = parse_size_option("--receiver-stride");
+      o.rtm.receiver_stride = parse_size_option(i, "--receiver-stride");
     } else if (arg == "--n-shots") {
-      o.n_shots = parse_size_option("--n-shots");
+      o.n_shots = parse_size_option(i, "--n-shots");
     } else if (is_flag(arg)) {
       throw std::runtime_error("unknown option: " + arg);
     } else {
