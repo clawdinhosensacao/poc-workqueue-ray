@@ -18,6 +18,9 @@ constexpr float kCircleLensSigmaRatio = 0.14f;
 constexpr float kSaltTopDepthRatio = 0.12f;
 constexpr float kSaltBaseDepthRatio = 0.75f;
 constexpr float kSaltBaseRadiusRatio = 0.18f;
+constexpr float kSaltNeckTransitionRatio = 0.3f;
+constexpr float kSaltNeckMinScale = 0.6f;
+constexpr float kSaltNeckScaleSpan = 0.4f;
 
 float degrees_to_radians(float degrees) { return degrees * kPi / 180.0f; }
 
@@ -177,8 +180,9 @@ void build_salt_dome_model(std::vector<float>& vp, const GridSpec& grid,
 
     float taper = std::sqrt(z_norm);
     float radius = base_radius * taper;
-    if (z_norm < 0.3f) {
-      radius *= 0.6f + 0.4f * (z_norm / 0.3f);
+    if (z_norm < kSaltNeckTransitionRatio) {
+      radius *= kSaltNeckMinScale +
+                kSaltNeckScaleSpan * (z_norm / kSaltNeckTransitionRatio);
     }
 
     for (std::size_t i = 0; i < grid.nx; ++i) {
