@@ -4,6 +4,7 @@
 #include <regex>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 
 namespace rtm3d {
 namespace {
@@ -74,17 +75,12 @@ void apply_json_config(CliOptions& o, const std::string& path) {
     if (const auto v = json_find_string(s, key); !v.empty()) out = v;
   };
 
-  const auto set_size_if_present = [&](const std::string& key, std::size_t& out) {
-    if (const auto v = json_find_number_token(s, key); !v.empty()) {
-      out = parse_num<std::size_t>(v, key);
-    }
-  };
-
-  const auto set_float_if_present = [&](const std::string& key, float& out) {
-    if (const auto v = json_find_number_token(s, key); !v.empty()) {
-      out = parse_num<float>(v, key);
-    }
-  };
+  const auto set_numeric_if_present =
+      [&](const std::string& key, auto& out) {
+        if (const auto v = json_find_number_token(s, key); !v.empty()) {
+          out = parse_num<std::decay_t<decltype(out)>>(v, key);
+        }
+      };
 
   if (const auto dir = json_find_string(s, "data_dir"); !dir.empty()) {
     apply_data_dir(o, dir);
@@ -99,19 +95,19 @@ void apply_json_config(CliOptions& o, const std::string& path) {
     o.output_format = parse_output_format_or_throw(v, "config");
   }
 
-  set_size_if_present("decim_x", o.load.decim_x);
-  set_size_if_present("decim_z", o.load.decim_z);
-  set_size_if_present("crop_x", o.load.crop_x);
-  set_size_if_present("crop_z", o.load.crop_z);
+  set_numeric_if_present("decim_x", o.load.decim_x);
+  set_numeric_if_present("decim_z", o.load.decim_z);
+  set_numeric_if_present("crop_x", o.load.crop_x);
+  set_numeric_if_present("crop_z", o.load.crop_z);
 
-  set_size_if_present("ny", o.rtm.ny);
-  set_float_if_present("dy", o.rtm.dy);
-  set_float_if_present("dt", o.rtm.dt);
-  set_size_if_present("nt", o.rtm.nt);
-  set_float_if_present("f0", o.rtm.f0);
-  set_size_if_present("pml", o.rtm.pml);
-  set_size_if_present("receiver_stride", o.rtm.receiver_stride);
-  set_size_if_present("n_shots", o.n_shots);
+  set_numeric_if_present("ny", o.rtm.ny);
+  set_numeric_if_present("dy", o.rtm.dy);
+  set_numeric_if_present("dt", o.rtm.dt);
+  set_numeric_if_present("nt", o.rtm.nt);
+  set_numeric_if_present("f0", o.rtm.f0);
+  set_numeric_if_present("pml", o.rtm.pml);
+  set_numeric_if_present("receiver_stride", o.rtm.receiver_stride);
+  set_numeric_if_present("n_shots", o.n_shots);
 }
 
 void validate_input_files(const CliOptions& o) {
