@@ -33,6 +33,13 @@ std::size_t velocity_index(const GridSpec& grid, std::size_t i, std::size_t k,
   return j * grid.nz * grid.nx + k * grid.nx + i;
 }
 
+void set_velocity_along_y(std::vector<float>& vp, const GridSpec& grid,
+                          std::size_t i, std::size_t k, float velocity) {
+  for (std::size_t j = 0; j < grid.ny; ++j) {
+    vp[velocity_index(grid, i, k, j)] = velocity;
+  }
+}
+
 std::vector<float> build_layer_velocities(float vp_top, float vp_bottom,
                                           std::size_t nlayers) {
   std::vector<float> vp_layer(nlayers);
@@ -54,9 +61,7 @@ void fill_layered_background(std::vector<float>& vp, const GridSpec& grid,
         static_cast<float>(k), grid.nz, nlayers);
     float vel = vp_layer[layer];
     for (std::size_t i = 0; i < grid.nx; ++i) {
-      for (std::size_t j = 0; j < grid.ny; ++j) {
-        vp[velocity_index(grid, i, k, j)] = vel;
-      }
+      set_velocity_along_y(vp, grid, i, k, vel);
     }
   }
 }
@@ -77,9 +82,7 @@ void build_circle_model(std::vector<float>& vp, const GridSpec& grid, float vp_t
       float dx = static_cast<float>(i) - cx;
       float dz = static_cast<float>(k) - cz;
       if (dx * dx + dz * dz <= radius * radius) {
-        for (std::size_t j = 0; j < grid.ny; ++j) {
-          vp[velocity_index(grid, i, k, j)] = vp_bottom;
-        }
+        set_velocity_along_y(vp, grid, i, k, vp_bottom);
       }
     }
   }
@@ -98,10 +101,8 @@ void build_circle_lens_model(std::vector<float>& vp, const GridSpec& grid,
       float dx = (static_cast<float>(i) - cx) / sx;
       float dz = (static_cast<float>(k) - cz) / sz;
       float gaussian = std::exp(-(dx * dx + dz * dz));
-      for (std::size_t j = 0; j < grid.ny; ++j) {
-        vp[velocity_index(grid, i, k, j)] =
-            vp_top + (vp_bottom - vp_top) * gaussian;
-      }
+      set_velocity_along_y(vp, grid, i, k,
+                           vp_top + (vp_bottom - vp_top) * gaussian);
     }
   }
 }
@@ -114,9 +115,7 @@ void build_salt_dome_model(std::vector<float>& vp, const GridSpec& grid,
     float depth_ratio = static_cast<float>(k) / static_cast<float>(grid.nz - 1);
     float bg_vel = vp_top + (vp_bottom - vp_top) * depth_ratio;
     for (std::size_t i = 0; i < grid.nx; ++i) {
-      for (std::size_t j = 0; j < grid.ny; ++j) {
-        vp[velocity_index(grid, i, k, j)] = bg_vel;
-      }
+      set_velocity_along_y(vp, grid, i, k, bg_vel);
     }
   }
 
@@ -141,9 +140,7 @@ void build_salt_dome_model(std::vector<float>& vp, const GridSpec& grid,
     for (std::size_t i = 0; i < grid.nx; ++i) {
       float dx = static_cast<float>(i) - cx;
       if (dx * dx <= radius * radius) {
-        for (std::size_t j = 0; j < grid.ny; ++j) {
-          vp[velocity_index(grid, i, k, j)] = kSaltVelocity;
-        }
+        set_velocity_along_y(vp, grid, i, k, kSaltVelocity);
       }
     }
   }
@@ -169,10 +166,7 @@ void build_fault_model(std::vector<float>& vp, const GridSpec& grid, float vp_to
       const std::size_t layer =
           layer_index_from_depth(effective_z, grid.nz, nlayers);
       float vel = vp_layer[layer];
-
-      for (std::size_t j = 0; j < grid.ny; ++j) {
-        vp[velocity_index(grid, i, k, j)] = vel;
-      }
+      set_velocity_along_y(vp, grid, i, k, vel);
     }
   }
 }
