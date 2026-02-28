@@ -17,6 +17,10 @@ std::size_t velocity_cell_count(const GridSpec& grid) {
   return grid.nx * grid.nz * grid.ny;
 }
 
+void resize_velocity_buffer(SeismicModel& model) {
+  model.velocity().resize(velocity_cell_count(model.grid()));
+}
+
 void read_velocity_file_or_throw(std::ifstream& file, std::vector<float>& vp,
                                  const std::string& path) {
   file.read(reinterpret_cast<char*>(vp.data()), vp.size() * sizeof(float));
@@ -48,7 +52,7 @@ SeismicModel SeismicModel::from_preset(ModelPreset preset, const GridSpec& grid,
                                        float vp_top, float vp_bottom,
                                        std::size_t nlayers) {
   SeismicModel model(grid);
-  model.vp_.resize(velocity_cell_count(grid));
+  resize_velocity_buffer(model);
   model_internal::fill_preset_velocity(model.vp_, preset, grid, vp_top, vp_bottom,
                                        nlayers);
   return model;
@@ -71,7 +75,7 @@ SeismicModel SeismicModel::from_file(const std::string& path, const GridSpec& gr
   }
 
   SeismicModel model(grid);
-  model.vp_.resize(velocity_cell_count(grid));
+  resize_velocity_buffer(model);
   read_velocity_file_or_throw(file, model.vp_, path);
 
   return model;
