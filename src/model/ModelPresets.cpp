@@ -64,6 +64,10 @@ bool is_within_radius(float dx, float dz, float radius) {
   return radial_distance_squared(dx, dz) <= sqr(radius);
 }
 
+float fault_plane_x_at_depth(float fault_x, float depth, float dip_radians) {
+  return fault_x - depth / std::tan(dip_radians);
+}
+
 float clampf(float value, float lo, float hi) {
   return std::max(lo, std::min(hi, value));
 }
@@ -213,7 +217,8 @@ void build_fault_model(std::vector<float>& vp, const GridSpec& grid, float vp_to
 
   for (std::size_t k = 0; k < grid.nz; ++k) {
     for (std::size_t i = 0; i < grid.nx; ++i) {
-      float fault_at_depth = fault_x - static_cast<float>(k) / std::tan(dip);
+      float fault_at_depth =
+          fault_plane_x_at_depth(fault_x, static_cast<float>(k), dip);
 
       float effective_z = static_cast<float>(k);
       if (static_cast<float>(i) > fault_at_depth) {
