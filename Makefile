@@ -41,6 +41,7 @@ parity-smoke:
 	python3 scripts/devito_canonical_parity.py --space-order 3 >/dev/null 2>&1; test $$? -eq 1
 	python3 scripts/devito_canonical_parity.py --pml 100 --nx 80 --nz 60 >/dev/null 2>&1; test $$? -eq 1
 	python3 scripts/devito_canonical_parity.py --vmin 3000 --vmax 2000 >/dev/null 2>&1; test $$? -eq 1
+	python3 scripts/devito_canonical_parity.py --cli-bin /tmp/does-not-exist >/dev/null 2>&1; test $$? -eq 1
 	python3 scripts/devito_canonical_parity.py --ssim-window 2 >/dev/null 2>&1; test $$? -eq 1
 
 e2e: build/rtm3d_cli
