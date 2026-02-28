@@ -179,6 +179,14 @@ python3 scripts/devito_canonical_parity.py \
   --fail-on-threshold --min-ncc 0.60 --min-ssim 0.50 --max-nrmse 0.85
 ```
 
+SSIM tuning (optional):
+
+```bash
+python3 scripts/devito_canonical_parity.py --ssim-window 9
+```
+
+Larger SSIM windows smooth local detail more aggressively; default is `7`.
+
 Exit codes:
 - `0`: parity run completed (and thresholds passed, if enabled)
 - `1`: runtime/config error (e.g., missing Devito, invalid args)
