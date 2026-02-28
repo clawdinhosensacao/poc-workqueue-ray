@@ -210,7 +210,12 @@ The following scripts are kept for compatibility but are deprecated in favor of 
 - `scripts/devito_validation.py`
 
 ## Tests
-Unit + e2e:
+Quick unified local verification (build + unit + parity smoke + static):
+```bash
+make check
+```
+
+Unit + e2e (CTest path):
 ```bash
 ctest --test-dir build --output-on-failure
 ```
