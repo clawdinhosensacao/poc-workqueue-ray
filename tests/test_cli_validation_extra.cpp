@@ -116,3 +116,8 @@ TEST(CliOptionsExtra, RejectsMissingValueForValuesFile) {
   const char* argv[] = {"rtm3d_cli", "--values-file"};
   expect_parse_throws(argv);
 }
+
+TEST(CliOptionsExtra, RejectsMissingValueForOutputPath) {
+  const char* argv[] = {"rtm3d_cli", "--output"};
+  expect_parse_throws(argv);
+}
