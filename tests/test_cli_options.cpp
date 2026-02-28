@@ -94,14 +94,11 @@ TEST(CliOptions, ExplicitOutputOverridesConfigOutputFile) {
 }
 
 TEST(CliOptions, ExplicitOutputFormatOverridesConfigOutputFormat) {
-  std::filesystem::create_directories("tests/tmp_loader");
-  {
-    std::ofstream c("tests/tmp_loader/cfg_output_format_base.json");
-    c << "{\n"
-      << "  \"data_dir\": \"data\",\n"
-      << "  \"output_format\": \"pgm8\"\n"
-      << "}\n";
-  }
+  write_config_file("tests/tmp_loader/cfg_output_format_base.json",
+                    "{\n"
+                    "  \"data_dir\": \"data\",\n"
+                    "  \"output_format\": \"pgm8\"\n"
+                    "}\n");
 
   const char* argv[] = {"rtm3d_cli",
                         "--config",
@@ -131,14 +128,11 @@ TEST(CliOptions, LaterDataDirOverridesEarlierExplicitInputPath) {
 }
 
 TEST(CliOptions, LaterConfigOverridesEarlierDataDir) {
-  std::filesystem::create_directories("tests/tmp_loader");
-  {
-    std::ofstream c("tests/tmp_loader/cfg_override_data_dir.json");
-    c << "{\n"
-      << "  \"data_dir\": \"custom_data\",\n"
-      << "  \"x_file\": \"cfg/x.json\"\n"
-      << "}\n";
-  }
+  write_config_file("tests/tmp_loader/cfg_override_data_dir.json",
+                    "{\n"
+                    "  \"data_dir\": \"custom_data\",\n"
+                    "  \"x_file\": \"cfg/x.json\"\n"
+                    "}\n");
 
   const char* argv[] = {"rtm3d_cli",
                         "--data-dir",
