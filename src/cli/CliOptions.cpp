@@ -36,6 +36,11 @@ bool is_output_option(const std::string& token) {
   return token == "--output" || token == "--output-format";
 }
 
+bool is_load_option(const std::string& token) {
+  return token == "--decim-x" || token == "--decim-z" ||
+         token == "--crop-x" || token == "--crop-z";
+}
+
 std::string require_value(int argc, char** argv, int& i) {
   if (i + 1 >= argc) throw std::runtime_error("missing value for " + std::string(argv[i]));
   return argv[++i];
@@ -154,6 +159,20 @@ void apply_cli_output_option(const std::string& arg,
     o.output_file = value;
   } else if (arg == "--output-format") {
     o.output_format = parse_cli_output_format_or_throw(value);
+  }
+}
+
+void apply_cli_load_option(const std::string& arg,
+                           std::size_t value,
+                           CliOptions& o) {
+  if (arg == "--decim-x") {
+    o.load.decim_x = value;
+  } else if (arg == "--decim-z") {
+    o.load.decim_z = value;
+  } else if (arg == "--crop-x") {
+    o.load.crop_x = value;
+  } else if (arg == "--crop-z") {
+    o.load.crop_z = value;
   }
 }
 
@@ -286,14 +305,8 @@ CliOptions parse_cli_or_throw(int argc, char** argv) {
       apply_cli_input_path_option(arg, parse_string_option(i), o);
     } else if (is_output_option(arg)) {
       apply_cli_output_option(arg, parse_string_option(i), o);
-    } else if (arg == "--decim-x") {
-      o.load.decim_x = parse_size_option(i, "--decim-x");
-    } else if (arg == "--decim-z") {
-      o.load.decim_z = parse_size_option(i, "--decim-z");
-    } else if (arg == "--crop-x") {
-      o.load.crop_x = parse_size_option(i, "--crop-x");
-    } else if (arg == "--crop-z") {
-      o.load.crop_z = parse_size_option(i, "--crop-z");
+    } else if (is_load_option(arg)) {
+      apply_cli_load_option(arg, parse_size_option(i, arg), o);
     } else if (arg == "--ny") {
       o.rtm.ny = parse_size_option(i, "--ny");
     } else if (arg == "--dy") {
