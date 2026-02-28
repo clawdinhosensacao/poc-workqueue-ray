@@ -290,6 +290,13 @@ void require_gt_zero(std::size_t value, const std::string& name) {
   }
 }
 
+void require_at_least(std::size_t value, std::size_t min_value,
+                      const std::string& requirement_message) {
+  if (value < min_value) {
+    throw std::runtime_error(requirement_message);
+  }
+}
+
 void validate_load_options(const CliOptions& o) {
   if (o.load.decim_x == 0 || o.load.decim_z == 0) {
     throw std::runtime_error("decimation must be >= 1");
@@ -297,7 +304,8 @@ void validate_load_options(const CliOptions& o) {
 }
 
 void validate_rtm_options(const CliOptions& o) {
-  if (o.rtm.ny < 4 || o.rtm.nt < 2) throw std::runtime_error("ny>=4 and nt>=2 required");
+  require_at_least(o.rtm.ny, 4, "ny>=4 and nt>=2 required");
+  require_at_least(o.rtm.nt, 2, "ny>=4 and nt>=2 required");
   require_gt_zero(o.rtm.dy, "dy");
   require_gt_zero(o.rtm.dt, "dt");
   require_gt_zero(o.rtm.f0, "f0");
