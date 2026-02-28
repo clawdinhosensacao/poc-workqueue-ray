@@ -16,6 +16,10 @@ float clampf(float value, float lo, float hi) {
   return std::max(lo, std::min(hi, value));
 }
 
+std::size_t grid_cell_count(const GridSpec& grid) {
+  return grid.nx * grid.nz * grid.ny;
+}
+
 std::size_t velocity_index(const GridSpec& grid, std::size_t i, std::size_t k,
                            std::size_t j) {
   return j * grid.nz * grid.nx + k * grid.nx + i;
@@ -170,8 +174,8 @@ void build_fault_model(std::vector<float>& vp, const GridSpec& grid, float vp_to
 }  // namespace
 
 void ensure_velocity_size_matches_grid_or_throw(const std::vector<float>& vp,
-                                         const GridSpec& grid) {
-  const std::size_t expected = grid.nx * grid.nz * grid.ny;
+                                                 const GridSpec& grid) {
+  const std::size_t expected = grid_cell_count(grid);
   if (vp.size() != expected) {
     throw std::runtime_error("velocity vector size mismatch with grid dimensions");
   }
