@@ -46,6 +46,10 @@ bool is_rtm_size_option(const std::string& token) {
          token == "--receiver-stride" || token == "--n-shots";
 }
 
+bool is_rtm_float_option(const std::string& token) {
+  return token == "--dy" || token == "--dt" || token == "--f0";
+}
+
 std::string require_value(int argc, char** argv, int& i) {
   if (i + 1 >= argc) throw std::runtime_error("missing value for " + std::string(argv[i]));
   return argv[++i];
@@ -197,6 +201,18 @@ void apply_cli_rtm_size_option(const std::string& arg,
   }
 }
 
+void apply_cli_rtm_float_option(const std::string& arg,
+                                float value,
+                                CliOptions& o) {
+  if (arg == "--dy") {
+    o.rtm.dy = value;
+  } else if (arg == "--dt") {
+    o.rtm.dt = value;
+  } else if (arg == "--f0") {
+    o.rtm.f0 = value;
+  }
+}
+
 void apply_output_path_aliases_from_json(const std::string& s, CliOptions& o) {
   if (const auto v = json_find_string(s, "output_file"); !v.empty()) o.output_file = v;
   if (const auto v = json_find_string(s, "output"); !v.empty()) o.output_file = v;  // alias
@@ -330,12 +346,8 @@ CliOptions parse_cli_or_throw(int argc, char** argv) {
       apply_cli_load_option(arg, parse_size_option(i, arg), o);
     } else if (is_rtm_size_option(arg)) {
       apply_cli_rtm_size_option(arg, parse_size_option(i, arg), o);
-    } else if (arg == "--dy") {
-      o.rtm.dy = parse_float_option(i, "--dy");
-    } else if (arg == "--dt") {
-      o.rtm.dt = parse_float_option(i, "--dt");
-    } else if (arg == "--f0") {
-      o.rtm.f0 = parse_float_option(i, "--f0");
+    } else if (is_rtm_float_option(arg)) {
+      apply_cli_rtm_float_option(arg, parse_float_option(i, arg), o);
     } else if (is_flag(arg)) {
       throw std::runtime_error("unknown option: " + arg);
     } else {
