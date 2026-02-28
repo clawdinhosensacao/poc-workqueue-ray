@@ -218,14 +218,14 @@ std::string cli_version() { return std::string("rtm3d-cli ") + kVersion + "\n"; 
 CliOptions parse_cli_or_throw(int argc, char** argv) {
   CliOptions o;
 
-  const auto parse_string_option = [&](int& idx, const std::string& /*name*/) {
+  const auto parse_string_option = [&](int& idx) {
     return require_value(argc, argv, idx);
   };
   const auto parse_size_option = [&](int& idx, const std::string& name) {
-    return parse_num<std::size_t>(parse_string_option(idx, name), name);
+    return parse_num<std::size_t>(parse_string_option(idx), name);
   };
   const auto parse_float_option = [&](int& idx, const std::string& name) {
-    return parse_num<float>(parse_string_option(idx, name), name);
+    return parse_num<float>(parse_string_option(idx), name);
   };
 
   for (int i = 1; i < argc; ++i) {
@@ -234,20 +234,20 @@ CliOptions parse_cli_or_throw(int argc, char** argv) {
     if (is_version_flag(arg)) throw std::runtime_error(cli_version());
 
     if (arg == "--config") {
-      apply_json_config(o, parse_string_option(i, "--config"));
+      apply_json_config(o, parse_string_option(i));
     } else if (arg == "--data-dir") {
-      apply_data_dir(o, parse_string_option(i, "--data-dir"));
+      apply_data_dir(o, parse_string_option(i));
     } else if (arg == "--x-file") {
-      o.x_file = parse_string_option(i, "--x-file");
+      o.x_file = parse_string_option(i);
     } else if (arg == "--z-file") {
-      o.z_file = parse_string_option(i, "--z-file");
+      o.z_file = parse_string_option(i);
     } else if (arg == "--values-file") {
-      o.values_file = parse_string_option(i, "--values-file");
+      o.values_file = parse_string_option(i);
     } else if (arg == "--output") {
-      o.output_file = parse_string_option(i, "--output");
+      o.output_file = parse_string_option(i);
     } else if (arg == "--output-format") {
       o.output_format = parse_cli_output_format_or_throw(
-          parse_string_option(i, "--output-format"));
+          parse_string_option(i));
     } else if (arg == "--decim-x") {
       o.load.decim_x = parse_size_option(i, "--decim-x");
     } else if (arg == "--decim-z") {
