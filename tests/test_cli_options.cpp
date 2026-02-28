@@ -120,3 +120,27 @@ TEST(CliOptions, LaterDataDirOverridesEarlierExplicitInputPath) {
   ASSERT_EQ(o.z_file, "data/z.json");
   ASSERT_EQ(o.values_file, "data/vel.json");
 }
+
+TEST(CliOptions, LaterConfigOverridesEarlierDataDir) {
+  std::filesystem::create_directories("tests/tmp_loader");
+  {
+    std::ofstream c("tests/tmp_loader/cfg_override_data_dir.json");
+    c << "{\n"
+      << "  \"data_dir\": \"custom_data\",\n"
+      << "  \"x_file\": \"cfg/x.json\"\n"
+      << "}\n";
+  }
+
+  const char* argv[] = {"rtm3d_cli",
+                        "--data-dir",
+                        "data",
+                        "--config",
+                        "tests/tmp_loader/cfg_override_data_dir.json"};
+  const auto o =
+      rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
+                                const_cast<char**>(argv));
+
+  ASSERT_EQ(o.x_file, "cfg/x.json");
+  ASSERT_EQ(o.z_file, "custom_data/z.json");
+  ASSERT_EQ(o.values_file, "custom_data/vel.json");
+}
