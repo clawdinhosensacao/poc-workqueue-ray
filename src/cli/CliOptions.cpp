@@ -11,6 +11,14 @@ namespace {
 
 bool is_flag(const std::string& token) { return token.rfind("--", 0) == 0; }
 
+bool is_help_flag(const std::string& token) {
+  return token == "--help" || token == "-h";
+}
+
+bool is_version_flag(const std::string& token) {
+  return token == "--version" || token == "-V";
+}
+
 std::string require_value(int argc, char** argv, int& i) {
   if (i + 1 >= argc) throw std::runtime_error("missing value for " + std::string(argv[i]));
   return argv[++i];
@@ -173,8 +181,8 @@ CliOptions parse_cli_or_throw(int argc, char** argv) {
 
   for (int i = 1; i < argc; ++i) {
     const std::string arg = argv[i];
-    if (arg == "--help" || arg == "-h") throw std::runtime_error(cli_help());
-    if (arg == "--version" || arg == "-V") throw std::runtime_error(cli_version());
+    if (is_help_flag(arg)) throw std::runtime_error(cli_help());
+    if (is_version_flag(arg)) throw std::runtime_error(cli_version());
 
     if (arg == "--config") {
       apply_json_config(o, require_value(argc, argv, i));
