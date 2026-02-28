@@ -25,38 +25,17 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y g++ python3 python3-pip python3-numpy
 
-    - name: Build
-      run: make
-
-    - name: Run tests
-      run: make test
-
-    - name: Run self-test pipeline
+    - name: Unified checks (build + unit + parity smoke + static)
       run: |
-        python3 scripts/self_test_pipeline.py --quick --preset layers
-        python3 scripts/self_test_pipeline.py --quick --preset circle
+        sudo apt-get install -y cppcheck
+        make check
 
-  benchmark:
-    runs-on: ubuntu-latest
-    needs: build-and-test
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Install dependencies
+    - name: Run E2E synthetic benchmark
       run: |
-        sudo apt-get update
-        sudo apt-get install -y g++ python3 python3-pip python3-numpy
+        ./tests/e2e_synthetic.sh
 
-    - name: Build
-      run: make
-
-    - name: Run all presets
-      run: |
-        for preset in constant layers circle circle_lens salt_dome; do
-          echo "=== Testing $preset ==="
-          python3 scripts/self_test_pipeline.py --quick --preset $preset
-        done
 ```
 
-**Note:** Requires a PAT with `workflow` scope to push.
+Optional: keep heavier benchmark/preset sweeps in a separate scheduled workflow to avoid slowing down PR feedback.
+
+**Note:** Updating `.github/workflows/*` requires a PAT with `workflow` scope to push.
