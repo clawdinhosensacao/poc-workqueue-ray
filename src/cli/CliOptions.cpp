@@ -59,21 +59,26 @@ OutputFormat parse_output_format_or_throw(const std::string& token, const std::s
 template <typename T>
 T parse_num(const std::string& s, const std::string& name);
 
+std::runtime_error invalid_value_error(const std::string& name,
+                                       const std::string& value) {
+  return std::runtime_error("invalid value for " + name + ": " + value);
+}
+
 template <>
 std::size_t parse_num<std::size_t>(const std::string& s, const std::string& name) {
   if (s.empty() || s.front() == '-') {
-    throw std::runtime_error("invalid value for " + name + ": " + s);
+    throw invalid_value_error(name, s);
   }
 
   try {
     std::size_t p = 0;
     auto v = std::stoull(s, &p);
     if (p != s.size()) {
-      throw std::runtime_error("invalid value for " + name + ": " + s);
+      throw invalid_value_error(name, s);
     }
     return static_cast<std::size_t>(v);
   } catch (const std::exception&) {
-    throw std::runtime_error("invalid value for " + name + ": " + s);
+    throw invalid_value_error(name, s);
   }
 }
 
@@ -83,11 +88,11 @@ float parse_num<float>(const std::string& s, const std::string& name) {
     std::size_t p = 0;
     auto v = std::stof(s, &p);
     if (p != s.size()) {
-      throw std::runtime_error("invalid value for " + name + ": " + s);
+      throw invalid_value_error(name, s);
     }
     return v;
   } catch (const std::exception&) {
-    throw std::runtime_error("invalid value for " + name + ": " + s);
+    throw invalid_value_error(name, s);
   }
 }
 
