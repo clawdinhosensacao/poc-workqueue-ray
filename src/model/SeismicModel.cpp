@@ -13,6 +13,10 @@ constexpr float kMinReferenceVelocity = 1500.0f;
 constexpr float kSqrt2 = 1.41421356f;
 constexpr float kSqrt3 = 1.7320508f;
 
+std::size_t velocity_cell_count(const GridSpec& grid) {
+  return grid.nx * grid.nz * grid.ny;
+}
+
 float compute_max_stable_dt(const GridSpec& grid, float v_max) {
   const float bounded_vmax = std::max(v_max, kMinReferenceVelocity);
   const float d_min = std::min({grid.dx, grid.dz, grid.dy});
@@ -26,7 +30,7 @@ SeismicModel SeismicModel::from_preset(ModelPreset preset, const GridSpec& grid,
                                        float vp_top, float vp_bottom,
                                        std::size_t nlayers) {
   SeismicModel model(grid);
-  model.vp_.resize(grid.nx * grid.nz * grid.ny);
+  model.vp_.resize(velocity_cell_count(grid));
   model_internal::fill_preset_velocity(model.vp_, preset, grid, vp_top, vp_bottom,
                                        nlayers);
   return model;
@@ -34,7 +38,7 @@ SeismicModel SeismicModel::from_preset(ModelPreset preset, const GridSpec& grid,
 
 SeismicModel SeismicModel::from_velocity(const std::vector<float>& vp,
                                          const GridSpec& grid) {
-  if (vp.size() != grid.nx * grid.nz * grid.ny) {
+  if (vp.size() != velocity_cell_count(grid)) {
     throw std::runtime_error("Velocity array size mismatch with grid dimensions");
   }
   SeismicModel model(grid);
@@ -49,7 +53,7 @@ SeismicModel SeismicModel::from_file(const std::string& path, const GridSpec& gr
   }
 
   SeismicModel model(grid);
-  model.vp_.resize(grid.nx * grid.nz * grid.ny);
+  model.vp_.resize(velocity_cell_count(grid));
   file.read(reinterpret_cast<char*>(model.vp_.data()),
             model.vp_.size() * sizeof(float));
 
