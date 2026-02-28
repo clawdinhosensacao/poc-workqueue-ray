@@ -14,8 +14,7 @@ constexpr float kFaultThrowRatio = 0.08f;
 constexpr float kCircleRadiusDivisor = 4.0f;
 constexpr float kCircleLensCenterXRatio = 0.48f;
 constexpr float kCircleLensCenterZRatio = 0.52f;
-constexpr float kCircleLensSigmaXRatio = 0.14f;
-constexpr float kCircleLensSigmaZRatio = 0.14f;
+constexpr float kCircleLensSigmaRatio = 0.14f;
 constexpr float kSaltTopDepthRatio = 0.12f;
 constexpr float kSaltBaseDepthRatio = 0.75f;
 constexpr float kSaltBaseRadiusRatio = 0.18f;
@@ -123,8 +122,8 @@ void build_circle_lens_model(std::vector<float>& vp, const GridSpec& grid,
   std::fill(vp.begin(), vp.end(), vp_top);
   float cx = static_cast<float>(grid.nx) * kCircleLensCenterXRatio;
   float cz = static_cast<float>(grid.nz) * kCircleLensCenterZRatio;
-  float sx = static_cast<float>(grid.nx) * kCircleLensSigmaXRatio;
-  float sz = static_cast<float>(grid.nz) * kCircleLensSigmaZRatio;
+  float sx = static_cast<float>(grid.nx) * kCircleLensSigmaRatio;
+  float sz = static_cast<float>(grid.nz) * kCircleLensSigmaRatio;
 
   for (std::size_t k = 0; k < grid.nz; ++k) {
     for (std::size_t i = 0; i < grid.nx; ++i) {
