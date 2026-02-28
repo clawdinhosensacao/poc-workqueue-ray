@@ -41,8 +41,12 @@ float scaled_nz(const GridSpec& grid, float ratio_value) {
   return static_cast<float>(grid.nz) * ratio_value;
 }
 
+float scaled_min_nx_nz(const GridSpec& grid, float ratio_value) {
+  return static_cast<float>(std::min(grid.nx, grid.nz)) * ratio_value;
+}
+
 float default_circle_radius(const GridSpec& grid) {
-  return static_cast<float>(std::min(grid.nx, grid.nz)) / kCircleRadiusDivisor;
+  return scaled_min_nx_nz(grid, 1.0f / kCircleRadiusDivisor);
 }
 
 float clampf(float value, float lo, float hi) {
