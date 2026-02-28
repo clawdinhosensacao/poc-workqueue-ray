@@ -304,8 +304,9 @@ void validate_load_options(const CliOptions& o) {
 }
 
 void validate_rtm_options(const CliOptions& o) {
-  require_at_least(o.rtm.ny, 4, "ny>=4 and nt>=2 required");
-  require_at_least(o.rtm.nt, 2, "ny>=4 and nt>=2 required");
+  constexpr const char* kRtmNyNtRequirement = "ny>=4 and nt>=2 required";
+  require_at_least(o.rtm.ny, 4, kRtmNyNtRequirement);
+  require_at_least(o.rtm.nt, 2, kRtmNyNtRequirement);
   require_gt_zero(o.rtm.dy, "dy");
   require_gt_zero(o.rtm.dt, "dt");
   require_gt_zero(o.rtm.f0, "f0");
