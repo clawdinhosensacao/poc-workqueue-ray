@@ -10,6 +10,10 @@ namespace {
 constexpr float kPi = 3.14159265f;
 constexpr float kFaultDipDegrees = 60.0f;
 
+float clampf(float value, float lo, float hi) {
+  return std::max(lo, std::min(hi, value));
+}
+
 std::size_t velocity_index(const GridSpec& grid, std::size_t i, std::size_t k,
                            std::size_t j) {
   return j * grid.nz * grid.nx + k * grid.nx + i;
@@ -111,7 +115,7 @@ void build_salt_dome_model(std::vector<float>& vp, const GridSpec& grid,
     if (z < top_z) continue;
 
     float z_norm = (z - top_z) / (base_z - top_z);
-    z_norm = std::max(0.0f, std::min(1.0f, z_norm));
+    z_norm = clampf(z_norm, 0.0f, 1.0f);
 
     float taper = std::sqrt(z_norm);
     float radius = base_radius * taper;
@@ -147,8 +151,7 @@ void build_fault_model(std::vector<float>& vp, const GridSpec& grid, float vp_to
         effective_z -= throw_amount;
       }
 
-      effective_z =
-          std::max(0.0f, std::min(static_cast<float>(grid.nz - 1), effective_z));
+      effective_z = clampf(effective_z, 0.0f, static_cast<float>(grid.nz - 1));
 
       std::size_t layer = static_cast<std::size_t>(
           effective_z * static_cast<float>(nlayers) / static_cast<float>(grid.nz));
