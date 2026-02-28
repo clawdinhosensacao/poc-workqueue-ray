@@ -9,6 +9,9 @@ namespace {
 
 constexpr float kPi = 3.14159265f;
 constexpr float kFaultDipDegrees = 60.0f;
+constexpr float kSaltTopDepthRatio = 0.12f;
+constexpr float kSaltBaseDepthRatio = 0.75f;
+constexpr float kSaltBaseRadiusRatio = 0.18f;
 
 float degrees_to_radians(float degrees) { return degrees * kPi / 180.0f; }
 
@@ -120,9 +123,9 @@ void build_salt_dome_model(std::vector<float>& vp, const GridSpec& grid,
   }
 
   float cx = static_cast<float>(grid.nx) / 2.0f;
-  float base_radius = static_cast<float>(grid.nx) * 0.18f;
-  float top_z = static_cast<float>(grid.nz) * 0.12f;
-  float base_z = static_cast<float>(grid.nz) * 0.75f;
+  float base_radius = static_cast<float>(grid.nx) * kSaltBaseRadiusRatio;
+  float top_z = static_cast<float>(grid.nz) * kSaltTopDepthRatio;
+  float base_z = static_cast<float>(grid.nz) * kSaltBaseDepthRatio;
 
   for (std::size_t k = 0; k < grid.nz; ++k) {
     float z = static_cast<float>(k);
