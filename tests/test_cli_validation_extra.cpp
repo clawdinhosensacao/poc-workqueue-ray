@@ -71,3 +71,10 @@ TEST(CliOptionsExtra, RejectsOutOfRangeCliSizeOption) {
                                                const_cast<char**>(argv)),
                std::runtime_error);
 }
+
+TEST(CliOptionsExtra, RejectsMissingValueForOutputFormat) {
+  const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--output-format"};
+  EXPECT_THROW((void)rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
+                                               const_cast<char**>(argv)),
+               std::runtime_error);
+}
