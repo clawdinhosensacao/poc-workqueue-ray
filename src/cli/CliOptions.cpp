@@ -9,7 +9,11 @@
 namespace rtm3d {
 namespace {
 
-bool is_flag(const std::string& token) { return token.rfind("--", 0) == 0; }
+bool starts_with(const std::string& token, const std::string& prefix) {
+  return token.rfind(prefix, 0) == 0;
+}
+
+bool is_flag(const std::string& token) { return starts_with(token, "--"); }
 
 bool is_help_flag(const std::string& token) {
   return token == "--help" || token == "-h";
