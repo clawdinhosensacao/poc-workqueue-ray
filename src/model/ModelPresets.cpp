@@ -10,6 +10,8 @@ namespace {
 constexpr float kPi = 3.14159265f;
 constexpr float kFaultDipDegrees = 60.0f;
 
+float degrees_to_radians(float degrees) { return degrees * kPi / 180.0f; }
+
 float clampf(float value, float lo, float hi) {
   return std::max(lo, std::min(hi, value));
 }
@@ -137,7 +139,7 @@ void build_salt_dome_model(std::vector<float>& vp, const GridSpec& grid,
 void build_fault_model(std::vector<float>& vp, const GridSpec& grid, float vp_top,
                        float vp_bottom, std::size_t nlayers) {
   float fault_x = static_cast<float>(grid.nx) * 0.45f;
-  float dip = kFaultDipDegrees * kPi / 180.0f;
+  float dip = degrees_to_radians(kFaultDipDegrees);
   float throw_amount = static_cast<float>(grid.nz) * 0.08f;
 
   std::vector<float> vp_layer = build_layer_velocities(vp_top, vp_bottom, nlayers);
