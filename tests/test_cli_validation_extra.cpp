@@ -92,3 +92,10 @@ TEST(CliOptionsExtra, RejectsMissingValueForNt) {
                                                const_cast<char**>(argv)),
                std::runtime_error);
 }
+
+TEST(CliOptionsExtra, RejectsMissingValueForConfigPath) {
+  const char* argv[] = {"rtm3d_cli", "--config"};
+  EXPECT_THROW((void)rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
+                                               const_cast<char**>(argv)),
+               std::runtime_error);
+}
