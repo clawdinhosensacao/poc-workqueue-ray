@@ -41,6 +41,11 @@ bool is_load_option(const std::string& token) {
          token == "--crop-x" || token == "--crop-z";
 }
 
+bool is_rtm_size_option(const std::string& token) {
+  return token == "--ny" || token == "--nt" || token == "--pml" ||
+         token == "--receiver-stride" || token == "--n-shots";
+}
+
 std::string require_value(int argc, char** argv, int& i) {
   if (i + 1 >= argc) throw std::runtime_error("missing value for " + std::string(argv[i]));
   return argv[++i];
@@ -176,6 +181,22 @@ void apply_cli_load_option(const std::string& arg,
   }
 }
 
+void apply_cli_rtm_size_option(const std::string& arg,
+                               std::size_t value,
+                               CliOptions& o) {
+  if (arg == "--ny") {
+    o.rtm.ny = value;
+  } else if (arg == "--nt") {
+    o.rtm.nt = value;
+  } else if (arg == "--pml") {
+    o.rtm.pml = value;
+  } else if (arg == "--receiver-stride") {
+    o.rtm.receiver_stride = value;
+  } else if (arg == "--n-shots") {
+    o.n_shots = value;
+  }
+}
+
 void apply_output_path_aliases_from_json(const std::string& s, CliOptions& o) {
   if (const auto v = json_find_string(s, "output_file"); !v.empty()) o.output_file = v;
   if (const auto v = json_find_string(s, "output"); !v.empty()) o.output_file = v;  // alias
@@ -307,22 +328,14 @@ CliOptions parse_cli_or_throw(int argc, char** argv) {
       apply_cli_output_option(arg, parse_string_option(i), o);
     } else if (is_load_option(arg)) {
       apply_cli_load_option(arg, parse_size_option(i, arg), o);
-    } else if (arg == "--ny") {
-      o.rtm.ny = parse_size_option(i, "--ny");
+    } else if (is_rtm_size_option(arg)) {
+      apply_cli_rtm_size_option(arg, parse_size_option(i, arg), o);
     } else if (arg == "--dy") {
       o.rtm.dy = parse_float_option(i, "--dy");
     } else if (arg == "--dt") {
       o.rtm.dt = parse_float_option(i, "--dt");
-    } else if (arg == "--nt") {
-      o.rtm.nt = parse_size_option(i, "--nt");
     } else if (arg == "--f0") {
       o.rtm.f0 = parse_float_option(i, "--f0");
-    } else if (arg == "--pml") {
-      o.rtm.pml = parse_size_option(i, "--pml");
-    } else if (arg == "--receiver-stride") {
-      o.rtm.receiver_stride = parse_size_option(i, "--receiver-stride");
-    } else if (arg == "--n-shots") {
-      o.n_shots = parse_size_option(i, "--n-shots");
     } else if (is_flag(arg)) {
       throw std::runtime_error("unknown option: " + arg);
     } else {
