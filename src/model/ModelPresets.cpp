@@ -50,6 +50,11 @@ std::size_t layer_index_from_depth(float depth, std::size_t nz,
   return std::min(layer, nlayers - 1);
 }
 
+std::size_t layer_index_from_depth(std::size_t depth, std::size_t nz,
+                                   std::size_t nlayers) {
+  return layer_index_from_depth(static_cast<float>(depth), nz, nlayers);
+}
+
 std::size_t grid_cell_count(const GridSpec& grid) {
   return grid.nx * grid.nz * grid.ny;
 }
@@ -83,8 +88,7 @@ void fill_layered_background(std::vector<float>& vp, const GridSpec& grid,
   std::vector<float> vp_layer = build_layer_velocities(vp_top, vp_bottom, nlayers);
 
   for (std::size_t k = 0; k < grid.nz; ++k) {
-    const std::size_t layer = layer_index_from_depth(
-        static_cast<float>(k), grid.nz, nlayers);
+    const std::size_t layer = layer_index_from_depth(k, grid.nz, nlayers);
     float vel = vp_layer[layer];
     for (std::size_t i = 0; i < grid.nx; ++i) {
       set_velocity_along_y(vp, grid, i, k, vel);
