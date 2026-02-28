@@ -61,19 +61,34 @@ T parse_num(const std::string& s, const std::string& name);
 
 template <>
 std::size_t parse_num<std::size_t>(const std::string& s, const std::string& name) {
-  if (s.empty() || s.front() == '-') throw std::runtime_error("invalid value for " + name + ": " + s);
-  std::size_t p = 0;
-  auto v = std::stoull(s, &p);
-  if (p != s.size()) throw std::runtime_error("invalid value for " + name + ": " + s);
-  return static_cast<std::size_t>(v);
+  if (s.empty() || s.front() == '-') {
+    throw std::runtime_error("invalid value for " + name + ": " + s);
+  }
+
+  try {
+    std::size_t p = 0;
+    auto v = std::stoull(s, &p);
+    if (p != s.size()) {
+      throw std::runtime_error("invalid value for " + name + ": " + s);
+    }
+    return static_cast<std::size_t>(v);
+  } catch (const std::exception&) {
+    throw std::runtime_error("invalid value for " + name + ": " + s);
+  }
 }
 
 template <>
 float parse_num<float>(const std::string& s, const std::string& name) {
-  std::size_t p = 0;
-  auto v = std::stof(s, &p);
-  if (p != s.size()) throw std::runtime_error("invalid value for " + name + ": " + s);
-  return v;
+  try {
+    std::size_t p = 0;
+    auto v = std::stof(s, &p);
+    if (p != s.size()) {
+      throw std::runtime_error("invalid value for " + name + ": " + s);
+    }
+    return v;
+  } catch (const std::exception&) {
+    throw std::runtime_error("invalid value for " + name + ": " + s);
+  }
 }
 
 void apply_json_config(CliOptions& o, const std::string& path) {
