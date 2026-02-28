@@ -12,6 +12,7 @@ constexpr float kFaultDipDegrees = 60.0f;
 constexpr float kFaultXRatio = 0.45f;
 constexpr float kFaultThrowRatio = 0.08f;
 constexpr float kCircleRadiusDivisor = 4.0f;
+constexpr float kGridCenterRatio = 0.5f;
 constexpr float kCircleLensCenterXRatio = 0.48f;
 constexpr float kCircleLensCenterZRatio = 0.52f;
 constexpr float kCircleLensSigmaRatio = 0.14f;
@@ -29,20 +30,20 @@ float ratio(std::size_t value, std::size_t max_value) {
   return static_cast<float>(value) / static_cast<float>(max_value);
 }
 
-float grid_center_x(const GridSpec& grid) {
-  return static_cast<float>(grid.nx) / 2.0f;
-}
-
-float grid_center_z(const GridSpec& grid) {
-  return static_cast<float>(grid.nz) / 2.0f;
-}
-
 float scaled_nx(const GridSpec& grid, float ratio_value) {
   return static_cast<float>(grid.nx) * ratio_value;
 }
 
 float scaled_nz(const GridSpec& grid, float ratio_value) {
   return static_cast<float>(grid.nz) * ratio_value;
+}
+
+float grid_center_x(const GridSpec& grid) {
+  return scaled_nx(grid, kGridCenterRatio);
+}
+
+float grid_center_z(const GridSpec& grid) {
+  return scaled_nz(grid, kGridCenterRatio);
 }
 
 float scaled_min_nx_nz(const GridSpec& grid, float ratio_value) {
