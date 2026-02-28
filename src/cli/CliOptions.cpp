@@ -100,6 +100,11 @@ float parse_num<float>(const std::string& s, const std::string& name) {
   }
 }
 
+void apply_output_path_aliases_from_json(const std::string& s, CliOptions& o) {
+  if (const auto v = json_find_string(s, "output_file"); !v.empty()) o.output_file = v;
+  if (const auto v = json_find_string(s, "output"); !v.empty()) o.output_file = v;  // alias
+}
+
 void apply_json_config(CliOptions& o, const std::string& path) {
   const auto s = slurp_file(path);
 
@@ -120,8 +125,7 @@ void apply_json_config(CliOptions& o, const std::string& path) {
   set_string_if_present("x_file", o.x_file);
   set_string_if_present("z_file", o.z_file);
   set_string_if_present("values_file", o.values_file);
-  set_string_if_present("output_file", o.output_file);
-  set_string_if_present("output", o.output_file);  // alias
+  apply_output_path_aliases_from_json(s, o);
 
   if (const auto v = json_find_string(s, "output_format"); !v.empty()) {
     o.output_format = parse_output_format_or_throw(v, "config");
