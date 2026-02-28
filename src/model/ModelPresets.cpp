@@ -16,6 +16,14 @@ float clampf(float value, float lo, float hi) {
   return std::max(lo, std::min(hi, value));
 }
 
+std::size_t layer_index_from_depth(float depth, std::size_t nz,
+                                   std::size_t nlayers) {
+  const float clamped_depth = clampf(depth, 0.0f, static_cast<float>(nz - 1));
+  const auto layer = static_cast<std::size_t>(
+      clamped_depth * static_cast<float>(nlayers) / static_cast<float>(nz));
+  return std::min(layer, nlayers - 1);
+}
+
 std::size_t grid_cell_count(const GridSpec& grid) {
   return grid.nx * grid.nz * grid.ny;
 }
@@ -42,7 +50,8 @@ void fill_layered_background(std::vector<float>& vp, const GridSpec& grid,
   std::vector<float> vp_layer = build_layer_velocities(vp_top, vp_bottom, nlayers);
 
   for (std::size_t k = 0; k < grid.nz; ++k) {
-    std::size_t layer = std::min(k * nlayers / grid.nz, nlayers - 1);
+    const std::size_t layer = layer_index_from_depth(
+        static_cast<float>(k), grid.nz, nlayers);
     float vel = vp_layer[layer];
     for (std::size_t i = 0; i < grid.nx; ++i) {
       for (std::size_t j = 0; j < grid.ny; ++j) {
@@ -157,11 +166,8 @@ void build_fault_model(std::vector<float>& vp, const GridSpec& grid, float vp_to
         effective_z -= throw_amount;
       }
 
-      effective_z = clampf(effective_z, 0.0f, static_cast<float>(grid.nz - 1));
-
-      std::size_t layer = static_cast<std::size_t>(
-          effective_z * static_cast<float>(nlayers) / static_cast<float>(grid.nz));
-      layer = std::min(layer, nlayers - 1);
+      const std::size_t layer =
+          layer_index_from_depth(effective_z, grid.nz, nlayers);
       float vel = vp_layer[layer];
 
       for (std::size_t j = 0; j < grid.ny; ++j) {
