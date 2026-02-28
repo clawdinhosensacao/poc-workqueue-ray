@@ -32,6 +32,16 @@ float compute_max_stable_dt(const GridSpec& grid, float v_max) {
   return d_min / (bounded_vmax * cfl_factor);
 }
 
+float max_or_zero(const std::vector<float>& values) {
+  if (values.empty()) return 0.0f;
+  return *std::max_element(values.begin(), values.end());
+}
+
+float min_or_zero(const std::vector<float>& values) {
+  if (values.empty()) return 0.0f;
+  return *std::min_element(values.begin(), values.end());
+}
+
 }  // namespace
 
 SeismicModel SeismicModel::from_preset(ModelPreset preset, const GridSpec& grid,
@@ -67,15 +77,9 @@ SeismicModel SeismicModel::from_file(const std::string& path, const GridSpec& gr
   return model;
 }
 
-float SeismicModel::max_velocity() const {
-  if (vp_.empty()) return 0.0f;
-  return *std::max_element(vp_.begin(), vp_.end());
-}
+float SeismicModel::max_velocity() const { return max_or_zero(vp_); }
 
-float SeismicModel::min_velocity() const {
-  if (vp_.empty()) return 0.0f;
-  return *std::min_element(vp_.begin(), vp_.end());
-}
+float SeismicModel::min_velocity() const { return min_or_zero(vp_); }
 
 void SeismicModel::validate_for_rtm(const TimeAxis& time) const {
   if (vp_.empty()) {
