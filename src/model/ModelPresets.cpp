@@ -12,15 +12,21 @@ std::size_t velocity_index(const GridSpec& grid, std::size_t i, std::size_t k,
   return j * grid.nz * grid.nx + k * grid.nx + i;
 }
 
-void fill_layered_background(std::vector<float>& vp, const GridSpec& grid,
-                             float vp_top, float vp_bottom,
-                             std::size_t nlayers) {
+std::vector<float> build_layer_velocities(float vp_top, float vp_bottom,
+                                          std::size_t nlayers) {
   std::vector<float> vp_layer(nlayers);
   for (std::size_t layer_idx = 0; layer_idx < nlayers; ++layer_idx) {
     vp_layer[layer_idx] = vp_top +
                           (vp_bottom - vp_top) * static_cast<float>(layer_idx) /
                               static_cast<float>(nlayers - 1);
   }
+  return vp_layer;
+}
+
+void fill_layered_background(std::vector<float>& vp, const GridSpec& grid,
+                             float vp_top, float vp_bottom,
+                             std::size_t nlayers) {
+  std::vector<float> vp_layer = build_layer_velocities(vp_top, vp_bottom, nlayers);
 
   for (std::size_t k = 0; k < grid.nz; ++k) {
     std::size_t layer = std::min(k * nlayers / grid.nz, nlayers - 1);
@@ -127,12 +133,7 @@ void build_fault_model(std::vector<float>& vp, const GridSpec& grid, float vp_to
   float dip = 60.0f * 3.14159265f / 180.0f;
   float throw_amount = static_cast<float>(grid.nz) * 0.08f;
 
-  std::vector<float> vp_layer(nlayers);
-  for (std::size_t layer_idx = 0; layer_idx < nlayers; ++layer_idx) {
-    vp_layer[layer_idx] = vp_top +
-                          (vp_bottom - vp_top) * static_cast<float>(layer_idx) /
-                              static_cast<float>(nlayers - 1);
-  }
+  std::vector<float> vp_layer = build_layer_velocities(vp_top, vp_bottom, nlayers);
 
   for (std::size_t k = 0; k < grid.nz; ++k) {
     for (std::size_t i = 0; i < grid.nx; ++i) {
