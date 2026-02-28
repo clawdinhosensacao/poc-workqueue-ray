@@ -44,6 +44,11 @@ float compute_max_stable_dt(const GridSpec& grid, float v_max) {
   return d_min / (bounded_vmax * cfl_factor);
 }
 
+std::string cfl_violation_message(float dt, float dt_max) {
+  return "CFL condition violated: dt=" + std::to_string(dt) +
+         " > max_dt=" + std::to_string(dt_max);
+}
+
 template <typename ExtremumFn>
 float extremum_or_zero(const std::vector<float>& values, ExtremumFn extremum_fn) {
   if (values.empty()) return 0.0f;
@@ -106,9 +111,7 @@ void SeismicModel::validate_for_rtm(const TimeAxis& time) const {
   const float dt_max = compute_max_stable_dt(grid_, max_velocity());
 
   if (time.step > dt_max) {
-    throw std::runtime_error("CFL condition violated: dt=" +
-                             std::to_string(time.step) +
-                             " > max_dt=" + std::to_string(dt_max));
+    throw std::runtime_error(cfl_violation_message(time.step, dt_max));
   }
 }
 
