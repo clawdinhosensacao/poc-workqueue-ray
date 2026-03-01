@@ -21,15 +21,20 @@ void write_pgm(const std::string& path, const std::vector<float>& image, std::si
   float max_abs = std::accumulate(image.begin(), image.end(), 1e-9f,
                                    [](float m, float v) { return std::max(m, std::abs(v)); });
 
+  // Normalize to buffer first (avoids per-byte write calls)
+  std::vector<unsigned char> buffer(nx * nz);
+  const float scale = 255.0f / max_abs;
+  for (std::size_t i = 0; i < image.size(); ++i) {
+    const float n = 0.5f + 0.5f * image[i];
+    buffer[i] = static_cast<unsigned char>(std::clamp(n * scale, 0.0f, 255.0f));
+  }
+
   std::ofstream f(path, std::ios::binary);
   if (!f) throw std::runtime_error("cannot write image: " + path);
 
   f << "P5\n" << nx << " " << nz << "\n255\n";
-  for (float v : image) {
-    const float n = 0.5f + 0.5f * (v / max_abs);
-    const auto c = static_cast<unsigned char>(std::clamp(n, 0.0f, 1.0f) * 255.0f);
-    f.write(reinterpret_cast<const char*>(&c), 1);
-  }
+  f.write(reinterpret_cast<const char*>(buffer.data()),
+          static_cast<std::streamsize>(buffer.size()));
 }
 
 void write_float32_raw(const std::string& path, const std::vector<float>& image,
