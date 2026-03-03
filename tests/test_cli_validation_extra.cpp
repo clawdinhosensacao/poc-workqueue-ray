@@ -25,6 +25,11 @@ void expect_missing_value_for(const char* option) {
   expect_parse_throws(argv);
 }
 
+void expect_missing_value_for_standalone(const char* option) {
+  const char* argv[] = {"rtm3d_cli", option};
+  expect_parse_throws(argv);
+}
+
 void write_config(const std::string& path, const std::string& json_body) {
   std::filesystem::create_directories(kTmpLoaderDir);
   std::ofstream c(path);
@@ -163,31 +168,25 @@ TEST(CliOptionsExtra, RejectsMissingValueForNShots) {
 }
 
 TEST(CliOptionsExtra, RejectsMissingValueForConfigPath) {
-  const char* argv[] = {"rtm3d_cli", "--config"};
-  expect_parse_throws(argv);
+  expect_missing_value_for_standalone("--config");
 }
 
 TEST(CliOptionsExtra, RejectsMissingValueForDataDir) {
-  const char* argv[] = {"rtm3d_cli", "--data-dir"};
-  expect_parse_throws(argv);
+  expect_missing_value_for_standalone("--data-dir");
 }
 
 TEST(CliOptionsExtra, RejectsMissingValueForXFile) {
-  const char* argv[] = {"rtm3d_cli", "--x-file"};
-  expect_parse_throws(argv);
+  expect_missing_value_for_standalone("--x-file");
 }
 
 TEST(CliOptionsExtra, RejectsMissingValueForZFile) {
-  const char* argv[] = {"rtm3d_cli", "--z-file"};
-  expect_parse_throws(argv);
+  expect_missing_value_for_standalone("--z-file");
 }
 
 TEST(CliOptionsExtra, RejectsMissingValueForValuesFile) {
-  const char* argv[] = {"rtm3d_cli", "--values-file"};
-  expect_parse_throws(argv);
+  expect_missing_value_for_standalone("--values-file");
 }
 
 TEST(CliOptionsExtra, RejectsMissingValueForOutputPath) {
-  const char* argv[] = {"rtm3d_cli", "--output"};
-  expect_parse_throws(argv);
+  expect_missing_value_for_standalone("--output");
 }
