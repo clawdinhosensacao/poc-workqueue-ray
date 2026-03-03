@@ -115,57 +115,24 @@ TEST(CliOptionsExtra, RejectsOutOfRangeCliSizeOption) {
   expect_parse_throws(argv);
 }
 
-TEST(CliOptionsExtra, RejectsMissingValueForOutputFormat) {
-  expect_missing_value_for("--output-format");
-}
+#define DEFINE_MISSING_VALUE_TEST(test_name, option) \
+  TEST(CliOptionsExtra, test_name) { expect_missing_value_for(option); }
 
-TEST(CliOptionsExtra, RejectsMissingValueForDy) {
-  expect_missing_value_for("--dy");
-}
+DEFINE_MISSING_VALUE_TEST(RejectsMissingValueForOutputFormat, "--output-format")
+DEFINE_MISSING_VALUE_TEST(RejectsMissingValueForDy, "--dy")
+DEFINE_MISSING_VALUE_TEST(RejectsMissingValueForNt, "--nt")
+DEFINE_MISSING_VALUE_TEST(RejectsMissingValueForDecimX, "--decim-x")
+DEFINE_MISSING_VALUE_TEST(RejectsMissingValueForDecimZ, "--decim-z")
+DEFINE_MISSING_VALUE_TEST(RejectsMissingValueForCropX, "--crop-x")
+DEFINE_MISSING_VALUE_TEST(RejectsMissingValueForCropZ, "--crop-z")
+DEFINE_MISSING_VALUE_TEST(RejectsMissingValueForPml, "--pml")
+DEFINE_MISSING_VALUE_TEST(RejectsMissingValueForF0, "--f0")
+DEFINE_MISSING_VALUE_TEST(RejectsMissingValueForNy, "--ny")
+DEFINE_MISSING_VALUE_TEST(RejectsMissingValueForDt, "--dt")
+DEFINE_MISSING_VALUE_TEST(RejectsMissingValueForReceiverStride, "--receiver-stride")
+DEFINE_MISSING_VALUE_TEST(RejectsMissingValueForNShots, "--n-shots")
 
-TEST(CliOptionsExtra, RejectsMissingValueForNt) {
-  expect_missing_value_for("--nt");
-}
-
-TEST(CliOptionsExtra, RejectsMissingValueForDecimX) {
-  expect_missing_value_for("--decim-x");
-}
-
-TEST(CliOptionsExtra, RejectsMissingValueForDecimZ) {
-  expect_missing_value_for("--decim-z");
-}
-
-TEST(CliOptionsExtra, RejectsMissingValueForCropX) {
-  expect_missing_value_for("--crop-x");
-}
-
-TEST(CliOptionsExtra, RejectsMissingValueForCropZ) {
-  expect_missing_value_for("--crop-z");
-}
-
-TEST(CliOptionsExtra, RejectsMissingValueForPml) {
-  expect_missing_value_for("--pml");
-}
-
-TEST(CliOptionsExtra, RejectsMissingValueForF0) {
-  expect_missing_value_for("--f0");
-}
-
-TEST(CliOptionsExtra, RejectsMissingValueForNy) {
-  expect_missing_value_for("--ny");
-}
-
-TEST(CliOptionsExtra, RejectsMissingValueForDt) {
-  expect_missing_value_for("--dt");
-}
-
-TEST(CliOptionsExtra, RejectsMissingValueForReceiverStride) {
-  expect_missing_value_for("--receiver-stride");
-}
-
-TEST(CliOptionsExtra, RejectsMissingValueForNShots) {
-  expect_missing_value_for("--n-shots");
-}
+#undef DEFINE_MISSING_VALUE_TEST
 
 TEST(CliOptionsExtra, RejectsMissingValueForConfigPath) {
   expect_missing_value_for_standalone("--config");
