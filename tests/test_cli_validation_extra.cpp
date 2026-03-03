@@ -174,6 +174,18 @@ TEST(CliOptionsExtra, AcceptsPositiveReceiverStrideFromConfig) {
   EXPECT_EQ(o.rtm.receiver_stride, static_cast<std::size_t>(2));
 }
 
+TEST(CliOptionsExtra, AcceptsPositiveDecimXFromConfig) {
+  const auto o = parse_with_data_dir_config("tests/tmp_loader/cfg_positive_decim_x.json",
+                                             "decim_x", "2");
+  EXPECT_EQ(o.load.decim_x, static_cast<std::size_t>(2));
+}
+
+TEST(CliOptionsExtra, AcceptsPositivePmlFromConfig) {
+  const auto o = parse_with_data_dir_config("tests/tmp_loader/cfg_positive_pml.json",
+                                             "pml", "8");
+  EXPECT_EQ(o.rtm.pml, static_cast<std::size_t>(8));
+}
+
 TEST(CliOptionsExtra, AcceptsUppercaseExponentNumericFromConfig) {
   const auto o = parse_with_config("tests/tmp_loader/cfg_upper_exp_numeric.json",
                                    "  \"data_dir\": \"data\",\n"
