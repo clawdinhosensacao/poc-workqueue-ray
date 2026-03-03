@@ -160,47 +160,35 @@ TEST(CliOptionsExtra, AcceptsPlusPrefixedNumericFromConfig) {
   EXPECT_FLOAT_EQ(o.rtm.dy, 1.5F);
 }
 
-TEST(CliOptionsExtra, AcceptsPositiveShotsFromConfig) {
-  const auto o = parse_with_data_dir_config("tests/tmp_loader/cfg_positive_shots.json",
-                                             "n_shots", "3");
-  EXPECT_EQ(o.n_shots, static_cast<std::size_t>(3));
-}
+#define DEFINE_ACCEPTS_SIZE_FIELD_TEST(test_name, path, key, value, expr, expected) \
+  TEST(CliOptionsExtra, test_name) {                                                  \
+    const auto o = parse_with_data_dir_config(path, key, value);                      \
+    EXPECT_EQ((expr), static_cast<std::size_t>(expected));                            \
+  }
 
-TEST(CliOptionsExtra, AcceptsPositiveReceiverStrideFromConfig) {
-  const auto o = parse_with_data_dir_config("tests/tmp_loader/cfg_positive_receiver_stride.json",
-                                             "receiver_stride", "2");
-  EXPECT_EQ(o.rtm.receiver_stride, static_cast<std::size_t>(2));
-}
+DEFINE_ACCEPTS_SIZE_FIELD_TEST(AcceptsPositiveShotsFromConfig,
+                               "tests/tmp_loader/cfg_positive_shots.json",
+                               "n_shots", "3", o.n_shots, 3)
+DEFINE_ACCEPTS_SIZE_FIELD_TEST(AcceptsPositiveReceiverStrideFromConfig,
+                               "tests/tmp_loader/cfg_positive_receiver_stride.json",
+                               "receiver_stride", "2", o.rtm.receiver_stride, 2)
+DEFINE_ACCEPTS_SIZE_FIELD_TEST(AcceptsPositiveDecimXFromConfig,
+                               "tests/tmp_loader/cfg_positive_decim_x.json",
+                               "decim_x", "2", o.load.decim_x, 2)
+DEFINE_ACCEPTS_SIZE_FIELD_TEST(AcceptsPositivePmlFromConfig,
+                               "tests/tmp_loader/cfg_positive_pml.json",
+                               "pml", "8", o.rtm.pml, 8)
+DEFINE_ACCEPTS_SIZE_FIELD_TEST(AcceptsPositiveDecimZFromConfig,
+                               "tests/tmp_loader/cfg_positive_decim_z.json",
+                               "decim_z", "2", o.load.decim_z, 2)
+DEFINE_ACCEPTS_SIZE_FIELD_TEST(AcceptsNyAtMinimumFromConfig,
+                               "tests/tmp_loader/cfg_ny_minimum.json",
+                               "ny", "4", o.rtm.ny, 4)
+DEFINE_ACCEPTS_SIZE_FIELD_TEST(AcceptsNtAtMinimumFromConfig,
+                               "tests/tmp_loader/cfg_nt_minimum.json",
+                               "nt", "2", o.rtm.nt, 2)
 
-TEST(CliOptionsExtra, AcceptsPositiveDecimXFromConfig) {
-  const auto o = parse_with_data_dir_config("tests/tmp_loader/cfg_positive_decim_x.json",
-                                             "decim_x", "2");
-  EXPECT_EQ(o.load.decim_x, static_cast<std::size_t>(2));
-}
-
-TEST(CliOptionsExtra, AcceptsPositivePmlFromConfig) {
-  const auto o = parse_with_data_dir_config("tests/tmp_loader/cfg_positive_pml.json",
-                                             "pml", "8");
-  EXPECT_EQ(o.rtm.pml, static_cast<std::size_t>(8));
-}
-
-TEST(CliOptionsExtra, AcceptsPositiveDecimZFromConfig) {
-  const auto o = parse_with_data_dir_config("tests/tmp_loader/cfg_positive_decim_z.json",
-                                             "decim_z", "2");
-  EXPECT_EQ(o.load.decim_z, static_cast<std::size_t>(2));
-}
-
-TEST(CliOptionsExtra, AcceptsNyAtMinimumFromConfig) {
-  const auto o = parse_with_data_dir_config("tests/tmp_loader/cfg_ny_minimum.json",
-                                             "ny", "4");
-  EXPECT_EQ(o.rtm.ny, static_cast<std::size_t>(4));
-}
-
-TEST(CliOptionsExtra, AcceptsNtAtMinimumFromConfig) {
-  const auto o = parse_with_data_dir_config("tests/tmp_loader/cfg_nt_minimum.json",
-                                             "nt", "2");
-  EXPECT_EQ(o.rtm.nt, static_cast<std::size_t>(2));
-}
+#undef DEFINE_ACCEPTS_SIZE_FIELD_TEST
 
 TEST(CliOptionsExtra, AcceptsSmallPositiveDyFromConfig) {
   const auto o = parse_with_data_dir_config("tests/tmp_loader/cfg_small_positive_dy.json",
