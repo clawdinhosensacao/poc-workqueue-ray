@@ -215,6 +215,12 @@ Quick unified local verification (build + unit + parity smoke + static):
 make check
 ```
 
+I/O benchmark harness quick checks:
+```bash
+make io-bench-test      # py_compile + unit tests for benchmark harness
+make io-bench           # generates artifacts/io_format_benchmark.md
+```
+
 Unit + e2e (CTest path):
 ```bash
 ctest --test-dir build --output-on-failure

@@ -2,7 +2,7 @@ CXX ?= g++
 CXXFLAGS ?= -O2 -std=c++20 -Wall -Wextra -Wpedantic -Iinclude
 GTEST_DIR := third_party/googletest
 
-.PHONY: all build test check parity-smoke e2e run static clean coverage
+.PHONY: all build test check parity-smoke e2e run static clean coverage io-bench io-bench-test
 GTEST_INC := -I$(GTEST_DIR)/googletest/include -I$(GTEST_DIR)/googletest
 
 SRC = src/io/ArrayModelLoader.cpp src/io/BinaryModelLoader.cpp src/io/GridModelLoader.cpp src/io/ImageIO.cpp src/model/SeismicModel.cpp src/model/ModelPresets.cpp src/rtm/RtmEngine.cpp src/rtm/Geometry.cpp src/rtm/InlineSlice.cpp src/rtm/Receivers.cpp src/rtm/Boundary.cpp src/rtm/Propagation.cpp src/rtm/Imaging.cpp src/rtm/Validation.cpp src/rtm/Acquisition.cpp src/rtm/Wavelet.cpp src/rtm/SourcePropagation.cpp src/rtm/ReceiverImaging.cpp src/rtm/ResultBuilder.cpp src/cli/CliOptions.cpp
@@ -46,6 +46,13 @@ parity-smoke:
 	python3 scripts/devito_canonical_parity.py --vmin 3000 --vmax 2000 >/dev/null 2>&1; test $$? -eq 1
 	python3 scripts/devito_canonical_parity.py --cli-bin /tmp/does-not-exist >/dev/null 2>&1; test $$? -eq 1
 	python3 scripts/devito_canonical_parity.py --ssim-window 2 >/dev/null 2>&1; test $$? -eq 1
+
+io-bench-test:
+	python3 -m py_compile scripts/io_format_benchmark.py scripts/test_io_format_benchmark.py
+	python3 -m unittest scripts/test_io_format_benchmark.py
+
+io-bench:
+	python3 scripts/io_format_benchmark.py --nx 400 --nz 300 --iterations 3 --report artifacts/io_format_benchmark.md
 
 e2e: build/rtm3d_cli
 	bash tests/e2e_synthetic.sh
