@@ -119,6 +119,19 @@ TEST(CliOptionsExtra, RejectsQuotedSizeNumericFromConfig) {
                                   "  \"nt\": \"100\"\n");
 }
 
+TEST(CliOptionsExtra, AcceptsWhitespacePaddedNumericFromConfig) {
+  write_config("tests/tmp_loader/cfg_whitespace_numeric.json",
+               "  \"data_dir\": \"data\",\n"
+               "  \"nt\":    128   ,\n"
+               "  \"dy\":   2.5\n");
+
+  const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_whitespace_numeric.json"};
+  const auto o = rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
+                                            const_cast<char**>(argv));
+  EXPECT_EQ(o.rtm.nt, static_cast<std::size_t>(128));
+  EXPECT_FLOAT_EQ(o.rtm.dy, 2.5F);
+}
+
 #define DEFINE_CONFIG_REJECTION_TEST(test_name, path, key, value) \
   TEST(CliOptionsExtra, test_name) {                                     \
     expect_parse_throws_with_data_dir_config(path, key, value);          \
