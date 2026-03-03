@@ -40,6 +40,20 @@ TEST(CliOptionsExtra, RejectsInvalidConfigOutputFormat) {
   expect_parse_throws(argv);
 }
 
+TEST(CliOptionsExtra, RejectsZeroShotsFromConfig) {
+  std::filesystem::create_directories("tests/tmp_loader");
+  {
+    std::ofstream c("tests/tmp_loader/cfg_zero_shots.json");
+    c << "{\n"
+      << "  \"data_dir\": \"data\",\n"
+      << "  \"n_shots\": 0\n"
+      << "}\n";
+  }
+
+  const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_zero_shots.json"};
+  expect_parse_throws(argv);
+}
+
 TEST(CliOptionsExtra, RejectsNegativeUnsignedOption) {
   const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--decim-x", "-1"};
   expect_parse_throws(argv);
