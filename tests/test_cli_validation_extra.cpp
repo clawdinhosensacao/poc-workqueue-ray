@@ -168,6 +168,12 @@ TEST(CliOptionsExtra, AcceptsPositiveShotsFromConfig) {
   EXPECT_EQ(o.n_shots, static_cast<std::size_t>(3));
 }
 
+TEST(CliOptionsExtra, AcceptsPositiveReceiverStrideFromConfig) {
+  const auto o = parse_with_data_dir_config("tests/tmp_loader/cfg_positive_receiver_stride.json",
+                                             "receiver_stride", "2");
+  EXPECT_EQ(o.rtm.receiver_stride, static_cast<std::size_t>(2));
+}
+
 TEST(CliOptionsExtra, AcceptsUppercaseExponentNumericFromConfig) {
   const auto o = parse_with_config("tests/tmp_loader/cfg_upper_exp_numeric.json",
                                    "  \"data_dir\": \"data\",\n"
