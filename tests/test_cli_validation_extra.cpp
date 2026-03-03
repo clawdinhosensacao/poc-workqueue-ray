@@ -126,12 +126,24 @@ TEST(CliOptionsExtra, RejectsMissingValueForDecimX) {
   expect_missing_value_for("--decim-x");
 }
 
+TEST(CliOptionsExtra, RejectsMissingValueForDecimZ) {
+  expect_missing_value_for("--decim-z");
+}
+
+TEST(CliOptionsExtra, RejectsMissingValueForCropX) {
+  expect_missing_value_for("--crop-x");
+}
+
 TEST(CliOptionsExtra, RejectsMissingValueForCropZ) {
   expect_missing_value_for("--crop-z");
 }
 
 TEST(CliOptionsExtra, RejectsMissingValueForPml) {
   expect_missing_value_for("--pml");
+}
+
+TEST(CliOptionsExtra, RejectsMissingValueForF0) {
+  expect_missing_value_for("--f0");
 }
 
 TEST(CliOptionsExtra, RejectsMissingValueForReceiverStride) {
