@@ -122,6 +122,18 @@ TEST(CliOptionsExtra, RejectsMissingValueForNt) {
   expect_missing_value_for("--nt");
 }
 
+TEST(CliOptionsExtra, RejectsMissingValueForDecimX) {
+  expect_missing_value_for("--decim-x");
+}
+
+TEST(CliOptionsExtra, RejectsMissingValueForCropZ) {
+  expect_missing_value_for("--crop-z");
+}
+
+TEST(CliOptionsExtra, RejectsMissingValueForPml) {
+  expect_missing_value_for("--pml");
+}
+
 TEST(CliOptionsExtra, RejectsMissingValueForReceiverStride) {
   expect_missing_value_for("--receiver-stride");
 }
