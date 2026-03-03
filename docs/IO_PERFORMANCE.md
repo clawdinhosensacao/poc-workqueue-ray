@@ -105,3 +105,17 @@ python3 scripts/benchmark_io.py
 ```
 
 This will output detailed timing and throughput metrics for various I/O operations.
+
+## Multi-Format Benchmark (RFC companion)
+
+To compare additional backends (HDF5, ADIOS2, Parquet, DuckDB, Zarr, MDIO) use:
+
+```bash
+python3 scripts/io_format_benchmark.py --nx 400 --nz 300 --iterations 3
+```
+
+Output report: `artifacts/io_format_benchmark.md`.
+
+If optional dependencies are missing, the script marks those formats as `n/a` instead of failing.
+
+See also: `docs/RFC_IO_FORMATS.md` for recommendations on when each format applies.
