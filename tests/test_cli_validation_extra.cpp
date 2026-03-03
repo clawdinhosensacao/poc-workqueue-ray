@@ -56,9 +56,7 @@ rtm3d::CliOptions parse_with_data_dir_config(const std::string& path,
 
 void expect_parse_throws_with_config(const std::string& path,
                                      const std::string& json_body) {
-  write_config(path, json_body);
-  const char* argv[] = {"rtm3d_cli", "--config", path.c_str()};
-  expect_parse_throws(argv);
+  EXPECT_THROW((void)parse_with_config(path, json_body), std::runtime_error);
 }
 
 void expect_parse_throws_with_data_dir_config(const std::string& path,
