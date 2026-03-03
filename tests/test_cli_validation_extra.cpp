@@ -125,6 +125,12 @@ DEFINE_CONFIG_REJECTION_TEST(RejectsNegativeDecimXFromConfig,
 DEFINE_CONFIG_REJECTION_TEST(RejectsNegativePmlFromConfig,
                              "tests/tmp_loader/cfg_negative_pml.json",
                              "pml", "-1")
+DEFINE_CONFIG_REJECTION_TEST(RejectsNegativeShotsFromConfig,
+                             "tests/tmp_loader/cfg_negative_shots.json",
+                             "n_shots", "-1")
+DEFINE_CONFIG_REJECTION_TEST(RejectsNegativeNyFromConfig,
+                             "tests/tmp_loader/cfg_negative_ny.json",
+                             "ny", "-1")
 
 #undef DEFINE_CONFIG_REJECTION_TEST
 
