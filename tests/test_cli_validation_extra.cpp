@@ -155,6 +155,16 @@ TEST(CliOptionsExtra, RejectsNonFiniteNaNFromConfig) {
       "tests/tmp_loader/cfg_nan_dt.json", "dt", "nan");
 }
 
+TEST(CliOptionsExtra, RejectsNonFiniteUpperInfFromConfig) {
+  expect_parse_throws_with_data_dir_config(
+      "tests/tmp_loader/cfg_upper_inf_dy.json", "dy", "INF");
+}
+
+TEST(CliOptionsExtra, RejectsNonFiniteUpperNaNFromConfig) {
+  expect_parse_throws_with_data_dir_config(
+      "tests/tmp_loader/cfg_upper_nan_dt.json", "dt", "NAN");
+}
+
 #define DEFINE_CONFIG_REJECTION_TEST(test_name, path, key, value) \
   TEST(CliOptionsExtra, test_name) {                                     \
     expect_parse_throws_with_data_dir_config(path, key, value);          \
