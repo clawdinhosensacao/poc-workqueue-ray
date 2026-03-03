@@ -192,6 +192,18 @@ TEST(CliOptionsExtra, AcceptsPositiveDecimZFromConfig) {
   EXPECT_EQ(o.load.decim_z, static_cast<std::size_t>(2));
 }
 
+TEST(CliOptionsExtra, AcceptsNyAtMinimumFromConfig) {
+  const auto o = parse_with_data_dir_config("tests/tmp_loader/cfg_ny_minimum.json",
+                                             "ny", "4");
+  EXPECT_EQ(o.rtm.ny, static_cast<std::size_t>(4));
+}
+
+TEST(CliOptionsExtra, AcceptsNtAtMinimumFromConfig) {
+  const auto o = parse_with_data_dir_config("tests/tmp_loader/cfg_nt_minimum.json",
+                                             "nt", "2");
+  EXPECT_EQ(o.rtm.nt, static_cast<std::size_t>(2));
+}
+
 TEST(CliOptionsExtra, AcceptsUppercaseExponentNumericFromConfig) {
   const auto o = parse_with_config("tests/tmp_loader/cfg_upper_exp_numeric.json",
                                    "  \"data_dir\": \"data\",\n"
