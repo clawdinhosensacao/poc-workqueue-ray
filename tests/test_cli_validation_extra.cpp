@@ -43,7 +43,15 @@ rtm3d::CliOptions parse_with_config(const std::string& path,
   write_config(path, json_body);
   const char* argv[] = {"rtm3d_cli", "--config", path.c_str()};
   return rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
-                                    const_cast<char**>(argv));
+                                   const_cast<char**>(argv));
+}
+
+rtm3d::CliOptions parse_with_data_dir_config(const std::string& path,
+                                             const std::string& key,
+                                             const std::string& value) {
+  return parse_with_config(path,
+                           "  \"data_dir\": \"data\",\n"
+                           "  \"" + key + "\": " + value + "\n");
 }
 
 void expect_parse_throws_with_config(const std::string& path,
@@ -152,6 +160,12 @@ TEST(CliOptionsExtra, AcceptsPlusPrefixedNumericFromConfig) {
                                    "  \"dy\": +1.5\n");
   EXPECT_EQ(o.rtm.ny, static_cast<std::size_t>(32));
   EXPECT_FLOAT_EQ(o.rtm.dy, 1.5F);
+}
+
+TEST(CliOptionsExtra, AcceptsPositiveShotsFromConfig) {
+  const auto o = parse_with_data_dir_config("tests/tmp_loader/cfg_positive_shots.json",
+                                             "n_shots", "3");
+  EXPECT_EQ(o.n_shots, static_cast<std::size_t>(3));
 }
 
 TEST(CliOptionsExtra, AcceptsUppercaseExponentNumericFromConfig) {
