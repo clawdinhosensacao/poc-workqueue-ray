@@ -204,6 +204,24 @@ TEST(CliOptionsExtra, AcceptsNtAtMinimumFromConfig) {
   EXPECT_EQ(o.rtm.nt, static_cast<std::size_t>(2));
 }
 
+TEST(CliOptionsExtra, AcceptsSmallPositiveDyFromConfig) {
+  const auto o = parse_with_data_dir_config("tests/tmp_loader/cfg_small_positive_dy.json",
+                                             "dy", "1e-6");
+  EXPECT_FLOAT_EQ(o.rtm.dy, 1e-6F);
+}
+
+TEST(CliOptionsExtra, AcceptsSmallPositiveDtFromConfig) {
+  const auto o = parse_with_data_dir_config("tests/tmp_loader/cfg_small_positive_dt.json",
+                                             "dt", "1e-6");
+  EXPECT_FLOAT_EQ(o.rtm.dt, 1e-6F);
+}
+
+TEST(CliOptionsExtra, AcceptsSmallPositiveF0FromConfig) {
+  const auto o = parse_with_data_dir_config("tests/tmp_loader/cfg_small_positive_f0.json",
+                                             "f0", "1e-6");
+  EXPECT_FLOAT_EQ(o.rtm.f0, 1e-6F);
+}
+
 TEST(CliOptionsExtra, AcceptsUppercaseExponentNumericFromConfig) {
   const auto o = parse_with_config("tests/tmp_loader/cfg_upper_exp_numeric.json",
                                    "  \"data_dir\": \"data\",\n"
