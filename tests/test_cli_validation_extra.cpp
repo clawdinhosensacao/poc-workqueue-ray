@@ -186,6 +186,12 @@ TEST(CliOptionsExtra, AcceptsPositivePmlFromConfig) {
   EXPECT_EQ(o.rtm.pml, static_cast<std::size_t>(8));
 }
 
+TEST(CliOptionsExtra, AcceptsPositiveDecimZFromConfig) {
+  const auto o = parse_with_data_dir_config("tests/tmp_loader/cfg_positive_decim_z.json",
+                                             "decim_z", "2");
+  EXPECT_EQ(o.load.decim_z, static_cast<std::size_t>(2));
+}
+
 TEST(CliOptionsExtra, AcceptsUppercaseExponentNumericFromConfig) {
   const auto o = parse_with_config("tests/tmp_loader/cfg_upper_exp_numeric.json",
                                    "  \"data_dir\": \"data\",\n"
