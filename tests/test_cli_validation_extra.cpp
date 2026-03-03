@@ -105,6 +105,24 @@ TEST(CliOptionsExtra, RejectsBooleanNumericFromConfig) {
   expect_parse_throws(argv);
 }
 
+TEST(CliOptionsExtra, RejectsArrayNumericFromConfig) {
+  write_config("tests/tmp_loader/cfg_array_dt_token.json",
+               "  \"data_dir\": \"data\",\n"
+               "  \"dt\": [0.001]\n");
+
+  const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_array_dt_token.json"};
+  expect_parse_throws(argv);
+}
+
+TEST(CliOptionsExtra, RejectsObjectNumericFromConfig) {
+  write_config("tests/tmp_loader/cfg_object_nt_token.json",
+               "  \"data_dir\": \"data\",\n"
+               "  \"nt\": {\"value\": 100}\n");
+
+  const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_object_nt_token.json"};
+  expect_parse_throws(argv);
+}
+
 #define DEFINE_CONFIG_REJECTION_TEST(test_name, path, key, value) \
   TEST(CliOptionsExtra, test_name) {                                     \
     expect_parse_throws_with_data_dir_config(path, key, value);          \
