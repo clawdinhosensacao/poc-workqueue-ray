@@ -9,11 +9,20 @@ namespace {
 
 constexpr const char* kTmpLoaderDir = "tests/tmp_loader";
 
+void expect_parse_throws(int argc, const char* const* argv) {
+  EXPECT_THROW(
+      (void)rtm3d::parse_cli_or_throw(argc, const_cast<char**>(argv)),
+      std::runtime_error);
+}
+
 template <std::size_t N>
 void expect_parse_throws(const char* (&argv)[N]) {
-  EXPECT_THROW(
-      (void)rtm3d::parse_cli_or_throw(static_cast<int>(N), const_cast<char**>(argv)),
-      std::runtime_error);
+  expect_parse_throws(static_cast<int>(N), argv);
+}
+
+void expect_missing_value_for(const char* option) {
+  const char* argv[] = {"rtm3d_cli", "--data-dir", "data", option};
+  expect_parse_throws(argv);
 }
 
 void write_config(const std::string& path, const std::string& json_body) {
@@ -102,28 +111,23 @@ TEST(CliOptionsExtra, RejectsOutOfRangeCliSizeOption) {
 }
 
 TEST(CliOptionsExtra, RejectsMissingValueForOutputFormat) {
-  const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--output-format"};
-  expect_parse_throws(argv);
+  expect_missing_value_for("--output-format");
 }
 
 TEST(CliOptionsExtra, RejectsMissingValueForDy) {
-  const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--dy"};
-  expect_parse_throws(argv);
+  expect_missing_value_for("--dy");
 }
 
 TEST(CliOptionsExtra, RejectsMissingValueForNt) {
-  const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--nt"};
-  expect_parse_throws(argv);
+  expect_missing_value_for("--nt");
 }
 
 TEST(CliOptionsExtra, RejectsMissingValueForReceiverStride) {
-  const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--receiver-stride"};
-  expect_parse_throws(argv);
+  expect_missing_value_for("--receiver-stride");
 }
 
 TEST(CliOptionsExtra, RejectsMissingValueForNShots) {
-  const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--n-shots"};
-  expect_parse_throws(argv);
+  expect_missing_value_for("--n-shots");
 }
 
 TEST(CliOptionsExtra, RejectsMissingValueForConfigPath) {
