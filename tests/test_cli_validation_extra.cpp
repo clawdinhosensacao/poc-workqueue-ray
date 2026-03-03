@@ -119,6 +119,21 @@ TEST(CliOptionsExtra, RejectsZeroF0FromConfig) {
       "tests/tmp_loader/cfg_zero_f0.json", "f0", "0.0");
 }
 
+TEST(CliOptionsExtra, RejectsNegativeDyFromConfig) {
+  expect_parse_throws_with_data_dir_config(
+      "tests/tmp_loader/cfg_negative_dy.json", "dy", "-0.1");
+}
+
+TEST(CliOptionsExtra, RejectsNegativeDtFromConfig) {
+  expect_parse_throws_with_data_dir_config(
+      "tests/tmp_loader/cfg_negative_dt.json", "dt", "-0.001");
+}
+
+TEST(CliOptionsExtra, RejectsNegativeF0FromConfig) {
+  expect_parse_throws_with_data_dir_config(
+      "tests/tmp_loader/cfg_negative_f0.json", "f0", "-10.0");
+}
+
 TEST(CliOptionsExtra, RejectsNegativeUnsignedOption) {
   const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--decim-x", "-1"};
   expect_parse_throws(argv);
