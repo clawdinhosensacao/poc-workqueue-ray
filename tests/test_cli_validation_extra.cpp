@@ -38,6 +38,16 @@ void write_config(const std::string& path, const std::string& json_body) {
     << "}\n";
 }
 
+void expect_parse_throws_with_data_dir_config(const std::string& path,
+                                              const std::string& key,
+                                              const std::string& value) {
+  write_config(path,
+               "  \"data_dir\": \"data\",\n"
+               "  \"" + key + "\": " + value + "\n");
+  const char* argv[] = {"rtm3d_cli", "--config", path.c_str()};
+  expect_parse_throws(argv);
+}
+
 }  // namespace
 
 TEST(CliOptionsExtra, RejectsZeroStride) {
@@ -60,30 +70,18 @@ TEST(CliOptionsExtra, RejectsInvalidConfigOutputFormat) {
 }
 
 TEST(CliOptionsExtra, RejectsZeroShotsFromConfig) {
-  write_config("tests/tmp_loader/cfg_zero_shots.json",
-               "  \"data_dir\": \"data\",\n"
-               "  \"n_shots\": 0\n");
-
-  const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_zero_shots.json"};
-  expect_parse_throws(argv);
+  expect_parse_throws_with_data_dir_config(
+      "tests/tmp_loader/cfg_zero_shots.json", "n_shots", "0");
 }
 
 TEST(CliOptionsExtra, RejectsZeroReceiverStrideFromConfig) {
-  write_config("tests/tmp_loader/cfg_zero_receiver_stride.json",
-               "  \"data_dir\": \"data\",\n"
-               "  \"receiver_stride\": 0\n");
-
-  const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_zero_receiver_stride.json"};
-  expect_parse_throws(argv);
+  expect_parse_throws_with_data_dir_config(
+      "tests/tmp_loader/cfg_zero_receiver_stride.json", "receiver_stride", "0");
 }
 
 TEST(CliOptionsExtra, RejectsZeroDecimXFromConfig) {
-  write_config("tests/tmp_loader/cfg_zero_decim_x.json",
-               "  \"data_dir\": \"data\",\n"
-               "  \"decim_x\": 0\n");
-
-  const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_zero_decim_x.json"};
-  expect_parse_throws(argv);
+  expect_parse_throws_with_data_dir_config(
+      "tests/tmp_loader/cfg_zero_decim_x.json", "decim_x", "0");
 }
 
 TEST(CliOptionsExtra, RejectsNegativeUnsignedOption) {
