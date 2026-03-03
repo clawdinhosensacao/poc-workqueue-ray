@@ -7,11 +7,21 @@
 
 namespace {
 
+constexpr const char* kTmpLoaderDir = "tests/tmp_loader";
+
 template <std::size_t N>
 void expect_parse_throws(const char* (&argv)[N]) {
   EXPECT_THROW(
       (void)rtm3d::parse_cli_or_throw(static_cast<int>(N), const_cast<char**>(argv)),
       std::runtime_error);
+}
+
+void write_config(const std::string& path, const std::string& json_body) {
+  std::filesystem::create_directories(kTmpLoaderDir);
+  std::ofstream c(path);
+  c << "{\n"
+    << json_body
+    << "}\n";
 }
 
 }  // namespace
@@ -27,28 +37,18 @@ TEST(CliOptionsExtra, RejectsZeroShots) {
 }
 
 TEST(CliOptionsExtra, RejectsInvalidConfigOutputFormat) {
-  std::filesystem::create_directories("tests/tmp_loader");
-  {
-    std::ofstream c("tests/tmp_loader/cfg_bad_format.json");
-    c << "{\n"
-      << "  \"data_dir\": \"data\",\n"
-      << "  \"output_format\": \"bad\"\n"
-      << "}\n";
-  }
+  write_config("tests/tmp_loader/cfg_bad_format.json",
+               "  \"data_dir\": \"data\",\n"
+               "  \"output_format\": \"bad\"\n");
 
   const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_bad_format.json"};
   expect_parse_throws(argv);
 }
 
 TEST(CliOptionsExtra, RejectsZeroShotsFromConfig) {
-  std::filesystem::create_directories("tests/tmp_loader");
-  {
-    std::ofstream c("tests/tmp_loader/cfg_zero_shots.json");
-    c << "{\n"
-      << "  \"data_dir\": \"data\",\n"
-      << "  \"n_shots\": 0\n"
-      << "}\n";
-  }
+  write_config("tests/tmp_loader/cfg_zero_shots.json",
+               "  \"data_dir\": \"data\",\n"
+               "  \"n_shots\": 0\n");
 
   const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_zero_shots.json"};
   expect_parse_throws(argv);
@@ -60,15 +60,10 @@ TEST(CliOptionsExtra, RejectsNegativeUnsignedOption) {
 }
 
 TEST(CliOptionsExtra, ConfigOutputAliasOverridesOutputFile) {
-  std::filesystem::create_directories("tests/tmp_loader");
-  {
-    std::ofstream c("tests/tmp_loader/cfg_output_alias.json");
-    c << "{\n"
-      << "  \"data_dir\": \"data\",\n"
-      << "  \"output_file\": \"output/from_output_file.pgm\",\n"
-      << "  \"output\": \"output/from_output_alias.pgm\"\n"
-      << "}\n";
-  }
+  write_config("tests/tmp_loader/cfg_output_alias.json",
+               "  \"data_dir\": \"data\",\n"
+               "  \"output_file\": \"output/from_output_file.pgm\",\n"
+               "  \"output\": \"output/from_output_alias.pgm\"\n");
 
   const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_output_alias.json"};
   const auto o = rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
