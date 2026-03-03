@@ -68,6 +68,24 @@ TEST(CliOptionsExtra, RejectsZeroShotsFromConfig) {
   expect_parse_throws(argv);
 }
 
+TEST(CliOptionsExtra, RejectsZeroReceiverStrideFromConfig) {
+  write_config("tests/tmp_loader/cfg_zero_receiver_stride.json",
+               "  \"data_dir\": \"data\",\n"
+               "  \"receiver_stride\": 0\n");
+
+  const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_zero_receiver_stride.json"};
+  expect_parse_throws(argv);
+}
+
+TEST(CliOptionsExtra, RejectsZeroDecimXFromConfig) {
+  write_config("tests/tmp_loader/cfg_zero_decim_x.json",
+               "  \"data_dir\": \"data\",\n"
+               "  \"decim_x\": 0\n");
+
+  const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_zero_decim_x.json"};
+  expect_parse_throws(argv);
+}
+
 TEST(CliOptionsExtra, RejectsNegativeUnsignedOption) {
   const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--decim-x", "-1"};
   expect_parse_throws(argv);
