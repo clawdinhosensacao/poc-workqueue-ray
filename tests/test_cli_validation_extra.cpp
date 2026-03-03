@@ -84,6 +84,16 @@ TEST(CliOptionsExtra, RejectsZeroDecimXFromConfig) {
       "tests/tmp_loader/cfg_zero_decim_x.json", "decim_x", "0");
 }
 
+TEST(CliOptionsExtra, RejectsZeroDecimZFromConfig) {
+  expect_parse_throws_with_data_dir_config(
+      "tests/tmp_loader/cfg_zero_decim_z.json", "decim_z", "0");
+}
+
+TEST(CliOptionsExtra, RejectsZeroPmlFromConfig) {
+  expect_parse_throws_with_data_dir_config(
+      "tests/tmp_loader/cfg_zero_pml.json", "pml", "0");
+}
+
 TEST(CliOptionsExtra, RejectsNegativeUnsignedOption) {
   const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--decim-x", "-1"};
   expect_parse_throws(argv);
