@@ -116,6 +116,11 @@ TEST(CliOptionsExtra, RejectsMissingValueForNt) {
   expect_parse_throws(argv);
 }
 
+TEST(CliOptionsExtra, RejectsMissingValueForReceiverStride) {
+  const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--receiver-stride"};
+  expect_parse_throws(argv);
+}
+
 TEST(CliOptionsExtra, RejectsMissingValueForNShots) {
   const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--n-shots"};
   expect_parse_throws(argv);
