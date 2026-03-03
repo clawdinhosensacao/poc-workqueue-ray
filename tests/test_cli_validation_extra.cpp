@@ -146,6 +146,14 @@ TEST(CliOptionsExtra, RejectsMissingValueForF0) {
   expect_missing_value_for("--f0");
 }
 
+TEST(CliOptionsExtra, RejectsMissingValueForNy) {
+  expect_missing_value_for("--ny");
+}
+
+TEST(CliOptionsExtra, RejectsMissingValueForDt) {
+  expect_missing_value_for("--dt");
+}
+
 TEST(CliOptionsExtra, RejectsMissingValueForReceiverStride) {
   expect_missing_value_for("--receiver-stride");
 }
