@@ -69,90 +69,64 @@ TEST(CliOptionsExtra, RejectsInvalidConfigOutputFormat) {
   expect_parse_throws(argv);
 }
 
-TEST(CliOptionsExtra, RejectsZeroShotsFromConfig) {
-  expect_parse_throws_with_data_dir_config(
-      "tests/tmp_loader/cfg_zero_shots.json", "n_shots", "0");
-}
+#define DEFINE_CONFIG_REJECTION_TEST(test_name, path, key, value) \
+  TEST(CliOptionsExtra, test_name) {                                     \
+    expect_parse_throws_with_data_dir_config(path, key, value);          \
+  }
 
-TEST(CliOptionsExtra, RejectsZeroReceiverStrideFromConfig) {
-  expect_parse_throws_with_data_dir_config(
-      "tests/tmp_loader/cfg_zero_receiver_stride.json", "receiver_stride", "0");
-}
+DEFINE_CONFIG_REJECTION_TEST(RejectsZeroShotsFromConfig,
+                             "tests/tmp_loader/cfg_zero_shots.json",
+                             "n_shots", "0")
+DEFINE_CONFIG_REJECTION_TEST(RejectsZeroReceiverStrideFromConfig,
+                             "tests/tmp_loader/cfg_zero_receiver_stride.json",
+                             "receiver_stride", "0")
+DEFINE_CONFIG_REJECTION_TEST(RejectsZeroDecimXFromConfig,
+                             "tests/tmp_loader/cfg_zero_decim_x.json",
+                             "decim_x", "0")
+DEFINE_CONFIG_REJECTION_TEST(RejectsZeroDecimZFromConfig,
+                             "tests/tmp_loader/cfg_zero_decim_z.json",
+                             "decim_z", "0")
+DEFINE_CONFIG_REJECTION_TEST(RejectsZeroPmlFromConfig,
+                             "tests/tmp_loader/cfg_zero_pml.json",
+                             "pml", "0")
+DEFINE_CONFIG_REJECTION_TEST(RejectsNyBelowMinimumFromConfig,
+                             "tests/tmp_loader/cfg_small_ny.json",
+                             "ny", "3")
+DEFINE_CONFIG_REJECTION_TEST(RejectsNtBelowMinimumFromConfig,
+                             "tests/tmp_loader/cfg_small_nt.json",
+                             "nt", "1")
+DEFINE_CONFIG_REJECTION_TEST(RejectsZeroDyFromConfig,
+                             "tests/tmp_loader/cfg_zero_dy.json",
+                             "dy", "0.0")
+DEFINE_CONFIG_REJECTION_TEST(RejectsZeroDtFromConfig,
+                             "tests/tmp_loader/cfg_zero_dt.json",
+                             "dt", "0.0")
+DEFINE_CONFIG_REJECTION_TEST(RejectsZeroF0FromConfig,
+                             "tests/tmp_loader/cfg_zero_f0.json",
+                             "f0", "0.0")
+DEFINE_CONFIG_REJECTION_TEST(RejectsNegativeDyFromConfig,
+                             "tests/tmp_loader/cfg_negative_dy.json",
+                             "dy", "-0.1")
+DEFINE_CONFIG_REJECTION_TEST(RejectsNegativeDtFromConfig,
+                             "tests/tmp_loader/cfg_negative_dt.json",
+                             "dt", "-0.001")
+DEFINE_CONFIG_REJECTION_TEST(RejectsNegativeF0FromConfig,
+                             "tests/tmp_loader/cfg_negative_f0.json",
+                             "f0", "-10.0")
+DEFINE_CONFIG_REJECTION_TEST(RejectsNegativeReceiverStrideFromConfig,
+                             "tests/tmp_loader/cfg_negative_receiver_stride.json",
+                             "receiver_stride", "-1")
+DEFINE_CONFIG_REJECTION_TEST(RejectsNegativeDecimZFromConfig,
+                             "tests/tmp_loader/cfg_negative_decim_z.json",
+                             "decim_z", "-1")
+DEFINE_CONFIG_REJECTION_TEST(RejectsNegativeDecimXFromConfig,
+                             "tests/tmp_loader/cfg_negative_decim_x.json",
+                             "decim_x", "-1")
+DEFINE_CONFIG_REJECTION_TEST(RejectsNegativePmlFromConfig,
+                             "tests/tmp_loader/cfg_negative_pml.json",
+                             "pml", "-1")
 
-TEST(CliOptionsExtra, RejectsZeroDecimXFromConfig) {
-  expect_parse_throws_with_data_dir_config(
-      "tests/tmp_loader/cfg_zero_decim_x.json", "decim_x", "0");
-}
-
-TEST(CliOptionsExtra, RejectsZeroDecimZFromConfig) {
-  expect_parse_throws_with_data_dir_config(
-      "tests/tmp_loader/cfg_zero_decim_z.json", "decim_z", "0");
-}
-
-TEST(CliOptionsExtra, RejectsZeroPmlFromConfig) {
-  expect_parse_throws_with_data_dir_config(
-      "tests/tmp_loader/cfg_zero_pml.json", "pml", "0");
-}
-
-TEST(CliOptionsExtra, RejectsNyBelowMinimumFromConfig) {
-  expect_parse_throws_with_data_dir_config(
-      "tests/tmp_loader/cfg_small_ny.json", "ny", "3");
-}
-
-TEST(CliOptionsExtra, RejectsNtBelowMinimumFromConfig) {
-  expect_parse_throws_with_data_dir_config(
-      "tests/tmp_loader/cfg_small_nt.json", "nt", "1");
-}
-
-TEST(CliOptionsExtra, RejectsZeroDyFromConfig) {
-  expect_parse_throws_with_data_dir_config(
-      "tests/tmp_loader/cfg_zero_dy.json", "dy", "0.0");
-}
-
-TEST(CliOptionsExtra, RejectsZeroDtFromConfig) {
-  expect_parse_throws_with_data_dir_config(
-      "tests/tmp_loader/cfg_zero_dt.json", "dt", "0.0");
-}
-
-TEST(CliOptionsExtra, RejectsZeroF0FromConfig) {
-  expect_parse_throws_with_data_dir_config(
-      "tests/tmp_loader/cfg_zero_f0.json", "f0", "0.0");
-}
-
-TEST(CliOptionsExtra, RejectsNegativeDyFromConfig) {
-  expect_parse_throws_with_data_dir_config(
-      "tests/tmp_loader/cfg_negative_dy.json", "dy", "-0.1");
-}
-
-TEST(CliOptionsExtra, RejectsNegativeDtFromConfig) {
-  expect_parse_throws_with_data_dir_config(
-      "tests/tmp_loader/cfg_negative_dt.json", "dt", "-0.001");
-}
-
-TEST(CliOptionsExtra, RejectsNegativeF0FromConfig) {
-  expect_parse_throws_with_data_dir_config(
-      "tests/tmp_loader/cfg_negative_f0.json", "f0", "-10.0");
-}
-
-TEST(CliOptionsExtra, RejectsNegativeReceiverStrideFromConfig) {
-  expect_parse_throws_with_data_dir_config(
-      "tests/tmp_loader/cfg_negative_receiver_stride.json", "receiver_stride", "-1");
-}
-
-TEST(CliOptionsExtra, RejectsNegativeDecimZFromConfig) {
-  expect_parse_throws_with_data_dir_config(
-      "tests/tmp_loader/cfg_negative_decim_z.json", "decim_z", "-1");
-}
-
-TEST(CliOptionsExtra, RejectsNegativeDecimXFromConfig) {
-  expect_parse_throws_with_data_dir_config(
-      "tests/tmp_loader/cfg_negative_decim_x.json", "decim_x", "-1");
-}
-
-TEST(CliOptionsExtra, RejectsNegativePmlFromConfig) {
-  expect_parse_throws_with_data_dir_config(
-      "tests/tmp_loader/cfg_negative_pml.json", "pml", "-1");
-}
+#undef DEFINE_CONFIG_REJECTION_TEST
 
 TEST(CliOptionsExtra, RejectsNegativeUnsignedOption) {
   const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--decim-x", "-1"};
