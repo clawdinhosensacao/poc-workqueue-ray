@@ -38,6 +38,14 @@ void write_config(const std::string& path, const std::string& json_body) {
     << "}\n";
 }
 
+rtm3d::CliOptions parse_with_config(const std::string& path,
+                                    const std::string& json_body) {
+  write_config(path, json_body);
+  const char* argv[] = {"rtm3d_cli", "--config", path.c_str()};
+  return rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
+                                    const_cast<char**>(argv));
+}
+
 void expect_parse_throws_with_config(const std::string& path,
                                      const std::string& json_body) {
   write_config(path, json_body);
@@ -120,27 +128,19 @@ TEST(CliOptionsExtra, RejectsQuotedSizeNumericFromConfig) {
 }
 
 TEST(CliOptionsExtra, AcceptsWhitespacePaddedNumericFromConfig) {
-  write_config("tests/tmp_loader/cfg_whitespace_numeric.json",
-               "  \"data_dir\": \"data\",\n"
-               "  \"nt\":    128   ,\n"
-               "  \"dy\":   2.5\n");
-
-  const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_whitespace_numeric.json"};
-  const auto o = rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
-                                            const_cast<char**>(argv));
+  const auto o = parse_with_config("tests/tmp_loader/cfg_whitespace_numeric.json",
+                                   "  \"data_dir\": \"data\",\n"
+                                   "  \"nt\":    128   ,\n"
+                                   "  \"dy\":   2.5\n");
   EXPECT_EQ(o.rtm.nt, static_cast<std::size_t>(128));
   EXPECT_FLOAT_EQ(o.rtm.dy, 2.5F);
 }
 
 TEST(CliOptionsExtra, AcceptsScientificNotationNumericFromConfig) {
-  write_config("tests/tmp_loader/cfg_scientific_numeric.json",
-               "  \"data_dir\": \"data\",\n"
-               "  \"dt\": 1e-3,\n"
-               "  \"f0\": 2.5e1\n");
-
-  const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_scientific_numeric.json"};
-  const auto o = rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
-                                            const_cast<char**>(argv));
+  const auto o = parse_with_config("tests/tmp_loader/cfg_scientific_numeric.json",
+                                   "  \"data_dir\": \"data\",\n"
+                                   "  \"dt\": 1e-3,\n"
+                                   "  \"f0\": 2.5e1\n");
   EXPECT_FLOAT_EQ(o.rtm.dt, 1e-3F);
   EXPECT_FLOAT_EQ(o.rtm.f0, 25.0F);
 }
@@ -236,14 +236,10 @@ TEST(CliOptionsExtra, RejectsNegativeUnsignedOption) {
 }
 
 TEST(CliOptionsExtra, ConfigOutputAliasOverridesOutputFile) {
-  write_config("tests/tmp_loader/cfg_output_alias.json",
-               "  \"data_dir\": \"data\",\n"
-               "  \"output_file\": \"output/from_output_file.pgm\",\n"
-               "  \"output\": \"output/from_output_alias.pgm\"\n");
-
-  const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_output_alias.json"};
-  const auto o = rtm3d::parse_cli_or_throw(static_cast<int>(std::size(argv)),
-                                            const_cast<char**>(argv));
+  const auto o = parse_with_config("tests/tmp_loader/cfg_output_alias.json",
+                                   "  \"data_dir\": \"data\",\n"
+                                   "  \"output_file\": \"output/from_output_file.pgm\",\n"
+                                   "  \"output\": \"output/from_output_alias.pgm\"\n");
   EXPECT_EQ(o.output_file, "output/from_output_alias.pgm");
 }
 
