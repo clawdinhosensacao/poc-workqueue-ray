@@ -38,14 +38,19 @@ void write_config(const std::string& path, const std::string& json_body) {
     << "}\n";
 }
 
+void expect_parse_throws_with_config(const std::string& path,
+                                     const std::string& json_body) {
+  write_config(path, json_body);
+  const char* argv[] = {"rtm3d_cli", "--config", path.c_str()};
+  expect_parse_throws(argv);
+}
+
 void expect_parse_throws_with_data_dir_config(const std::string& path,
                                               const std::string& key,
                                               const std::string& value) {
-  write_config(path,
-               "  \"data_dir\": \"data\",\n"
-               "  \"" + key + "\": " + value + "\n");
-  const char* argv[] = {"rtm3d_cli", "--config", path.c_str()};
-  expect_parse_throws(argv);
+  expect_parse_throws_with_config(path,
+                                  "  \"data_dir\": \"data\",\n"
+                                  "  \"" + key + "\": " + value + "\n");
 }
 
 }  // namespace
@@ -61,84 +66,57 @@ TEST(CliOptionsExtra, RejectsZeroShots) {
 }
 
 TEST(CliOptionsExtra, RejectsInvalidConfigOutputFormat) {
-  write_config("tests/tmp_loader/cfg_bad_format.json",
-               "  \"data_dir\": \"data\",\n"
-               "  \"output_format\": \"bad\"\n");
-
-  const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_bad_format.json"};
-  expect_parse_throws(argv);
+  expect_parse_throws_with_config("tests/tmp_loader/cfg_bad_format.json",
+                                  "  \"data_dir\": \"data\",\n"
+                                  "  \"output_format\": \"bad\"\n");
 }
 
 TEST(CliOptionsExtra, RejectsNonNumericFloatFromConfig) {
-  write_config("tests/tmp_loader/cfg_bad_dy_token.json",
-               "  \"data_dir\": \"data\",\n"
-               "  \"dy\": \"oops\"\n");
-
-  const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_bad_dy_token.json"};
-  expect_parse_throws(argv);
+  expect_parse_throws_with_config("tests/tmp_loader/cfg_bad_dy_token.json",
+                                  "  \"data_dir\": \"data\",\n"
+                                  "  \"dy\": \"oops\"\n");
 }
 
 TEST(CliOptionsExtra, RejectsNonNumericSizeFromConfig) {
-  write_config("tests/tmp_loader/cfg_bad_nt_token.json",
-               "  \"data_dir\": \"data\",\n"
-               "  \"nt\": \"oops\"\n");
-
-  const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_bad_nt_token.json"};
-  expect_parse_throws(argv);
+  expect_parse_throws_with_config("tests/tmp_loader/cfg_bad_nt_token.json",
+                                  "  \"data_dir\": \"data\",\n"
+                                  "  \"nt\": \"oops\"\n");
 }
 
 TEST(CliOptionsExtra, RejectsNullNumericFromConfig) {
-  write_config("tests/tmp_loader/cfg_null_dt_token.json",
-               "  \"data_dir\": \"data\",\n"
-               "  \"dt\": null\n");
-
-  const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_null_dt_token.json"};
-  expect_parse_throws(argv);
+  expect_parse_throws_with_config("tests/tmp_loader/cfg_null_dt_token.json",
+                                  "  \"data_dir\": \"data\",\n"
+                                  "  \"dt\": null\n");
 }
 
 TEST(CliOptionsExtra, RejectsBooleanNumericFromConfig) {
-  write_config("tests/tmp_loader/cfg_bool_nt_token.json",
-               "  \"data_dir\": \"data\",\n"
-               "  \"nt\": true\n");
-
-  const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_bool_nt_token.json"};
-  expect_parse_throws(argv);
+  expect_parse_throws_with_config("tests/tmp_loader/cfg_bool_nt_token.json",
+                                  "  \"data_dir\": \"data\",\n"
+                                  "  \"nt\": true\n");
 }
 
 TEST(CliOptionsExtra, RejectsArrayNumericFromConfig) {
-  write_config("tests/tmp_loader/cfg_array_dt_token.json",
-               "  \"data_dir\": \"data\",\n"
-               "  \"dt\": [0.001]\n");
-
-  const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_array_dt_token.json"};
-  expect_parse_throws(argv);
+  expect_parse_throws_with_config("tests/tmp_loader/cfg_array_dt_token.json",
+                                  "  \"data_dir\": \"data\",\n"
+                                  "  \"dt\": [0.001]\n");
 }
 
 TEST(CliOptionsExtra, RejectsObjectNumericFromConfig) {
-  write_config("tests/tmp_loader/cfg_object_nt_token.json",
-               "  \"data_dir\": \"data\",\n"
-               "  \"nt\": {\"value\": 100}\n");
-
-  const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_object_nt_token.json"};
-  expect_parse_throws(argv);
+  expect_parse_throws_with_config("tests/tmp_loader/cfg_object_nt_token.json",
+                                  "  \"data_dir\": \"data\",\n"
+                                  "  \"nt\": {\"value\": 100}\n");
 }
 
 TEST(CliOptionsExtra, RejectsQuotedFloatNumericFromConfig) {
-  write_config("tests/tmp_loader/cfg_quoted_dt_token.json",
-               "  \"data_dir\": \"data\",\n"
-               "  \"dt\": \"0.001\"\n");
-
-  const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_quoted_dt_token.json"};
-  expect_parse_throws(argv);
+  expect_parse_throws_with_config("tests/tmp_loader/cfg_quoted_dt_token.json",
+                                  "  \"data_dir\": \"data\",\n"
+                                  "  \"dt\": \"0.001\"\n");
 }
 
 TEST(CliOptionsExtra, RejectsQuotedSizeNumericFromConfig) {
-  write_config("tests/tmp_loader/cfg_quoted_nt_token.json",
-               "  \"data_dir\": \"data\",\n"
-               "  \"nt\": \"100\"\n");
-
-  const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/cfg_quoted_nt_token.json"};
-  expect_parse_throws(argv);
+  expect_parse_throws_with_config("tests/tmp_loader/cfg_quoted_nt_token.json",
+                                  "  \"data_dir\": \"data\",\n"
+                                  "  \"nt\": \"100\"\n");
 }
 
 #define DEFINE_CONFIG_REJECTION_TEST(test_name, path, key, value) \
