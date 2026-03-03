@@ -5,6 +5,7 @@
 #include <regex>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <type_traits>
 
 namespace rtm3d {
@@ -74,10 +75,17 @@ std::string json_find_string(const std::string& s, const std::string& key) {
   return "";
 }
 
-std::string json_find_number_token(const std::string& s, const std::string& key) {
-  const std::regex rx("\\\"" + key + "\\\"\\s*:\\s*([-+0-9eE\\.]+)");
+std::string trim_copy(std::string_view s) {
+  const auto first = s.find_first_not_of(" \t\n\r");
+  if (first == std::string_view::npos) return "";
+  const auto last = s.find_last_not_of(" \t\n\r");
+  return std::string(s.substr(first, last - first + 1));
+}
+
+std::string json_find_raw_value_token(const std::string& s, const std::string& key) {
+  const std::regex rx("\\\"" + key + "\\\"\\s*:\\s*([^,}\\n]+)");
   std::smatch m;
-  if (std::regex_search(s, m, rx)) return m[1].str();
+  if (std::regex_search(s, m, rx)) return trim_copy(m[1].str());
   return "";
 }
 
@@ -243,8 +251,8 @@ void apply_json_config(CliOptions& o, const std::string& path) {
 
   const auto set_numeric_if_present =
       [&](const std::string& key, auto& out) {
-        if (const auto v = json_find_number_token(s, key); !v.empty()) {
-          out = parse_num<std::decay_t<decltype(out)>>(v, key);
+        if (const auto raw = json_find_raw_value_token(s, key); !raw.empty()) {
+          out = parse_num<std::decay_t<decltype(out)>>(raw, key);
         }
       };
 
