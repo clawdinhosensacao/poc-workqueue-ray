@@ -145,6 +145,15 @@ TEST(CliOptionsExtra, AcceptsScientificNotationNumericFromConfig) {
   EXPECT_FLOAT_EQ(o.rtm.f0, 25.0F);
 }
 
+TEST(CliOptionsExtra, AcceptsPlusPrefixedNumericFromConfig) {
+  const auto o = parse_with_config("tests/tmp_loader/cfg_plus_prefixed_numeric.json",
+                                   "  \"data_dir\": \"data\",\n"
+                                   "  \"ny\": +32,\n"
+                                   "  \"dy\": +1.5\n");
+  EXPECT_EQ(o.rtm.ny, static_cast<std::size_t>(32));
+  EXPECT_FLOAT_EQ(o.rtm.dy, 1.5F);
+}
+
 TEST(CliOptionsExtra, RejectsNonFiniteInfFromConfig) {
   expect_parse_throws_with_data_dir_config(
       "tests/tmp_loader/cfg_inf_dy.json", "dy", "inf");
