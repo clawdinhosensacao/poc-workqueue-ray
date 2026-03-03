@@ -134,26 +134,14 @@ DEFINE_MISSING_VALUE_TEST(RejectsMissingValueForNShots, "--n-shots")
 
 #undef DEFINE_MISSING_VALUE_TEST
 
-TEST(CliOptionsExtra, RejectsMissingValueForConfigPath) {
-  expect_missing_value_for_standalone("--config");
-}
+#define DEFINE_STANDALONE_MISSING_VALUE_TEST(test_name, option) \
+  TEST(CliOptionsExtra, test_name) { expect_missing_value_for_standalone(option); }
 
-TEST(CliOptionsExtra, RejectsMissingValueForDataDir) {
-  expect_missing_value_for_standalone("--data-dir");
-}
+DEFINE_STANDALONE_MISSING_VALUE_TEST(RejectsMissingValueForConfigPath, "--config")
+DEFINE_STANDALONE_MISSING_VALUE_TEST(RejectsMissingValueForDataDir, "--data-dir")
+DEFINE_STANDALONE_MISSING_VALUE_TEST(RejectsMissingValueForXFile, "--x-file")
+DEFINE_STANDALONE_MISSING_VALUE_TEST(RejectsMissingValueForZFile, "--z-file")
+DEFINE_STANDALONE_MISSING_VALUE_TEST(RejectsMissingValueForValuesFile, "--values-file")
+DEFINE_STANDALONE_MISSING_VALUE_TEST(RejectsMissingValueForOutputPath, "--output")
 
-TEST(CliOptionsExtra, RejectsMissingValueForXFile) {
-  expect_missing_value_for_standalone("--x-file");
-}
-
-TEST(CliOptionsExtra, RejectsMissingValueForZFile) {
-  expect_missing_value_for_standalone("--z-file");
-}
-
-TEST(CliOptionsExtra, RejectsMissingValueForValuesFile) {
-  expect_missing_value_for_standalone("--values-file");
-}
-
-TEST(CliOptionsExtra, RejectsMissingValueForOutputPath) {
-  expect_missing_value_for_standalone("--output");
-}
+#undef DEFINE_STANDALONE_MISSING_VALUE_TEST
