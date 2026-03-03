@@ -145,6 +145,16 @@ TEST(CliOptionsExtra, AcceptsScientificNotationNumericFromConfig) {
   EXPECT_FLOAT_EQ(o.rtm.f0, 25.0F);
 }
 
+TEST(CliOptionsExtra, RejectsNonFiniteInfFromConfig) {
+  expect_parse_throws_with_data_dir_config(
+      "tests/tmp_loader/cfg_inf_dy.json", "dy", "inf");
+}
+
+TEST(CliOptionsExtra, RejectsNonFiniteNaNFromConfig) {
+  expect_parse_throws_with_data_dir_config(
+      "tests/tmp_loader/cfg_nan_dt.json", "dt", "nan");
+}
+
 #define DEFINE_CONFIG_REJECTION_TEST(test_name, path, key, value) \
   TEST(CliOptionsExtra, test_name) {                                     \
     expect_parse_throws_with_data_dir_config(path, key, value);          \
