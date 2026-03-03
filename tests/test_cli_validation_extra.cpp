@@ -72,6 +72,16 @@ TEST(CliOptionsExtra, RejectsOutOfRangeCliFloatOption) {
   expect_parse_throws(argv);
 }
 
+TEST(CliOptionsExtra, RejectsNonFiniteCliFloatOptionInf) {
+  const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--dy", "inf"};
+  expect_parse_throws(argv);
+}
+
+TEST(CliOptionsExtra, RejectsNonFiniteCliFloatOptionNaN) {
+  const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--dy", "nan"};
+  expect_parse_throws(argv);
+}
+
 TEST(CliOptionsExtra, RejectsOutOfRangeCliSizeOption) {
   const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--nt", "18446744073709551616"};
   expect_parse_throws(argv);

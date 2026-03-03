@@ -1,5 +1,6 @@
 #include "rtm3d/cli/CliOptions.hpp"
 
+#include <cmath>
 #include <fstream>
 #include <regex>
 #include <stdexcept>
@@ -129,7 +130,7 @@ float parse_num<float>(const std::string& s, const std::string& name) {
   try {
     std::size_t p = 0;
     auto v = std::stof(s, &p);
-    if (p != s.size()) {
+    if (p != s.size() || !std::isfinite(v)) {
       throw invalid_value_error(name, s);
     }
     return v;
