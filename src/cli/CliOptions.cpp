@@ -313,6 +313,7 @@ void validate_rtm_options(const CliOptions& o) {
   require_gt_zero(o.rtm.f0, "f0");
   require_gt_zero(o.rtm.pml, "pml");
   require_gt_zero(o.rtm.receiver_stride, "receiver-stride");
+  require_gt_zero(o.n_shots, "n-shots");
 }
 
 void validate(const CliOptions& o) {

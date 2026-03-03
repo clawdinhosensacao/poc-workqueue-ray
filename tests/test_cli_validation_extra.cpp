@@ -21,6 +21,11 @@ TEST(CliOptionsExtra, RejectsZeroStride) {
   expect_parse_throws(argv);
 }
 
+TEST(CliOptionsExtra, RejectsZeroShots) {
+  const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--n-shots", "0"};
+  expect_parse_throws(argv);
+}
+
 TEST(CliOptionsExtra, RejectsInvalidConfigOutputFormat) {
   std::filesystem::create_directories("tests/tmp_loader");
   {
