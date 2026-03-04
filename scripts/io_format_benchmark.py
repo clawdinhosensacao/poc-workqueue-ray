@@ -297,6 +297,7 @@ def to_markdown(results: list[BenchResult], nx: int, nz: int, iterations: int, s
 
     available_rows = [r for r in results if r.available]
     fastest_read = max(available_rows, key=lambda r: r.read_mbps, default=None)
+    fastest_write = max(available_rows, key=lambda r: r.write_mbps, default=None)
 
     lines = [
         "# I/O Format Benchmark Report",
@@ -308,6 +309,7 @@ def to_markdown(results: list[BenchResult], nx: int, nz: int, iterations: int, s
         f"- Formats unavailable: `{unavailable_count}`",
         f"- Availability ratio: `{available_pct:.1f}%`",
         f"- Fastest read format: `{fastest_read.name}` ({fastest_read.read_mbps:.1f} MB/s)" if fastest_read else "- Fastest read format: `n/a`",
+        f"- Fastest write format: `{fastest_write.name}` ({fastest_write.write_mbps:.1f} MB/s)" if fastest_write else "- Fastest write format: `n/a`",
         "",
         "| Format | Status | Size (MB) | Write (ms) | Read (ms) | Write MB/s | Read MB/s | Notes |",
         "|---|---:|---:|---:|---:|---:|---:|---|",
