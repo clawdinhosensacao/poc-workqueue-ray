@@ -185,6 +185,12 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         self.assertEqual(b._throughput(10.0, -1.0), 0.0)
         self.assertEqual(b._throughput(10.0, 2.0), 5.0)
 
+    def test_append_ranking_section_rounds_to_single_decimal(self):
+        lines = []
+        rows = [b.BenchResult(name="fmt", available=True, read_mbps=1.04)]
+        b._append_ranking_section(lines, "## Rounded", rows, lambda r: r.read_mbps)
+        self.assertEqual(lines[-1], "1. `fmt` — 1.0 MB/s")
+
 
 if __name__ == "__main__":
     unittest.main()
