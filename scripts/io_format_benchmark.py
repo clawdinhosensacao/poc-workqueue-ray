@@ -70,6 +70,14 @@ def _balanced_mbps(result: BenchResult) -> float:
     return 2.0 / ((1.0 / result.read_mbps) + (1.0 / result.write_mbps))
 
 
+def _availability_stats(results: list[BenchResult]) -> tuple[int, int, float]:
+    total = len(results)
+    available_count = sum(1 for r in results if r.available)
+    unavailable_count = total - available_count
+    available_pct = (100.0 * available_count / total) if total else 0.0
+    return available_count, unavailable_count, available_pct
+
+
 def _append_ranking_section(
     lines: list[str],
     title: str,
@@ -318,9 +326,7 @@ def run_benchmark(nx: int, nz: int, iterations: int, seed: int = 0) -> list[Benc
 
 
 def to_markdown(results: list[BenchResult], nx: int, nz: int, iterations: int, seed: int) -> str:
-    available_count = sum(1 for r in results if r.available)
-    unavailable_count = len(results) - available_count
-    available_pct = (100.0 * available_count / len(results)) if results else 0.0
+    available_count, unavailable_count, available_pct = _availability_stats(results)
 
     available_rows = [r for r in results if r.available]
     fastest_read = max(available_rows, key=lambda r: r.read_mbps, default=None)

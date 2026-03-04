@@ -103,6 +103,18 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         ranked = b._rank_available(rows, key=lambda r: r.read_mbps, top_n=3)
         self.assertEqual([r.name for r in ranked], ["alpha", "zeta", "beta"])
 
+    def test_availability_stats_for_empty_and_mixed_rows(self):
+        self.assertEqual(b._availability_stats([]), (0, 0, 0.0))
+
+        rows = [
+            b.BenchResult(name="json", available=True),
+            b.BenchResult(name="npy", available=True),
+            b.BenchResult(name="hdf5", available=False),
+        ]
+        avail, unavail, pct = b._availability_stats(rows)
+        self.assertEqual((avail, unavail), (2, 1))
+        self.assertAlmostEqual(pct, 66.6666667, places=5)
+
 
 if __name__ == "__main__":
     unittest.main()
