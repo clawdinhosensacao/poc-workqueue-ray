@@ -254,6 +254,23 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         self.assertIn("- Fastest read format: `bin` (5.0 MB/s)", lines)
         self.assertIn("- Best balanced format: `bin` (6.7 MB/s harmonic mean)", lines)
 
+    def test_report_metadata_lines_render_na_for_missing_fastest_rows(self):
+        lines = b._report_metadata_lines(
+            nx=10,
+            nz=20,
+            iterations=2,
+            seed=7,
+            available_count=0,
+            unavailable_count=2,
+            available_pct=0.0,
+            fastest_read=None,
+            fastest_write=None,
+            best_balanced=None,
+        )
+        self.assertIn("- Fastest read format: `n/a`", lines)
+        self.assertIn("- Fastest write format: `n/a`", lines)
+        self.assertIn("- Best balanced format: `n/a`", lines)
+
     def test_append_ranking_section_rounds_to_single_decimal(self):
         lines = []
         rows = [b.BenchResult(name="fmt", available=True, read_mbps=1.04)]
