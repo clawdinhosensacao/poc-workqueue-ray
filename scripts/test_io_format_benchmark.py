@@ -21,6 +21,8 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         ]
         md = b.to_markdown(rows, nx=10, nz=20, iterations=2, seed=123)
         self.assertIn("- Seed: `123`", md)
+        self.assertIn("- Formats available: `1`", md)
+        self.assertIn("- Formats unavailable: `1`", md)
         self.assertIn("| json | ok |", md)
         self.assertIn("| hdf5 | n/a |", md)
 
