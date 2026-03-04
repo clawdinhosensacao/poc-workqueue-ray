@@ -94,7 +94,8 @@ def _format_fastest_summary(
 
 
 def _best_available(rows: list[BenchResult], score: Callable[[BenchResult], float]) -> Optional[BenchResult]:
-    return max(rows, key=score, default=None)
+    # Deterministic tie-break by name to keep report summaries stable.
+    return min(rows, key=lambda r: (-score(r), r.name), default=None)
 
 
 def _append_ranking_section(

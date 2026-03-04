@@ -171,6 +171,15 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         self.assertEqual(best.name, "fast")
         self.assertIsNone(b._best_available([], lambda r: r.read_mbps))
 
+    def test_best_available_breaks_ties_by_name(self):
+        rows = [
+            b.BenchResult(name="zeta", available=True, read_mbps=7.0),
+            b.BenchResult(name="alpha", available=True, read_mbps=7.0),
+        ]
+        best = b._best_available(rows, lambda r: r.read_mbps)
+        self.assertIsNotNone(best)
+        self.assertEqual(best.name, "alpha")
+
     def test_throughput_returns_zero_for_nonpositive_seconds(self):
         self.assertEqual(b._throughput(10.0, 0.0), 0.0)
         self.assertEqual(b._throughput(10.0, -1.0), 0.0)
