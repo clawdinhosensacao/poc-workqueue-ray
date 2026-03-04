@@ -248,9 +248,7 @@ class IoFormatBenchmarkTests(unittest.TestCase):
             fastest_write=row,
             best_balanced=row,
         )
-        self.assertIn("- Shape: `20 x 10` float32", lines)
-        self.assertIn("- Iterations: `2`", lines)
-        self.assertIn("- Seed: `7`", lines)
+        self.assertEqual(lines[0:3], ["- Shape: `20 x 10` float32", "- Iterations: `2`", "- Seed: `7`"])
         self.assertIn("- Fastest read format: `bin` (5.0 MB/s)", lines)
         self.assertIn("- Best balanced format: `bin` (6.7 MB/s harmonic mean)", lines)
 
