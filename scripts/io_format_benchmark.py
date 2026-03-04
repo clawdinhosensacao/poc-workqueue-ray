@@ -70,9 +70,13 @@ def _balanced_mbps(result: BenchResult) -> float:
     return 2.0 / ((1.0 / result.read_mbps) + (1.0 / result.write_mbps))
 
 
+def _available_rows(results: list[BenchResult]) -> list[BenchResult]:
+    return [r for r in results if r.available]
+
+
 def _availability_stats(results: list[BenchResult]) -> tuple[int, int, float]:
     total = len(results)
-    available_count = sum(1 for r in results if r.available)
+    available_count = len(_available_rows(results))
     unavailable_count = total - available_count
     available_pct = (100.0 * available_count / total) if total else 0.0
     return available_count, unavailable_count, available_pct
@@ -328,10 +332,10 @@ def run_benchmark(nx: int, nz: int, iterations: int, seed: int = 0) -> list[Benc
 def to_markdown(results: list[BenchResult], nx: int, nz: int, iterations: int, seed: int) -> str:
     available_count, unavailable_count, available_pct = _availability_stats(results)
 
-    available_rows = [r for r in results if r.available]
-    fastest_read = max(available_rows, key=lambda r: r.read_mbps, default=None)
-    fastest_write = max(available_rows, key=lambda r: r.write_mbps, default=None)
-    best_balanced = max(available_rows, key=_balanced_mbps, default=None)
+    available = _available_rows(results)
+    fastest_read = max(available, key=lambda r: r.read_mbps, default=None)
+    fastest_write = max(available, key=lambda r: r.write_mbps, default=None)
+    best_balanced = max(available, key=_balanced_mbps, default=None)
     top_read = _rank_available(results, key=lambda r: r.read_mbps, top_n=3)
     top_write = _rank_available(results, key=lambda r: r.write_mbps, top_n=3)
     top_balanced = _rank_available(results, key=_balanced_mbps, top_n=3)

@@ -115,6 +115,14 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         self.assertEqual((avail, unavail), (2, 1))
         self.assertAlmostEqual(pct, 66.6666667, places=5)
 
+    def test_available_rows_filters_only_available_entries(self):
+        rows = [
+            b.BenchResult(name="json", available=True),
+            b.BenchResult(name="npy", available=True),
+            b.BenchResult(name="hdf5", available=False),
+        ]
+        self.assertEqual([r.name for r in b._available_rows(rows)], ["json", "npy"])
+
 
 if __name__ == "__main__":
     unittest.main()
