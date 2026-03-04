@@ -234,6 +234,26 @@ class IoFormatBenchmarkTests(unittest.TestCase):
     def test_shape_label_uses_nz_by_nx_order(self):
         self.assertEqual(b._shape_label(nx=400, nz=300), "300 x 400")
 
+    def test_report_metadata_lines_include_summary_fields(self):
+        row = b.BenchResult(name="bin", available=True, read_mbps=5.0, write_mbps=10.0)
+        lines = b._report_metadata_lines(
+            nx=10,
+            nz=20,
+            iterations=2,
+            seed=7,
+            available_count=1,
+            unavailable_count=0,
+            available_pct=100.0,
+            fastest_read=row,
+            fastest_write=row,
+            best_balanced=row,
+        )
+        self.assertIn("- Shape: `20 x 10` float32", lines)
+        self.assertIn("- Iterations: `2`", lines)
+        self.assertIn("- Seed: `7`", lines)
+        self.assertIn("- Fastest read format: `bin` (5.0 MB/s)", lines)
+        self.assertIn("- Best balanced format: `bin` (6.7 MB/s harmonic mean)", lines)
+
     def test_append_ranking_section_rounds_to_single_decimal(self):
         lines = []
         rows = [b.BenchResult(name="fmt", available=True, read_mbps=1.04)]

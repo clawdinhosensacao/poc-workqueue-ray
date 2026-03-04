@@ -107,6 +107,31 @@ def _format_fastest_summary(
     return f"- {label}: `{result.name}` ({score(result):.1f} {unit_suffix})"
 
 
+def _report_metadata_lines(
+    nx: int,
+    nz: int,
+    iterations: int,
+    seed: int,
+    available_count: int,
+    unavailable_count: int,
+    available_pct: float,
+    fastest_read: Optional[BenchResult],
+    fastest_write: Optional[BenchResult],
+    best_balanced: Optional[BenchResult],
+) -> list[str]:
+    return [
+        f"- Shape: `{_shape_label(nx, nz)}` float32",
+        f"- Iterations: `{iterations}`",
+        f"- Seed: `{seed}`",
+        f"- Formats available: `{available_count}`",
+        f"- Formats unavailable: `{unavailable_count}`",
+        f"- Availability ratio: `{available_pct:.1f}%`",
+        _format_fastest_summary("Fastest read format", fastest_read, _read_mbps),
+        _format_fastest_summary("Fastest write format", fastest_write, _write_mbps),
+        _format_fastest_summary("Best balanced format", best_balanced, _balanced_mbps, unit_suffix="MB/s harmonic mean"),
+    ]
+
+
 def _best_available(rows: list[BenchResult], score: Callable[[BenchResult], float]) -> Optional[BenchResult]:
     # Deterministic tie-break by name to keep report summaries stable.
     return min(rows, key=lambda r: (-score(r), r.name), default=None)
@@ -378,15 +403,18 @@ def to_markdown(results: list[BenchResult], nx: int, nz: int, iterations: int, s
     lines = [
         "# I/O Format Benchmark Report",
         "",
-        f"- Shape: `{_shape_label(nx, nz)}` float32",
-        f"- Iterations: `{iterations}`",
-        f"- Seed: `{seed}`",
-        f"- Formats available: `{available_count}`",
-        f"- Formats unavailable: `{unavailable_count}`",
-        f"- Availability ratio: `{available_pct:.1f}%`",
-        _format_fastest_summary("Fastest read format", fastest_read, _read_mbps),
-        _format_fastest_summary("Fastest write format", fastest_write, _write_mbps),
-        _format_fastest_summary("Best balanced format", best_balanced, _balanced_mbps, unit_suffix="MB/s harmonic mean"),
+        *_report_metadata_lines(
+            nx,
+            nz,
+            iterations,
+            seed,
+            available_count,
+            unavailable_count,
+            available_pct,
+            fastest_read,
+            fastest_write,
+            best_balanced,
+        ),
         "",
         "| Format | Status | Size (MB) | Write (ms) | Read (ms) | Write MB/s | Read MB/s | Notes |",
         "|---|---:|---:|---:|---:|---:|---:|---|",
