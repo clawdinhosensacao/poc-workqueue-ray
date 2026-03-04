@@ -45,6 +45,7 @@ class BenchResult:
 
 Writer = Callable[[np.ndarray, Path], None]
 Reader = Callable[[Path, tuple[int, ...]], np.ndarray]
+JobSpec = tuple[str, Path, Optional[tuple[Writer, Reader]]]
 
 
 def _mb(path: Path) -> float:
@@ -98,7 +99,7 @@ def _best_available(rows: list[BenchResult], score: Callable[[BenchResult], floa
     return min(rows, key=lambda r: (-score(r), r.name), default=None)
 
 
-def _benchmark_jobs(root: Path) -> list[tuple[str, Path, Optional[tuple[Writer, Reader]]]]:
+def _benchmark_jobs(root: Path) -> list[JobSpec]:
     return [
         ("json", root / "vel.json", (_json_writer, _json_reader)),
         ("binary_f32", root / "vel.bin", (_bin_writer, _bin_reader)),

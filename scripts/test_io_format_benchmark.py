@@ -71,6 +71,11 @@ class IoFormatBenchmarkTests(unittest.TestCase):
             ["json", "binary_f32", "npy", "parquet", "duckdb", "hdf5", "zarr", "adios2", "mdio"],
         )
 
+    def test_benchmark_jobs_use_given_root_for_paths(self):
+        root = Path("/tmp/example")
+        jobs = b._benchmark_jobs(root)
+        self.assertTrue(all(path.parent == root for _name, path, _adapters in jobs))
+
     def test_generate_input_array_is_seed_deterministic(self):
         a = b._generate_input_array(nx=8, nz=4, seed=42)
         c = b._generate_input_array(nx=8, nz=4, seed=42)
