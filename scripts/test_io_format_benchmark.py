@@ -142,6 +142,9 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         ranked = b._rank_available(rows, key=lambda r: r.read_mbps)
         self.assertEqual(len(ranked), b._TOP_K)
 
+    def test_rank_available_empty_input_returns_empty_list(self):
+        self.assertEqual(b._rank_available([], key=lambda r: r.read_mbps), [])
+
     def test_availability_stats_for_empty_and_mixed_rows(self):
         self.assertEqual(b._availability_stats([]), (0, 0, 0.0))
 

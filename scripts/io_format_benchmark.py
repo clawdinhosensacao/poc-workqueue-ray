@@ -60,7 +60,7 @@ def _throughput(size_mb: float, seconds: float) -> float:
 
 
 def _rank_available(results: list[BenchResult], key: Callable[[BenchResult], float], top_n: int = _TOP_K) -> list[BenchResult]:
-    available = [r for r in results if r.available]
+    available = _available_rows(results)
     available.sort(key=lambda r: (-key(r), r.name))
     return available[:top_n]
 
