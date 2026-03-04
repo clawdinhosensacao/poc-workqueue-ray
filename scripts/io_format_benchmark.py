@@ -47,6 +47,10 @@ Writer = Callable[[np.ndarray, Path], None]
 Reader = Callable[[Path, tuple[int, ...]], np.ndarray]
 JobSpec = tuple[str, Path, Optional[tuple[Writer, Reader]]]
 _TOP_K = 3
+_TABLE_HEADER_LINES = [
+    "| Format | Status | Size (MB) | Write (ms) | Read (ms) | Write MB/s | Read MB/s | Notes |",
+    "|---|---:|---:|---:|---:|---:|---:|---|",
+]
 
 
 def _mb(path: Path) -> float:
@@ -416,8 +420,7 @@ def to_markdown(results: list[BenchResult], nx: int, nz: int, iterations: int, s
             best_balanced,
         ),
         "",
-        "| Format | Status | Size (MB) | Write (ms) | Read (ms) | Write MB/s | Read MB/s | Notes |",
-        "|---|---:|---:|---:|---:|---:|---:|---|",
+        *_TABLE_HEADER_LINES,
     ]
 
     for r in results:
