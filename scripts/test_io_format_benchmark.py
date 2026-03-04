@@ -33,6 +33,22 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         self.assertGreater(by_name["binary_f32"].file_size_mb, 0.0)
         self.assertGreater(by_name["npy"].file_size_mb, 0.0)
 
+    def test_result_set_includes_all_declared_formats(self):
+        results = b.run_benchmark(nx=16, nz=8, iterations=1)
+        names = {r.name for r in results}
+        expected = {
+            "json",
+            "binary_f32",
+            "npy",
+            "parquet",
+            "duckdb",
+            "hdf5",
+            "zarr",
+            "adios2",
+            "mdio",
+        }
+        self.assertEqual(names, expected)
+
 
 if __name__ == "__main__":
     unittest.main()
