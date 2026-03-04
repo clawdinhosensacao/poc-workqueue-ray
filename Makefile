@@ -2,7 +2,7 @@ CXX ?= g++
 CXXFLAGS ?= -O2 -std=c++20 -Wall -Wextra -Wpedantic -Iinclude
 GTEST_DIR := third_party/googletest
 
-.PHONY: all build test check parity-smoke e2e run static clean coverage io-bench io-bench-test
+.PHONY: all build test check parity-smoke e2e run static clean coverage io-bench io-bench-fast io-bench-test
 GTEST_INC := -I$(GTEST_DIR)/googletest/include -I$(GTEST_DIR)/googletest
 
 SRC = src/io/ArrayModelLoader.cpp src/io/BinaryModelLoader.cpp src/io/GridModelLoader.cpp src/io/ImageIO.cpp src/model/SeismicModel.cpp src/model/ModelPresets.cpp src/rtm/RtmEngine.cpp src/rtm/Geometry.cpp src/rtm/InlineSlice.cpp src/rtm/Receivers.cpp src/rtm/Boundary.cpp src/rtm/Propagation.cpp src/rtm/Imaging.cpp src/rtm/Validation.cpp src/rtm/Acquisition.cpp src/rtm/Wavelet.cpp src/rtm/SourcePropagation.cpp src/rtm/ReceiverImaging.cpp src/rtm/ResultBuilder.cpp src/cli/CliOptions.cpp
@@ -53,6 +53,9 @@ io-bench-test:
 
 io-bench:
 	python3 scripts/io_format_benchmark.py --nx 400 --nz 300 --iterations 3 --report artifacts/io_format_benchmark.md
+
+io-bench-fast:
+	python3 scripts/io_format_benchmark.py --nx 200 --nz 150 --iterations 1 --report artifacts/io_format_benchmark.fast.md
 
 e2e: build/rtm3d_cli
 	bash tests/e2e_synthetic.sh
