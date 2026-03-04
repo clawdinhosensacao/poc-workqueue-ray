@@ -109,6 +109,7 @@ def _best_available(rows: list[BenchResult], score: Callable[[BenchResult], floa
 
 
 def _benchmark_jobs(root: Path) -> list[JobSpec]:
+    """Return benchmark job declarations (name, output path, adapters)."""
     return [
         ("json", root / "vel.json", (_json_writer, _json_reader)),
         ("binary_f32", root / "vel.bin", (_bin_writer, _bin_reader)),

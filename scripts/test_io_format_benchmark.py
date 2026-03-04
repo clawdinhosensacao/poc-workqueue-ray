@@ -77,6 +77,13 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         jobs = b._benchmark_jobs(root)
         self.assertTrue(all(path.parent == root for _name, path, _adapters in jobs))
 
+    def test_benchmark_jobs_expected_output_filenames(self):
+        jobs = b._benchmark_jobs(Path("/tmp/example"))
+        self.assertEqual(
+            [path.name for _name, path, _adapters in jobs],
+            ["vel.json", "vel.bin", "vel.npy", "vel.parquet", "vel.duckdb", "vel.h5", "vel.zarr", "vel.bp", "vel.mdio"],
+        )
+
     def test_generate_input_array_is_seed_deterministic(self):
         a = b._generate_input_array(nx=8, nz=4, seed=42)
         c = b._generate_input_array(nx=8, nz=4, seed=42)
