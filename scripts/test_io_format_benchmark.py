@@ -17,7 +17,7 @@ class IoFormatBenchmarkTests(unittest.TestCase):
             b.BenchResult(name="json", available=True, file_size_mb=1.0, write_s=0.1, read_s=0.2, write_mbps=10.0, read_mbps=5.0),
             b.BenchResult(name="hdf5", available=False, error="dependency unavailable"),
         ]
-        md = b.to_markdown(rows, nx=10, nz=20, iterations=2)
+        md = b.to_markdown(rows, nx=10, nz=20, iterations=2, seed=0)
         self.assertIn("| json | ok |", md)
         self.assertIn("| hdf5 | n/a |", md)
 

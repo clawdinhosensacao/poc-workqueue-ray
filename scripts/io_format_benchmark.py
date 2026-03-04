@@ -249,8 +249,8 @@ def _mdio_adapters() -> Optional[tuple[Writer, Reader]]:
     return writer, reader
 
 
-def run_benchmark(nx: int, nz: int, iterations: int) -> list[BenchResult]:
-    data = np.random.default_rng(0).random((nz, nx), dtype=np.float32)
+def run_benchmark(nx: int, nz: int, iterations: int, seed: int = 0) -> list[BenchResult]:
+    data = np.random.default_rng(seed).random((nz, nx), dtype=np.float32)
 
     with tempfile.TemporaryDirectory(prefix="rtm3d_iofmt_") as td:
         root = Path(td)
@@ -281,12 +281,13 @@ def run_benchmark(nx: int, nz: int, iterations: int) -> list[BenchResult]:
         return out
 
 
-def to_markdown(results: list[BenchResult], nx: int, nz: int, iterations: int) -> str:
+def to_markdown(results: list[BenchResult], nx: int, nz: int, iterations: int, seed: int) -> str:
     lines = [
         "# I/O Format Benchmark Report",
         "",
         f"- Shape: `{nz} x {nx}` float32",
         f"- Iterations: `{iterations}`",
+        f"- Seed: `{seed}`",
         "",
         "| Format | Status | Size (MB) | Write (ms) | Read (ms) | Write MB/s | Read MB/s | Notes |",
         "|---|---:|---:|---:|---:|---:|---:|---|",
@@ -308,11 +309,12 @@ def main() -> int:
     ap.add_argument("--nx", type=int, default=400)
     ap.add_argument("--nz", type=int, default=300)
     ap.add_argument("--iterations", type=int, default=3)
+    ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--report", type=Path, default=Path("artifacts/io_format_benchmark.md"))
     args = ap.parse_args()
 
-    results = run_benchmark(args.nx, args.nz, args.iterations)
-    md = to_markdown(results, args.nx, args.nz, args.iterations)
+    results = run_benchmark(args.nx, args.nz, args.iterations, seed=args.seed)
+    md = to_markdown(results, args.nx, args.nz, args.iterations, args.seed)
 
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(md)
