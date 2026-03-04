@@ -296,6 +296,11 @@ class IoFormatBenchmarkTests(unittest.TestCase):
             path.write_bytes(b"\x00" * 2048)
             self.assertAlmostEqual(b._mb(path), 2048 / (1024 * 1024), places=9)
 
+    def test_to_markdown_returns_trailing_newline(self):
+        rows = [b.BenchResult(name="json", available=False, error="dependency unavailable")]
+        md = b.to_markdown(rows, nx=10, nz=20, iterations=1, seed=0)
+        self.assertTrue(md.endswith("\n"))
+
 
 if __name__ == "__main__":
     unittest.main()
