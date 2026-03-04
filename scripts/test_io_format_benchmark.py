@@ -64,6 +64,13 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         }
         self.assertEqual(names, expected)
 
+    def test_benchmark_jobs_declares_expected_order(self):
+        jobs = b._benchmark_jobs(Path("/tmp/example"))
+        self.assertEqual(
+            [name for name, _path, _adapters in jobs],
+            ["json", "binary_f32", "npy", "parquet", "duckdb", "hdf5", "zarr", "adios2", "mdio"],
+        )
+
     def test_generate_input_array_is_seed_deterministic(self):
         a = b._generate_input_array(nx=8, nz=4, seed=42)
         c = b._generate_input_array(nx=8, nz=4, seed=42)

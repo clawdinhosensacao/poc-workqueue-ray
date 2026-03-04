@@ -98,6 +98,20 @@ def _best_available(rows: list[BenchResult], score: Callable[[BenchResult], floa
     return min(rows, key=lambda r: (-score(r), r.name), default=None)
 
 
+def _benchmark_jobs(root: Path) -> list[tuple[str, Path, Optional[tuple[Writer, Reader]]]]:
+    return [
+        ("json", root / "vel.json", (_json_writer, _json_reader)),
+        ("binary_f32", root / "vel.bin", (_bin_writer, _bin_reader)),
+        ("npy", root / "vel.npy", (_npy_writer, _npy_reader)),
+        ("parquet", root / "vel.parquet", _parquet_adapters()),
+        ("duckdb", root / "vel.duckdb", _duckdb_adapters()),
+        ("hdf5", root / "vel.h5", _hdf5_adapters()),
+        ("zarr", root / "vel.zarr", _zarr_adapters()),
+        ("adios2", root / "vel.bp", _adios2_adapters()),
+        ("mdio", root / "vel.mdio", _mdio_adapters()),
+    ]
+
+
 def _append_ranking_section(
     lines: list[str],
     title: str,
@@ -319,17 +333,7 @@ def run_benchmark(nx: int, nz: int, iterations: int, seed: int = 0) -> list[Benc
     with tempfile.TemporaryDirectory(prefix="rtm3d_iofmt_") as td:
         root = Path(td)
 
-        jobs: list[tuple[str, Path, Optional[tuple[Writer, Reader]]]] = [
-            ("json", root / "vel.json", (_json_writer, _json_reader)),
-            ("binary_f32", root / "vel.bin", (_bin_writer, _bin_reader)),
-            ("npy", root / "vel.npy", (_npy_writer, _npy_reader)),
-            ("parquet", root / "vel.parquet", _parquet_adapters()),
-            ("duckdb", root / "vel.duckdb", _duckdb_adapters()),
-            ("hdf5", root / "vel.h5", _hdf5_adapters()),
-            ("zarr", root / "vel.zarr", _zarr_adapters()),
-            ("adios2", root / "vel.bp", _adios2_adapters()),
-            ("mdio", root / "vel.mdio", _mdio_adapters()),
-        ]
+        jobs = _benchmark_jobs(root)
 
         out: list[BenchResult] = []
         for name, path, adapters in jobs:
