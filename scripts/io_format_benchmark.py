@@ -92,6 +92,10 @@ def _availability_stats(results: list[BenchResult]) -> tuple[int, int, float]:
     return available_count, unavailable_count, available_pct
 
 
+def _shape_label(nx: int, nz: int) -> str:
+    return f"{nz} x {nx}"
+
+
 def _format_fastest_summary(
     label: str,
     result: Optional[BenchResult],
@@ -374,7 +378,7 @@ def to_markdown(results: list[BenchResult], nx: int, nz: int, iterations: int, s
     lines = [
         "# I/O Format Benchmark Report",
         "",
-        f"- Shape: `{nz} x {nx}` float32",
+        f"- Shape: `{_shape_label(nx, nz)}` float32",
         f"- Iterations: `{iterations}`",
         f"- Seed: `{seed}`",
         f"- Formats available: `{available_count}`",

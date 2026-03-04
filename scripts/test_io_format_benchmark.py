@@ -228,6 +228,9 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         self.assertEqual(b._read_mbps(row), 3.25)
         self.assertEqual(b._write_mbps(row), 7.5)
 
+    def test_shape_label_uses_nz_by_nx_order(self):
+        self.assertEqual(b._shape_label(nx=400, nz=300), "300 x 400")
+
     def test_append_ranking_section_rounds_to_single_decimal(self):
         lines = []
         rows = [b.BenchResult(name="fmt", available=True, read_mbps=1.04)]
