@@ -93,6 +93,16 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         self.assertEqual(b._balanced_mbps(b.BenchResult(name="x", available=True, read_mbps=0.0, write_mbps=10.0)), 0.0)
         self.assertEqual(b._balanced_mbps(b.BenchResult(name="x", available=True, read_mbps=10.0, write_mbps=0.0)), 0.0)
 
+    def test_rank_available_filters_unavailable_and_breaks_ties_by_name(self):
+        rows = [
+            b.BenchResult(name="zeta", available=True, read_mbps=10.0),
+            b.BenchResult(name="alpha", available=True, read_mbps=10.0),
+            b.BenchResult(name="beta", available=True, read_mbps=9.0),
+            b.BenchResult(name="ghost", available=False, read_mbps=99.0),
+        ]
+        ranked = b._rank_available(rows, key=lambda r: r.read_mbps, top_n=3)
+        self.assertEqual([r.name for r in ranked], ["alpha", "zeta", "beta"])
+
 
 if __name__ == "__main__":
     unittest.main()
