@@ -64,6 +64,14 @@ def _rank_available(results: list[BenchResult], key: Callable[[BenchResult], flo
     return available[:top_n]
 
 
+def _read_mbps(result: BenchResult) -> float:
+    return result.read_mbps
+
+
+def _write_mbps(result: BenchResult) -> float:
+    return result.write_mbps
+
+
 def _balanced_mbps(result: BenchResult) -> float:
     """Return a symmetric read/write score using harmonic mean throughput."""
     if result.read_mbps <= 0.0 or result.write_mbps <= 0.0:
@@ -354,11 +362,11 @@ def to_markdown(results: list[BenchResult], nx: int, nz: int, iterations: int, s
     available_count, unavailable_count, available_pct = _availability_stats(results)
 
     available = _available_rows(results)
-    fastest_read = _best_available(available, lambda r: r.read_mbps)
-    fastest_write = _best_available(available, lambda r: r.write_mbps)
+    fastest_read = _best_available(available, _read_mbps)
+    fastest_write = _best_available(available, _write_mbps)
     best_balanced = _best_available(available, _balanced_mbps)
-    top_read = _rank_available(results, key=lambda r: r.read_mbps, top_n=3)
-    top_write = _rank_available(results, key=lambda r: r.write_mbps, top_n=3)
+    top_read = _rank_available(results, key=_read_mbps, top_n=3)
+    top_write = _rank_available(results, key=_write_mbps, top_n=3)
     top_balanced = _rank_available(results, key=_balanced_mbps, top_n=3)
 
     lines = [
@@ -370,8 +378,8 @@ def to_markdown(results: list[BenchResult], nx: int, nz: int, iterations: int, s
         f"- Formats available: `{available_count}`",
         f"- Formats unavailable: `{unavailable_count}`",
         f"- Availability ratio: `{available_pct:.1f}%`",
-        _format_fastest_summary("Fastest read format", fastest_read, lambda r: r.read_mbps),
-        _format_fastest_summary("Fastest write format", fastest_write, lambda r: r.write_mbps),
+        _format_fastest_summary("Fastest read format", fastest_read, _read_mbps),
+        _format_fastest_summary("Fastest write format", fastest_write, _write_mbps),
         _format_fastest_summary("Best balanced format", best_balanced, _balanced_mbps, unit_suffix="MB/s harmonic mean"),
         "",
         "| Format | Status | Size (MB) | Write (ms) | Read (ms) | Write MB/s | Read MB/s | Notes |",
@@ -390,13 +398,13 @@ def to_markdown(results: list[BenchResult], nx: int, nz: int, iterations: int, s
         lines,
         "## Top Read Throughput (available formats)",
         top_read,
-        lambda r: r.read_mbps,
+        _read_mbps,
     )
     _append_ranking_section(
         lines,
         "## Top Write Throughput (available formats)",
         top_write,
-        lambda r: r.write_mbps,
+        _write_mbps,
     )
     _append_ranking_section(
         lines,

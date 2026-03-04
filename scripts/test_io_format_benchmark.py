@@ -203,6 +203,11 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         self.assertEqual(b._throughput(10.0, -1.0), 0.0)
         self.assertEqual(b._throughput(10.0, 2.0), 5.0)
 
+    def test_read_write_score_helpers_return_expected_fields(self):
+        row = b.BenchResult(name="fmt", available=True, read_mbps=3.25, write_mbps=7.5)
+        self.assertEqual(b._read_mbps(row), 3.25)
+        self.assertEqual(b._write_mbps(row), 7.5)
+
     def test_append_ranking_section_rounds_to_single_decimal(self):
         lines = []
         rows = [b.BenchResult(name="fmt", available=True, read_mbps=1.04)]
