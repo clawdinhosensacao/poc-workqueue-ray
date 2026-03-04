@@ -89,6 +89,10 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         b._append_ranking_section(lines, "## Example 2", rows, lambda r: r.read_mbps)
         self.assertEqual(lines[-3:], ["", "## Example 2", "1. `bin` — 12.3 MB/s"])
 
+    def test_balanced_mbps_returns_zero_for_nonpositive_components(self):
+        self.assertEqual(b._balanced_mbps(b.BenchResult(name="x", available=True, read_mbps=0.0, write_mbps=10.0)), 0.0)
+        self.assertEqual(b._balanced_mbps(b.BenchResult(name="x", available=True, read_mbps=10.0, write_mbps=0.0)), 0.0)
+
 
 if __name__ == "__main__":
     unittest.main()
