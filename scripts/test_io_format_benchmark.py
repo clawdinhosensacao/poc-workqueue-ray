@@ -139,6 +139,18 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         self.assertIn("## Top Write Throughput (available formats)\n- n/a", md)
         self.assertIn("## Top Balanced Throughput (harmonic mean of read/write)\n- n/a", md)
 
+    def test_format_fastest_summary_supports_custom_suffix(self):
+        row = b.BenchResult(name="bin", available=True, read_mbps=12.34)
+        self.assertEqual(
+            b._format_fastest_summary("Fastest read format", row, lambda r: r.read_mbps),
+            "- Fastest read format: `bin` (12.3 MB/s)",
+        )
+        self.assertEqual(
+            b._format_fastest_summary("Best balanced format", row, lambda r: r.read_mbps, unit_suffix="MB/s harmonic mean"),
+            "- Best balanced format: `bin` (12.3 MB/s harmonic mean)",
+        )
+        self.assertEqual(b._format_fastest_summary("Fastest read format", None, lambda r: r.read_mbps), "- Fastest read format: `n/a`")
+
 
 if __name__ == "__main__":
     unittest.main()

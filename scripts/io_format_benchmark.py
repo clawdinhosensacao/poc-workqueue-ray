@@ -82,6 +82,17 @@ def _availability_stats(results: list[BenchResult]) -> tuple[int, int, float]:
     return available_count, unavailable_count, available_pct
 
 
+def _format_fastest_summary(
+    label: str,
+    result: Optional[BenchResult],
+    score: Callable[[BenchResult], float],
+    unit_suffix: str = "MB/s",
+) -> str:
+    if result is None:
+        return f"- {label}: `n/a`"
+    return f"- {label}: `{result.name}` ({score(result):.1f} {unit_suffix})"
+
+
 def _append_ranking_section(
     lines: list[str],
     title: str,
@@ -349,9 +360,9 @@ def to_markdown(results: list[BenchResult], nx: int, nz: int, iterations: int, s
         f"- Formats available: `{available_count}`",
         f"- Formats unavailable: `{unavailable_count}`",
         f"- Availability ratio: `{available_pct:.1f}%`",
-        f"- Fastest read format: `{fastest_read.name}` ({fastest_read.read_mbps:.1f} MB/s)" if fastest_read else "- Fastest read format: `n/a`",
-        f"- Fastest write format: `{fastest_write.name}` ({fastest_write.write_mbps:.1f} MB/s)" if fastest_write else "- Fastest write format: `n/a`",
-        f"- Best balanced format: `{best_balanced.name}` ({_balanced_mbps(best_balanced):.1f} MB/s harmonic mean)" if best_balanced else "- Best balanced format: `n/a`",
+        _format_fastest_summary("Fastest read format", fastest_read, lambda r: r.read_mbps),
+        _format_fastest_summary("Fastest write format", fastest_write, lambda r: r.write_mbps),
+        _format_fastest_summary("Best balanced format", best_balanced, _balanced_mbps, unit_suffix="MB/s harmonic mean"),
         "",
         "| Format | Status | Size (MB) | Write (ms) | Read (ms) | Write MB/s | Read MB/s | Notes |",
         "|---|---:|---:|---:|---:|---:|---:|---|",
