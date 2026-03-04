@@ -28,6 +28,8 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         self.assertIn("- Fastest write format: `json` (10.0 MB/s)", md)
         self.assertIn("| json | ok |", md)
         self.assertIn("| hdf5 | n/a |", md)
+        self.assertIn("## Top Read Throughput (available formats)", md)
+        self.assertIn("1. `json` — 5.0 MB/s", md)
 
     def test_core_formats_run(self):
         results = b.run_benchmark(nx=32, nz=16, iterations=1)

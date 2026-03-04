@@ -58,6 +58,12 @@ def _throughput(size_mb: float, seconds: float) -> float:
     return size_mb / seconds
 
 
+def _rank_available(results: list[BenchResult], key: Callable[[BenchResult], float], top_n: int = 3) -> list[BenchResult]:
+    available = [r for r in results if r.available]
+    available.sort(key=key, reverse=True)
+    return available[:top_n]
+
+
 def _bench_one(name: str, data: np.ndarray, path: Path, writer: Writer, reader: Reader, iterations: int) -> BenchResult:
     write_times = []
     read_times = []
@@ -298,6 +304,7 @@ def to_markdown(results: list[BenchResult], nx: int, nz: int, iterations: int, s
     available_rows = [r for r in results if r.available]
     fastest_read = max(available_rows, key=lambda r: r.read_mbps, default=None)
     fastest_write = max(available_rows, key=lambda r: r.write_mbps, default=None)
+    top_read = _rank_available(results, key=lambda r: r.read_mbps, top_n=3)
 
     lines = [
         "# I/O Format Benchmark Report",
@@ -322,6 +329,14 @@ def to_markdown(results: list[BenchResult], nx: int, nz: int, iterations: int, s
             )
         else:
             lines.append(f"| {r.name} | n/a | - | - | - | - | - | {r.error} |")
+
+    lines.append("")
+    lines.append("## Top Read Throughput (available formats)")
+    if top_read:
+        for i, r in enumerate(top_read, start=1):
+            lines.append(f"{i}. `{r.name}` — {r.read_mbps:.1f} MB/s")
+    else:
+        lines.append("- n/a")
 
     return "\n".join(lines) + "\n"
 
