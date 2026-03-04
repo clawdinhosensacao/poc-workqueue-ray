@@ -167,6 +167,11 @@ class IoFormatBenchmarkTests(unittest.TestCase):
             b._format_fastest_summary("Fastest read format", row, lambda r: r.read_mbps),
             "- Fastest read format: `bin` (12.3 MB/s)",
         )
+        rounded_up = b.BenchResult(name="bin", available=True, read_mbps=12.36)
+        self.assertEqual(
+            b._format_fastest_summary("Fastest read format", rounded_up, lambda r: r.read_mbps),
+            "- Fastest read format: `bin` (12.4 MB/s)",
+        )
         self.assertEqual(
             b._format_fastest_summary("Best balanced format", row, lambda r: r.read_mbps, unit_suffix="MB/s harmonic mean"),
             "- Best balanced format: `bin` (12.3 MB/s harmonic mean)",
