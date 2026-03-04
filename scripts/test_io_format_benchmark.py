@@ -286,6 +286,22 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         )
         self.assertIn("- Availability ratio: `66.7%`", lines)
 
+    def test_report_metadata_lines_include_available_unavailable_counts(self):
+        lines = b._report_metadata_lines(
+            nx=10,
+            nz=20,
+            iterations=2,
+            seed=7,
+            available_count=2,
+            unavailable_count=1,
+            available_pct=66.6666667,
+            fastest_read=None,
+            fastest_write=None,
+            best_balanced=None,
+        )
+        self.assertIn("- Formats available: `2`", lines)
+        self.assertIn("- Formats unavailable: `1`", lines)
+
     def test_append_ranking_section_rounds_to_single_decimal(self):
         lines = []
         rows = [b.BenchResult(name="fmt", available=True, read_mbps=1.04)]
