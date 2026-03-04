@@ -151,6 +151,17 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         )
         self.assertEqual(b._format_fastest_summary("Fastest read format", None, lambda r: r.read_mbps), "- Fastest read format: `n/a`")
 
+    def test_best_available_selects_highest_score_or_none(self):
+        rows = [
+            b.BenchResult(name="slow", available=True, read_mbps=1.0),
+            b.BenchResult(name="fast", available=True, read_mbps=3.0),
+            b.BenchResult(name="mid", available=True, read_mbps=2.0),
+        ]
+        best = b._best_available(rows, lambda r: r.read_mbps)
+        self.assertIsNotNone(best)
+        self.assertEqual(best.name, "fast")
+        self.assertIsNone(b._best_available([], lambda r: r.read_mbps))
+
 
 if __name__ == "__main__":
     unittest.main()

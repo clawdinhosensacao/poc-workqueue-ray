@@ -93,6 +93,10 @@ def _format_fastest_summary(
     return f"- {label}: `{result.name}` ({score(result):.1f} {unit_suffix})"
 
 
+def _best_available(rows: list[BenchResult], score: Callable[[BenchResult], float]) -> Optional[BenchResult]:
+    return max(rows, key=score, default=None)
+
+
 def _append_ranking_section(
     lines: list[str],
     title: str,
@@ -344,9 +348,9 @@ def to_markdown(results: list[BenchResult], nx: int, nz: int, iterations: int, s
     available_count, unavailable_count, available_pct = _availability_stats(results)
 
     available = _available_rows(results)
-    fastest_read = max(available, key=lambda r: r.read_mbps, default=None)
-    fastest_write = max(available, key=lambda r: r.write_mbps, default=None)
-    best_balanced = max(available, key=_balanced_mbps, default=None)
+    fastest_read = _best_available(available, lambda r: r.read_mbps)
+    fastest_write = _best_available(available, lambda r: r.write_mbps)
+    best_balanced = _best_available(available, _balanced_mbps)
     top_read = _rank_available(results, key=lambda r: r.read_mbps, top_n=3)
     top_write = _rank_available(results, key=lambda r: r.write_mbps, top_n=3)
     top_balanced = _rank_available(results, key=_balanced_mbps, top_n=3)
