@@ -218,8 +218,8 @@ make check
 I/O benchmark harness quick checks:
 ```bash
 make io-bench-test      # py_compile + unit tests for benchmark harness
-make io-bench-fast      # quick run, writes artifacts/io_format_benchmark.fast.md
-make io-bench           # full run, writes artifacts/io_format_benchmark.md
+make io-bench-fast      # quick deterministic run (seed=0), writes artifacts/io_format_benchmark.fast.md
+make io-bench           # full deterministic run (seed=0), writes artifacts/io_format_benchmark.md
 ```
 
 Unit + e2e (CTest path):

@@ -52,10 +52,10 @@ io-bench-test:
 	python3 -m unittest scripts/test_io_format_benchmark.py
 
 io-bench:
-	python3 scripts/io_format_benchmark.py --nx 400 --nz 300 --iterations 3 --report artifacts/io_format_benchmark.md
+	python3 scripts/io_format_benchmark.py --nx 400 --nz 300 --iterations 3 --seed 0 --report artifacts/io_format_benchmark.md
 
 io-bench-fast:
-	python3 scripts/io_format_benchmark.py --nx 200 --nz 150 --iterations 1 --report artifacts/io_format_benchmark.fast.md
+	python3 scripts/io_format_benchmark.py --nx 200 --nz 150 --iterations 1 --seed 0 --report artifacts/io_format_benchmark.fast.md
 
 e2e: build/rtm3d_cli
 	bash tests/e2e_synthetic.sh
