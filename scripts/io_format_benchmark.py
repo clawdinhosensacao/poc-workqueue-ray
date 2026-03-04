@@ -293,6 +293,7 @@ def run_benchmark(nx: int, nz: int, iterations: int, seed: int = 0) -> list[Benc
 def to_markdown(results: list[BenchResult], nx: int, nz: int, iterations: int, seed: int) -> str:
     available_count = sum(1 for r in results if r.available)
     unavailable_count = len(results) - available_count
+    available_pct = (100.0 * available_count / len(results)) if results else 0.0
 
     lines = [
         "# I/O Format Benchmark Report",
@@ -302,6 +303,7 @@ def to_markdown(results: list[BenchResult], nx: int, nz: int, iterations: int, s
         f"- Seed: `{seed}`",
         f"- Formats available: `{available_count}`",
         f"- Formats unavailable: `{unavailable_count}`",
+        f"- Availability ratio: `{available_pct:.1f}%`",
         "",
         "| Format | Status | Size (MB) | Write (ms) | Read (ms) | Write MB/s | Read MB/s | Notes |",
         "|---|---:|---:|---:|---:|---:|---:|---|",

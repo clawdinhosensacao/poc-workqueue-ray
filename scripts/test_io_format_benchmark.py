@@ -23,6 +23,7 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         self.assertIn("- Seed: `123`", md)
         self.assertIn("- Formats available: `1`", md)
         self.assertIn("- Formats unavailable: `1`", md)
+        self.assertIn("- Availability ratio: `50.0%`", md)
         self.assertIn("| json | ok |", md)
         self.assertIn("| hdf5 | n/a |", md)
 
