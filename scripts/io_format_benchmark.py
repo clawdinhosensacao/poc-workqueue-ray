@@ -254,6 +254,11 @@ def _generate_input_array(nx: int, nz: int, seed: int) -> np.ndarray:
 
 
 def run_benchmark(nx: int, nz: int, iterations: int, seed: int = 0) -> list[BenchResult]:
+    if nx <= 0 or nz <= 0:
+        raise ValueError("nx and nz must be > 0")
+    if iterations <= 0:
+        raise ValueError("iterations must be > 0")
+
     data = _generate_input_array(nx, nz, seed)
 
     with tempfile.TemporaryDirectory(prefix="rtm3d_iofmt_") as td:

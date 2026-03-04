@@ -60,6 +60,14 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         self.assertTrue(np.array_equal(a, c))
         self.assertFalse(np.array_equal(a, d))
 
+    def test_run_benchmark_rejects_invalid_dimensions_or_iterations(self):
+        with self.assertRaises(ValueError):
+            b.run_benchmark(nx=0, nz=8, iterations=1)
+        with self.assertRaises(ValueError):
+            b.run_benchmark(nx=8, nz=0, iterations=1)
+        with self.assertRaises(ValueError):
+            b.run_benchmark(nx=8, nz=8, iterations=0)
+
 
 if __name__ == "__main__":
     unittest.main()
