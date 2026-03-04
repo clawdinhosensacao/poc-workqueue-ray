@@ -71,6 +71,21 @@ def _balanced_mbps(result: BenchResult) -> float:
     return 2.0 / ((1.0 / result.read_mbps) + (1.0 / result.write_mbps))
 
 
+def _append_ranking_section(
+    lines: list[str],
+    title: str,
+    rows: list[BenchResult],
+    score: Callable[[BenchResult], float],
+) -> None:
+    lines.append("")
+    lines.append(title)
+    if rows:
+        for i, r in enumerate(rows, start=1):
+            lines.append(f"{i}. `{r.name}` — {score(r):.1f} MB/s")
+    else:
+        lines.append("- n/a")
+
+
 def _bench_one(name: str, data: np.ndarray, path: Path, writer: Writer, reader: Reader, iterations: int) -> BenchResult:
     write_times = []
     read_times = []
@@ -341,29 +356,24 @@ def to_markdown(results: list[BenchResult], nx: int, nz: int, iterations: int, s
         else:
             lines.append(f"| {r.name} | n/a | - | - | - | - | - | {r.error} |")
 
-    lines.append("")
-    lines.append("## Top Read Throughput (available formats)")
-    if top_read:
-        for i, r in enumerate(top_read, start=1):
-            lines.append(f"{i}. `{r.name}` — {r.read_mbps:.1f} MB/s")
-    else:
-        lines.append("- n/a")
-
-    lines.append("")
-    lines.append("## Top Write Throughput (available formats)")
-    if top_write:
-        for i, r in enumerate(top_write, start=1):
-            lines.append(f"{i}. `{r.name}` — {r.write_mbps:.1f} MB/s")
-    else:
-        lines.append("- n/a")
-
-    lines.append("")
-    lines.append("## Top Balanced Throughput (harmonic mean of read/write)")
-    if top_balanced:
-        for i, r in enumerate(top_balanced, start=1):
-            lines.append(f"{i}. `{r.name}` — {_balanced_mbps(r):.1f} MB/s")
-    else:
-        lines.append("- n/a")
+    _append_ranking_section(
+        lines,
+        "## Top Read Throughput (available formats)",
+        top_read,
+        lambda r: r.read_mbps,
+    )
+    _append_ranking_section(
+        lines,
+        "## Top Write Throughput (available formats)",
+        top_write,
+        lambda r: r.write_mbps,
+    )
+    _append_ranking_section(
+        lines,
+        "## Top Balanced Throughput (harmonic mean of read/write)",
+        top_balanced,
+        _balanced_mbps,
+    )
 
     return "\n".join(lines) + "\n"
 

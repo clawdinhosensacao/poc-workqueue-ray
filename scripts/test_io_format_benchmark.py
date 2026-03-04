@@ -80,6 +80,15 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             b.run_benchmark(nx=8, nz=8, iterations=0)
 
+    def test_append_ranking_section_handles_empty_and_nonempty_rows(self):
+        lines = []
+        b._append_ranking_section(lines, "## Example", [], lambda r: r.read_mbps)
+        self.assertEqual(lines, ["", "## Example", "- n/a"])
+
+        rows = [b.BenchResult(name="bin", available=True, read_mbps=12.34, write_mbps=56.78)]
+        b._append_ranking_section(lines, "## Example 2", rows, lambda r: r.read_mbps)
+        self.assertEqual(lines[-3:], ["", "## Example 2", "1. `bin` — 12.3 MB/s"])
+
 
 if __name__ == "__main__":
     unittest.main()
