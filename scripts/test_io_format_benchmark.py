@@ -24,6 +24,7 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         self.assertIn("- Formats available: `1`", md)
         self.assertIn("- Formats unavailable: `1`", md)
         self.assertIn("- Availability ratio: `50.0%`", md)
+        self.assertIn("- Fastest read format: `json` (5.0 MB/s)", md)
         self.assertIn("| json | ok |", md)
         self.assertIn("| hdf5 | n/a |", md)
 
