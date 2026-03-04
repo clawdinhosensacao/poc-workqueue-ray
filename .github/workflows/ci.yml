@@ -24,6 +24,10 @@ jobs:
         sudo apt-get install -y cppcheck
         make check
 
+    - name: Validate I/O benchmark harness
+      run: |
+        make io-bench-test
+
     - name: Run E2E synthetic benchmark
       run: |
         ./tests/e2e_synthetic.sh
