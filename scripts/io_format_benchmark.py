@@ -46,6 +46,7 @@ class BenchResult:
 Writer = Callable[[np.ndarray, Path], None]
 Reader = Callable[[Path, tuple[int, ...]], np.ndarray]
 JobSpec = tuple[str, Path, Optional[tuple[Writer, Reader]]]
+_TOP_K = 3
 
 
 def _mb(path: Path) -> float:
@@ -58,7 +59,7 @@ def _throughput(size_mb: float, seconds: float) -> float:
     return size_mb / seconds
 
 
-def _rank_available(results: list[BenchResult], key: Callable[[BenchResult], float], top_n: int = 3) -> list[BenchResult]:
+def _rank_available(results: list[BenchResult], key: Callable[[BenchResult], float], top_n: int = _TOP_K) -> list[BenchResult]:
     available = [r for r in results if r.available]
     available.sort(key=lambda r: (-key(r), r.name))
     return available[:top_n]
@@ -365,9 +366,9 @@ def to_markdown(results: list[BenchResult], nx: int, nz: int, iterations: int, s
     fastest_read = _best_available(available, _read_mbps)
     fastest_write = _best_available(available, _write_mbps)
     best_balanced = _best_available(available, _balanced_mbps)
-    top_read = _rank_available(results, key=_read_mbps, top_n=3)
-    top_write = _rank_available(results, key=_write_mbps, top_n=3)
-    top_balanced = _rank_available(results, key=_balanced_mbps, top_n=3)
+    top_read = _rank_available(results, key=_read_mbps, top_n=_TOP_K)
+    top_write = _rank_available(results, key=_write_mbps, top_n=_TOP_K)
+    top_balanced = _rank_available(results, key=_balanced_mbps, top_n=_TOP_K)
 
     lines = [
         "# I/O Format Benchmark Report",
