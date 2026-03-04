@@ -249,8 +249,12 @@ def _mdio_adapters() -> Optional[tuple[Writer, Reader]]:
     return writer, reader
 
 
+def _generate_input_array(nx: int, nz: int, seed: int) -> np.ndarray:
+    return np.random.default_rng(seed).random((nz, nx), dtype=np.float32)
+
+
 def run_benchmark(nx: int, nz: int, iterations: int, seed: int = 0) -> list[BenchResult]:
-    data = np.random.default_rng(seed).random((nz, nx), dtype=np.float32)
+    data = _generate_input_array(nx, nz, seed)
 
     with tempfile.TemporaryDirectory(prefix="rtm3d_iofmt_") as td:
         root = Path(td)

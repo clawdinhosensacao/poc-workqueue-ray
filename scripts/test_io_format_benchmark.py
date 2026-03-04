@@ -8,6 +8,8 @@ _THIS_DIR = Path(__file__).resolve().parent
 if str(_THIS_DIR) not in sys.path:
     sys.path.insert(0, str(_THIS_DIR))
 
+import numpy as np
+
 import io_format_benchmark as b
 
 
@@ -49,6 +51,14 @@ class IoFormatBenchmarkTests(unittest.TestCase):
             "mdio",
         }
         self.assertEqual(names, expected)
+
+    def test_generate_input_array_is_seed_deterministic(self):
+        a = b._generate_input_array(nx=8, nz=4, seed=42)
+        c = b._generate_input_array(nx=8, nz=4, seed=42)
+        d = b._generate_input_array(nx=8, nz=4, seed=43)
+
+        self.assertTrue(np.array_equal(a, c))
+        self.assertFalse(np.array_equal(a, d))
 
 
 if __name__ == "__main__":
