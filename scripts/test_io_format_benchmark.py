@@ -26,12 +26,15 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         self.assertIn("- Availability ratio: `50.0%`", md)
         self.assertIn("- Fastest read format: `json` (5.0 MB/s)", md)
         self.assertIn("- Fastest write format: `json` (10.0 MB/s)", md)
+        self.assertIn("- Best balanced format: `json` (6.7 MB/s harmonic mean)", md)
         self.assertIn("| json | ok |", md)
         self.assertIn("| hdf5 | n/a |", md)
         self.assertIn("## Top Read Throughput (available formats)", md)
         self.assertIn("1. `json` — 5.0 MB/s", md)
         self.assertIn("## Top Write Throughput (available formats)", md)
         self.assertIn("1. `json` — 10.0 MB/s", md)
+        self.assertIn("## Top Balanced Throughput (harmonic mean of read/write)", md)
+        self.assertIn("1. `json` — 6.7 MB/s", md)
 
     def test_core_formats_run(self):
         results = b.run_benchmark(nx=32, nz=16, iterations=1)

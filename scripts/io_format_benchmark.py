@@ -64,6 +64,13 @@ def _rank_available(results: list[BenchResult], key: Callable[[BenchResult], flo
     return available[:top_n]
 
 
+def _balanced_mbps(result: BenchResult) -> float:
+    """Return a symmetric read/write score using harmonic mean throughput."""
+    if result.read_mbps <= 0.0 or result.write_mbps <= 0.0:
+        return 0.0
+    return 2.0 / ((1.0 / result.read_mbps) + (1.0 / result.write_mbps))
+
+
 def _bench_one(name: str, data: np.ndarray, path: Path, writer: Writer, reader: Reader, iterations: int) -> BenchResult:
     write_times = []
     read_times = []
@@ -304,8 +311,10 @@ def to_markdown(results: list[BenchResult], nx: int, nz: int, iterations: int, s
     available_rows = [r for r in results if r.available]
     fastest_read = max(available_rows, key=lambda r: r.read_mbps, default=None)
     fastest_write = max(available_rows, key=lambda r: r.write_mbps, default=None)
+    best_balanced = max(available_rows, key=_balanced_mbps, default=None)
     top_read = _rank_available(results, key=lambda r: r.read_mbps, top_n=3)
     top_write = _rank_available(results, key=lambda r: r.write_mbps, top_n=3)
+    top_balanced = _rank_available(results, key=_balanced_mbps, top_n=3)
 
     lines = [
         "# I/O Format Benchmark Report",
@@ -318,6 +327,7 @@ def to_markdown(results: list[BenchResult], nx: int, nz: int, iterations: int, s
         f"- Availability ratio: `{available_pct:.1f}%`",
         f"- Fastest read format: `{fastest_read.name}` ({fastest_read.read_mbps:.1f} MB/s)" if fastest_read else "- Fastest read format: `n/a`",
         f"- Fastest write format: `{fastest_write.name}` ({fastest_write.write_mbps:.1f} MB/s)" if fastest_write else "- Fastest write format: `n/a`",
+        f"- Best balanced format: `{best_balanced.name}` ({_balanced_mbps(best_balanced):.1f} MB/s harmonic mean)" if best_balanced else "- Best balanced format: `n/a`",
         "",
         "| Format | Status | Size (MB) | Write (ms) | Read (ms) | Write MB/s | Read MB/s | Notes |",
         "|---|---:|---:|---:|---:|---:|---:|---|",
@@ -344,6 +354,14 @@ def to_markdown(results: list[BenchResult], nx: int, nz: int, iterations: int, s
     if top_write:
         for i, r in enumerate(top_write, start=1):
             lines.append(f"{i}. `{r.name}` — {r.write_mbps:.1f} MB/s")
+    else:
+        lines.append("- n/a")
+
+    lines.append("")
+    lines.append("## Top Balanced Throughput (harmonic mean of read/write)")
+    if top_balanced:
+        for i, r in enumerate(top_balanced, start=1):
+            lines.append(f"{i}. `{r.name}` — {_balanced_mbps(r):.1f} MB/s")
     else:
         lines.append("- n/a")
 
