@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -202,6 +203,12 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         rows = [b.BenchResult(name="fmt", available=True, read_mbps=1.04)]
         b._append_ranking_section(lines, "## Rounded", rows, lambda r: r.read_mbps)
         self.assertEqual(lines[-1], "1. `fmt` — 1.0 MB/s")
+
+    def test_mb_converts_file_size_to_megabytes(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "size.bin"
+            path.write_bytes(b"\x00" * 2048)
+            self.assertAlmostEqual(b._mb(path), 2048 / (1024 * 1024), places=9)
 
 
 if __name__ == "__main__":
