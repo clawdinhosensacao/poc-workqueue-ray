@@ -162,6 +162,11 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         self.assertEqual(best.name, "fast")
         self.assertIsNone(b._best_available([], lambda r: r.read_mbps))
 
+    def test_throughput_returns_zero_for_nonpositive_seconds(self):
+        self.assertEqual(b._throughput(10.0, 0.0), 0.0)
+        self.assertEqual(b._throughput(10.0, -1.0), 0.0)
+        self.assertEqual(b._throughput(10.0, 2.0), 5.0)
+
 
 if __name__ == "__main__":
     unittest.main()
