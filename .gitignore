@@ -1,2 +1,11 @@
 cctools/
 *.jsonl
+build/
+third_party/
+output/
+tests/tmp_loader/
+artifacts/
+data/synthetic_circle_lens/
+data/demo_*/
+scripts/__pycache__/
+*.o

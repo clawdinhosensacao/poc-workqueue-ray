@@ -1,0 +1,16 @@
+{
+  "data_dir": "data/synthetic",
+  "decim_x": 2,
+  "decim_z": 2,
+  "crop_x": 96,
+  "crop_z": 64,
+  "ny": 20,
+  "dy": 12,
+  "dt": 0.001,
+  "nt": 140,
+  "f0": 16,
+  "pml": 8,
+  "receiver_stride": 3,
+  "output_file": "artifacts/synthetic_migrated_inline.bin",
+  "output_format": "float32_raw"
+}

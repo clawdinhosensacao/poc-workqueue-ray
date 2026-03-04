@@ -1,0 +1,6 @@
+{
+  "dtype": "float32",
+  "layout": "row-major [nz][nx]",
+  "nx": 80,
+  "nz": 48
+}

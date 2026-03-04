@@ -1,0 +1,18 @@
+{
+  "data_dir": "data/synthetic_circle_lens",
+  "velocity_model": "velocity_model.bin",
+  "nx": 160,
+  "nz": 96,
+  "dx": 10.0,
+  "dz": 10.0,
+  "ny": 12,
+  "dy": 10.0,
+  "nt": 280,
+  "dt": 0.001,
+  "f0": 16.0,
+  "pml": 8,
+  "receiver_stride": 4,
+  "n_shots": 3,
+  "output": "artifacts/synthetic_migrated_inline",
+  "output_format": "float32_raw"
+}
