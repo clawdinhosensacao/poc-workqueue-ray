@@ -123,6 +123,22 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         ]
         self.assertEqual([r.name for r in b._available_rows(rows)], ["json", "npy"])
 
+    def test_to_markdown_handles_no_available_formats(self):
+        rows = [
+            b.BenchResult(name="json", available=False, error="dependency unavailable"),
+            b.BenchResult(name="npy", available=False, error="dependency unavailable"),
+        ]
+        md = b.to_markdown(rows, nx=10, nz=20, iterations=1, seed=0)
+        self.assertIn("- Formats available: `0`", md)
+        self.assertIn("- Formats unavailable: `2`", md)
+        self.assertIn("- Availability ratio: `0.0%`", md)
+        self.assertIn("- Fastest read format: `n/a`", md)
+        self.assertIn("- Fastest write format: `n/a`", md)
+        self.assertIn("- Best balanced format: `n/a`", md)
+        self.assertIn("## Top Read Throughput (available formats)\n- n/a", md)
+        self.assertIn("## Top Write Throughput (available formats)\n- n/a", md)
+        self.assertIn("## Top Balanced Throughput (harmonic mean of read/write)\n- n/a", md)
+
 
 if __name__ == "__main__":
     unittest.main()
