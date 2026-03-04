@@ -21,6 +21,7 @@ class IoFormatBenchmarkTests(unittest.TestCase):
             b.BenchResult(name="hdf5", available=False, error="dependency unavailable"),
         ]
         md = b.to_markdown(rows, nx=10, nz=20, iterations=2, seed=123)
+        self.assertTrue(md.startswith("# I/O Format Benchmark Report\n"))
         self.assertIn("- Shape: `20 x 10` float32", md)
         self.assertIn("- Iterations: `2`", md)
         self.assertIn("- Seed: `123`", md)
