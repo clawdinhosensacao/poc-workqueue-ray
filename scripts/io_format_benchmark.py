@@ -6,16 +6,21 @@ Goals:
 - Work even when optional dependencies are not installed.
 - Emit a Markdown summary report for RFC/design discussions.
 
-Formats:
+Formats (comprehensive):
 - json (builtin)
 - binary_f32 (numpy tofile/fromfile)
 - npy (numpy native format)
-- parquet (optional: pyarrow)
-- duckdb (optional: duckdb)
-- hdf5 (optional: h5py)
-- zarr (optional: zarr)
-- adios2 (optional: adios2)
-- mdio (optional: mdio)
+- hdf5 (h5py)
+- zarr (zarr v3)
+- netcdf (netCDF4)
+- parquet (pyarrow)
+- duckdb (duckdb)
+- tiledb (tiledb)
+- asdf (asdf)
+- tensorstore (tensorstore - Google)
+- segy (segyio - seismic)
+- adios2 (adios2 - HPC)
+- mdio (mdio - seismic, optional)
 """
 
 from __future__ import annotations
@@ -137,21 +142,30 @@ def _report_metadata_lines(
 
 
 def _best_available(rows: list[BenchResult], score: Callable[[BenchResult], float]) -> Optional[BenchResult]:
-    # Deterministic tie-break by name to keep report summaries stable.
     return min(rows, key=lambda r: (-score(r), r.name), default=None)
 
 
 def _benchmark_jobs(root: Path) -> list[JobSpec]:
     """Return benchmark job declarations (name, output path, adapters)."""
     return [
+        # Core formats (always available)
         ("json", root / "vel.json", (_json_writer, _json_reader)),
         ("binary_f32", root / "vel.bin", (_bin_writer, _bin_reader)),
         ("npy", root / "vel.npy", (_npy_writer, _npy_reader)),
-        ("parquet", root / "vel.parquet", _parquet_adapters()),
-        ("duckdb", root / "vel.duckdb", _duckdb_adapters()),
+        # Scientific/HPC formats
         ("hdf5", root / "vel.h5", _hdf5_adapters()),
         ("zarr", root / "vel.zarr", _zarr_adapters()),
+        ("netcdf", root / "vel.nc", _netcdf_adapters()),
         ("adios2", root / "vel.bp", _adios2_adapters()),
+        # Data Lake/Analytics formats
+        ("parquet", root / "vel.parquet", _parquet_adapters()),
+        ("duckdb", root / "vel.duckdb", _duckdb_adapters()),
+        # Array/Tensor formats
+        ("tiledb", root / "vel.tiledb", _tiledb_adapters()),
+        ("asdf", root / "vel.asdf", _asdf_adapters()),
+        ("tensorstore", root / "vel.ts", _tensorstore_adapters()),
+        # Seismic-specific formats
+        ("segy", root / "vel.sgy", _segy_adapters()),
         ("mdio", root / "vel.mdio", _mdio_adapters()),
     ]
 
@@ -203,6 +217,11 @@ def _bench_one(name: str, data: np.ndarray, path: Path, writer: Writer, reader: 
     )
 
 
+# ============================================================================
+# Core Format Adapters (always available)
+# ============================================================================
+
+
 def _json_writer(data: np.ndarray, path: Path) -> None:
     with path.open("w") as f:
         json.dump(data.tolist(), f)
@@ -232,11 +251,74 @@ def _npy_reader(path: Path, shape: tuple[int, ...]) -> np.ndarray:
     return out.reshape(shape).astype(np.float32, copy=False)
 
 
+# ============================================================================
+# Optional Format Adapters
+# ============================================================================
+
+
 def _opt(name: str):
     try:
         return __import__(name)
     except Exception:
         return None
+
+
+def _hdf5_adapters() -> Optional[tuple[Writer, Reader]]:
+    h5py = _opt("h5py")
+    if h5py is None:
+        return None
+
+    import h5py as h5
+
+    def writer(data: np.ndarray, path: Path) -> None:
+        with h5.File(path, "w") as f:
+            f.create_dataset("velocity", data=data.astype(np.float32), compression=None)
+
+    def reader(path: Path, shape: tuple[int, ...]) -> np.ndarray:
+        with h5.File(path, "r") as f:
+            out = np.array(f["velocity"], dtype=np.float32)
+        return out.reshape(shape)
+
+    return writer, reader
+
+
+def _zarr_adapters() -> Optional[tuple[Writer, Reader]]:
+    zarr = _opt("zarr")
+    if zarr is None:
+        return None
+
+    import zarr
+
+    def writer(data: np.ndarray, path: Path) -> None:
+        zarr.save_array(str(path), data.astype(np.float32), overwrite=True)
+
+    def reader(path: Path, shape: tuple[int, ...]) -> np.ndarray:
+        out = np.array(zarr.load(str(path)), dtype=np.float32)
+        return out.reshape(shape)
+
+    return writer, reader
+
+
+def _netcdf_adapters() -> Optional[tuple[Writer, Reader]]:
+    netCDF4 = _opt("netCDF4")
+    if netCDF4 is None:
+        return None
+
+    import netCDF4 as nc
+
+    def writer(data: np.ndarray, path: Path) -> None:
+        with nc.Dataset(str(path), "w", format="NETCDF4") as ds:
+            ds.createDimension("z", data.shape[0])
+            ds.createDimension("x", data.shape[1])
+            var = ds.createVariable("velocity", "f4", ("z", "x"))
+            var[:] = data.astype(np.float32)
+
+    def reader(path: Path, shape: tuple[int, ...]) -> np.ndarray:
+        with nc.Dataset(str(path), "r") as ds:
+            out = np.array(ds.variables["velocity"][:], dtype=np.float32)
+        return out.reshape(shape)
+
+    return writer, reader
 
 
 def _parquet_adapters() -> Optional[tuple[Writer, Reader]]:
@@ -292,38 +374,113 @@ def _duckdb_adapters() -> Optional[tuple[Writer, Reader]]:
     return writer, reader
 
 
-def _hdf5_adapters() -> Optional[tuple[Writer, Reader]]:
-    h5py = _opt("h5py")
-    if h5py is None:
+def _tiledb_adapters() -> Optional[tuple[Writer, Reader]]:
+    tiledb = _opt("tiledb")
+    if tiledb is None:
         return None
 
-    import h5py as h5
+    import tiledb
+    import shutil
 
     def writer(data: np.ndarray, path: Path) -> None:
-        with h5.File(path, "w") as f:
-            f.create_dataset("velocity", data=data.astype(np.float32), compression=None)
+        # Remove if exists (TileDB can't overwrite)
+        if path.exists():
+            shutil.rmtree(path)
+        dom = tiledb.Domain(
+            tiledb.Dim(name="z", domain=(0, data.shape[0] - 1), dtype=np.int32),
+            tiledb.Dim(name="x", domain=(0, data.shape[1] - 1), dtype=np.int32),
+        )
+        schema = tiledb.ArraySchema(domain=dom, sparse=False, attrs=[tiledb.Attr(name="v", dtype=np.float32)])
+        tiledb.Array.create(str(path), schema)
+        with tiledb.open(str(path), "w") as A:
+            A[:] = {"v": data.astype(np.float32)}
 
     def reader(path: Path, shape: tuple[int, ...]) -> np.ndarray:
-        with h5.File(path, "r") as f:
-            out = np.array(f["velocity"], dtype=np.float32)
+        with tiledb.open(str(path), "r") as A:
+            out = np.array(A[:]["v"], dtype=np.float32)
         return out.reshape(shape)
 
     return writer, reader
 
 
-def _zarr_adapters() -> Optional[tuple[Writer, Reader]]:
-    zarr = _opt("zarr")
-    if zarr is None:
+def _asdf_adapters() -> Optional[tuple[Writer, Reader]]:
+    asdf = _opt("asdf")
+    if asdf is None:
         return None
 
-    import zarr as za
+    import asdf
 
     def writer(data: np.ndarray, path: Path) -> None:
-        za.save_array(path, data.astype(np.float32), overwrite=True)
+        af = asdf.AsdfFile()
+        af.tree["velocity"] = data.astype(np.float32)
+        af.write_to(str(path))
 
     def reader(path: Path, shape: tuple[int, ...]) -> np.ndarray:
-        out = np.array(za.load(path), dtype=np.float32)
+        with asdf.open(str(path)) as af:
+            out = np.array(af.tree["velocity"], dtype=np.float32)
         return out.reshape(shape)
+
+    return writer, reader
+
+
+def _tensorstore_adapters() -> Optional[tuple[Writer, Reader]]:
+    ts = _opt("tensorstore")
+    if ts is None:
+        return None
+
+    import tensorstore as ts_mod
+
+    def writer(data: np.ndarray, path: Path) -> None:
+        spec = {
+            "driver": "n5",
+            "kvstore": {"driver": "file", "path": str(path)},
+            "metadata": {
+                "compression": {"type": "raw"},
+                "dataType": "float32",
+                "dimensions": list(data.shape),
+                "blockSize": [min(64, s) for s in data.shape],
+            },
+        }
+        store = ts_mod.open(ts_mod.Spec(spec), create=True, open=True).result()
+        store[...] = data.astype(np.float32)
+
+    def reader(path: Path, shape: tuple[int, ...]) -> np.ndarray:
+        spec = {
+            "driver": "n5",
+            "kvstore": {"driver": "file", "path": str(path)},
+        }
+        store = ts_mod.open(ts_mod.Spec(spec), open=True).result()
+        out = np.array(store[...].read().result(), dtype=np.float32)
+        return out.reshape(shape)
+
+    return writer, reader
+
+
+def _segy_adapters() -> Optional[tuple[Writer, Reader]]:
+    segyio = _opt("segyio")
+    if segyio is None:
+        return None
+
+    import segyio
+
+    def writer(data: np.ndarray, path: Path) -> None:
+        nz, nx = data.shape
+        
+        # Create SEGY file with trace-by-trace writing
+        spec = segyio.spec()
+        spec.ilines = list(range(nx))
+        spec.xlines = [1]  # Single line
+        spec.samples = list(range(nz))
+        spec.format = 5  # IEEE float
+        
+        with segyio.create(str(path), spec) as f:
+            for i in range(nx):
+                f.trace[i] = data[:, i].astype(np.float32)
+
+    def reader(path: Path, shape: tuple[int, ...]) -> np.ndarray:
+        with segyio.open(str(path), "r", ignore_geometry=True) as f:
+            traces = np.array([t for t in f.trace], dtype=np.float32)
+        return traces.T.reshape(shape)
 
     return writer, reader
 
@@ -336,12 +493,14 @@ def _adios2_adapters() -> Optional[tuple[Writer, Reader]]:
     import adios2 as a2
 
     def writer(data: np.ndarray, path: Path) -> None:
-        with a2.open(str(path), "w") as fh:
-            fh.write("velocity", data.astype(np.float32))
+        # Use adios2.Stream high-level API
+        with a2.Stream(str(path), "w") as s:
+            s.write("velocity", data.astype(np.float32))
 
     def reader(path: Path, shape: tuple[int, ...]) -> np.ndarray:
-        with a2.open(str(path), "r") as fh:
-            out = fh.read("velocity")
+        with a2.Stream(str(path), "r") as s:
+            for step in s:
+                out = step.read("velocity")
         return np.array(out, dtype=np.float32).reshape(shape)
 
     return writer, reader
@@ -352,7 +511,7 @@ def _mdio_adapters() -> Optional[tuple[Writer, Reader]]:
     if mdio is None:
         return None
 
-    # MDIO API varies by version; keep best-effort and explicit if unsupported.
+    # MDIO API varies by version; keep best-effort placeholder
     def writer(data: np.ndarray, path: Path) -> None:
         raise RuntimeError("mdio adapter placeholder: API integration required for local mdio version")
 
@@ -360,6 +519,11 @@ def _mdio_adapters() -> Optional[tuple[Writer, Reader]]:
         raise RuntimeError("mdio adapter placeholder: API integration required for local mdio version")
 
     return writer, reader
+
+
+# ============================================================================
+# Benchmark Execution
+# ============================================================================
 
 
 def _generate_input_array(nx: int, nz: int, seed: int) -> np.ndarray:
