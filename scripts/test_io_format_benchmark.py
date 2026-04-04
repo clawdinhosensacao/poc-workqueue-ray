@@ -61,10 +61,15 @@ class IoFormatBenchmarkTests(unittest.TestCase):
             "json",
             "binary_f32",
             "npy",
-            "parquet",
-            "duckdb",
             "hdf5",
             "zarr",
+            "netcdf",
+            "parquet",
+            "duckdb",
+            "tiledb",
+            "asdf",
+            "tensorstore",
+            "segy",
             "adios2",
             "mdio",
         }
@@ -74,7 +79,7 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         jobs = b._benchmark_jobs(Path("/tmp/example"))
         self.assertEqual(
             [name for name, _path, _adapters in jobs],
-            ["json", "binary_f32", "npy", "parquet", "duckdb", "hdf5", "zarr", "adios2", "mdio"],
+            ["json", "binary_f32", "npy", "hdf5", "zarr", "netcdf", "adios2", "parquet", "duckdb", "tiledb", "asdf", "tensorstore", "segy", "mdio"],
         )
 
     def test_benchmark_jobs_use_given_root_for_paths(self):
@@ -86,7 +91,7 @@ class IoFormatBenchmarkTests(unittest.TestCase):
         jobs = b._benchmark_jobs(Path("/tmp/example"))
         self.assertEqual(
             [path.name for _name, path, _adapters in jobs],
-            ["vel.json", "vel.bin", "vel.npy", "vel.parquet", "vel.duckdb", "vel.h5", "vel.zarr", "vel.bp", "vel.mdio"],
+            ["vel.json", "vel.bin", "vel.npy", "vel.h5", "vel.zarr", "vel.nc", "vel.bp", "vel.parquet", "vel.duckdb", "vel.tiledb", "vel.asdf", "vel.ts", "vel.sgy", "vel.mdio"],
         )
 
     def test_generate_input_array_is_seed_deterministic(self):
