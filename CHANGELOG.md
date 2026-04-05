@@ -7,6 +7,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Full I/O format benchmark (14 formats): binary_f32, npy, hdf5, netcdf, parquet, duckdb, zarr, tiledb, segy, asdf, adios2, tensorstore, mdio, json
+- Benchmark ranking helpers for read/write/balanced throughput with deterministic tie-breaking
+- Markdown report with availability stats, top-K rankings, and fastest format summaries
+- 30 Python unit tests for I/O benchmark harness (io_format_benchmark.py)
+- Dependencies: h5py, zarr, pyarrow, duckdb, netCDF4, tiledb, segyio, asdf, tensorstore, adios2
+
+### Changed
+- Test suite expanded to 155 tests (25 test suites)
+- I/O benchmark supports graceful degradation when optional dependencies missing
+
+### Added
 - `scripts/devito_canonical_parity.py`: canonical Devito RTM parity pipeline using Devito operators for forward modeling, receiver recording, reverse-time propagation, and cross-correlation imaging.
 - Robust parity CLI options for grid/time/source/PML controls and JSON report output.
 - Threshold gating options for parity runs (`--fail-on-threshold`, `--min-ncc`, `--min-ssim`, `--max-nrmse`).
