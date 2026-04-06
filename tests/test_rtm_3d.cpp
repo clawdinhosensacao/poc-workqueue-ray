@@ -99,3 +99,69 @@ TEST(Rtm3D, SmallNyProducesValidOutput) {
 
   EXPECT_EQ(result.inline_xz.size(), 12u * 10u);
 }
+
+TEST(Rtm3D, LargeNyProducesValidOutput) {
+  rtm3d::GridModel2D model{.nx = 16, .nz = 12, .dx = 10.0f, .dz = 10.0f,
+                           .values = std::vector<float>(16 * 12, 1800.0f)};
+
+  rtm3d::RtmConfig cfg;
+  cfg.ny = 64;  // Large ny
+  cfg.dy = 10.0f;
+  cfg.nt = 30;
+  cfg.dt = 0.0008f;
+  cfg.pml = 4;
+
+  auto result = rtm3d::run_single_shot_rtm(model, cfg);
+
+  EXPECT_EQ(result.nx, 16u);
+  EXPECT_EQ(result.nz, 12u);
+  EXPECT_EQ(result.inline_xz.size(), 16u * 12u);
+
+  // All values should be finite
+  for (float v : result.inline_xz) {
+    EXPECT_TRUE(std::isfinite(v));
+  }
+}
+
+TEST(Rtm3D, DyAffectsResult) {
+  rtm3d::GridModel2D model{.nx = 16, .nz = 12, .dx = 10.0f, .dz = 10.0f,
+                           .values = std::vector<float>(16 * 12, 2000.0f)};
+
+  rtm3d::RtmConfig cfg1;
+  cfg1.ny = 8;
+  cfg1.dy = 10.0f;
+  cfg1.nt = 40;
+  cfg1.dt = 0.001f;
+  cfg1.pml = 4;
+
+  rtm3d::RtmConfig cfg2;
+  cfg2.ny = 8;
+  cfg2.dy = 20.0f;  // Different dy
+  cfg2.nt = 40;
+  cfg2.dt = 0.001f;
+  cfg2.pml = 4;
+
+  auto result1 = rtm3d::run_single_shot_rtm(model, cfg1);
+  auto result2 = rtm3d::run_single_shot_rtm(model, cfg2);
+
+  // Output sizes should be same regardless of dy
+  EXPECT_EQ(result1.nx, result2.nx);
+  EXPECT_EQ(result1.nz, result2.nz);
+}
+
+TEST(Rtm3D, Ny1EquivalentTo2D) {
+  rtm3d::GridModel2D model{.nx = 20, .nz = 16, .dx = 10.0f, .dz = 10.0f,
+                           .values = std::vector<float>(20 * 16, 1800.0f)};
+
+  rtm3d::RtmConfig cfg;
+  cfg.ny = 1;  // 2D case
+  cfg.nt = 40;
+  cfg.dt = 0.001f;
+  cfg.pml = 4;
+
+  auto result = rtm3d::run_single_shot_rtm(model, cfg);
+
+  EXPECT_EQ(result.nx, 20u);
+  EXPECT_EQ(result.nz, 16u);
+  EXPECT_EQ(result.inline_xz.size(), 20u * 16u);
+}
