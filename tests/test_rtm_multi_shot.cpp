@@ -66,3 +66,87 @@ TEST(RtmMultiShot, MultipleShotsProduceStrongerImage) {
   }
   EXPECT_GT(energy, 0.0);
 }
+
+TEST(RtmMultiShot, DifferentSourceDepthsProduceValidOutput) {
+  rtm3d::GridModel2D model{.nx = 24, .nz = 20, .dx = 10.0f, .dz = 10.0f,
+                           .values = std::vector<float>(24 * 20, 2000.0f)};
+
+  rtm3d::RtmConfig cfg;
+  cfg.ny = 8;
+  cfg.nt = 50;
+  cfg.dt = 0.001f;
+  cfg.pml = 4;
+  cfg.receiver_stride = 4;
+
+  // Different source depths
+  std::vector<rtm3d::ShotPosition> shots = {
+      {.sx = 6, .sz = 1},
+      {.sx = 12, .sz = 3},
+      {.sx = 18, .sz = 5}
+  };
+
+  const auto result = rtm3d::run_multi_shot_rtm(model, cfg, shots);
+
+  EXPECT_EQ(result.nx, 24u);
+  EXPECT_EQ(result.nz, 20u);
+
+  // All values should be finite
+  for (float v : result.inline_xz) {
+    EXPECT_TRUE(std::isfinite(v));
+  }
+}
+
+TEST(RtmMultiShot, ManyShotsStillProducesValidOutput) {
+  rtm3d::GridModel2D model{.nx = 40, .nz = 30, .dx = 10.0f, .dz = 10.0f,
+                           .values = std::vector<float>(40 * 30, 1800.0f)};
+
+  rtm3d::RtmConfig cfg;
+  cfg.ny = 6;
+  cfg.nt = 40;
+  cfg.dt = 0.001f;
+  cfg.pml = 4;
+  cfg.receiver_stride = 4;
+
+  // Many shots spread across the model
+  std::vector<rtm3d::ShotPosition> shots;
+  for (std::size_t i = 0; i < 8; ++i) {
+    shots.push_back({.sx = 4 + i * 4, .sz = 2});
+  }
+
+  const auto result = rtm3d::run_multi_shot_rtm(model, cfg, shots);
+
+  EXPECT_EQ(result.nx, 40u);
+  EXPECT_EQ(result.nz, 30u);
+  EXPECT_EQ(result.inline_xz.size(), 40u * 30u);
+
+  // Should have non-zero energy
+  double energy = 0.0;
+  for (float v : result.inline_xz) {
+    energy += std::abs(v);
+  }
+  EXPECT_GT(energy, 0.0);
+}
+
+TEST(RtmMultiShot, WorksForMinimalConfiguration) {
+  rtm3d::GridModel2D model{.nx = 12, .nz = 10, .dx = 10.0f, .dz = 10.0f,
+                           .values = std::vector<float>(12 * 10, 1500.0f)};
+
+  rtm3d::RtmConfig cfg;
+  cfg.ny = 4;
+  cfg.nt = 25;
+  cfg.dt = 0.001f;
+  cfg.pml = 2;
+  cfg.receiver_stride = 2;
+
+  std::vector<rtm3d::ShotPosition> shots = {
+      {.sx = 3, .sz = 2},
+      {.sx = 6, .sz = 2},
+      {.sx = 9, .sz = 2}
+  };
+
+  const auto result = rtm3d::run_multi_shot_rtm(model, cfg, shots);
+
+  EXPECT_EQ(result.nx, 12u);
+  EXPECT_EQ(result.nz, 10u);
+  EXPECT_EQ(result.inline_xz.size(), 120u);
+}
