@@ -97,3 +97,44 @@ TEST(Volume3D, MinimalVolumeWorks) {
   vol(0, 0, 0) = 42.0f;
   EXPECT_FLOAT_EQ(vol(0, 0, 0), 42.0f);
 }
+
+TEST(Volume3D, LargeVolumeSizeCorrect) {
+  std::size_t nx = 100, ny = 50, nz = 80;
+  rtm3d::Volume3D vol(nx, ny, nz, 1.0f);
+  EXPECT_EQ(vol.size(), nx * ny * nz);
+  EXPECT_EQ(vol.nx(), nx);
+  EXPECT_EQ(vol.ny(), ny);
+  EXPECT_EQ(vol.nz(), nz);
+}
+
+TEST(Volume3D, IndexConsistentWithParenOperator) {
+  rtm3d::Volume3D vol(5, 4, 3, 0.0f);
+  
+  for (std::size_t z = 0; z < vol.nz(); ++z) {
+    for (std::size_t y = 0; y < vol.ny(); ++y) {
+      for (std::size_t x = 0; x < vol.nx(); ++x) {
+        std::size_t idx = vol.index(x, y, z);
+        float val = static_cast<float>(z * 1000 + y * 10 + x);
+        vol.raw()[idx] = val;
+        EXPECT_FLOAT_EQ(vol(x, y, z), val);
+      }
+    }
+  }
+}
+
+TEST(Volume3D, AllElementsInitialized) {
+  rtm3d::Volume3D vol(8, 6, 4, 7.77f);
+  
+  for (std::size_t i = 0; i < vol.size(); ++i) {
+    EXPECT_FLOAT_EQ(vol.raw()[i], 7.77f);
+  }
+}
+
+TEST(Volume3D, RawDataPointerValid) {
+  rtm3d::Volume3D vol(4, 3, 2, 1.5f);
+  const std::vector<float>& raw = vol.raw();
+  
+  EXPECT_EQ(raw.size(), vol.size());
+  EXPECT_FLOAT_EQ(raw[0], 1.5f);
+  EXPECT_FLOAT_EQ(raw[vol.size() - 1], 1.5f);
+}
