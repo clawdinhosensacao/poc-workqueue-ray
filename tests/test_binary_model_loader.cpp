@@ -222,4 +222,91 @@ TEST(MappedVelocityModel, RejectsMissingFile) {
   EXPECT_THROW(mmap_binary_velocity("/nonexistent/path.bin", grid), std::runtime_error);
 }
 
+TEST(BinaryModelLoader, SingleElementModel) {
+  TmpFile tmp("test_single.bin");
+  GridSpec grid{.nx = 1, .nz = 1, .ny = 1, .dx = 5.0f, .dz = 5.0f};
+
+  std::vector<float> data = {2500.0f};
+  write_raw_binary(tmp.path(), data);
+
+  auto model = load_binary_velocity(tmp.path(), grid);
+  ASSERT_EQ(model.velocity().size(), 1u);
+  EXPECT_NEAR(model.velocity()[0], 2500.0f, kTolerance);
+}
+
+TEST(BinaryModelLoader, LargeModel) {
+  TmpFile tmp("test_large.bin");
+  GridSpec grid{.nx = 100, .nz = 80, .ny = 1, .dx = 10.0f, .dz = 10.0f};
+
+  auto expected = make_random_velocity(grid.nx * grid.nz);
+  write_raw_binary(tmp.path(), expected);
+
+  auto model = load_binary_velocity(tmp.path(), grid);
+  ASSERT_EQ(model.velocity().size(), expected.size());
+}
+
+TEST(BinaryModelLoader, HeaderPreservesGridSpec) {
+  TmpFile tmp("test_grid.bin");
+  GridSpec grid{.nx = 15, .nz = 12, .ny = 2, .dx = 7.5f, .dz = 6.0f, .dy = 8.0f};
+
+  auto data = make_random_velocity(grid.nx * grid.nz * grid.ny);
+
+  BinaryVelocityHeader hdr;
+  hdr.magic = kBinaryVelocityMagic;
+  hdr.nx = static_cast<std::uint32_t>(grid.nx);
+  hdr.nz = static_cast<std::uint32_t>(grid.nz);
+  hdr.ny = static_cast<std::uint32_t>(grid.ny);
+  hdr.dx = grid.dx;
+  hdr.dz = grid.dz;
+  hdr.dy = grid.dy;
+
+  std::ofstream f(tmp.path(), std::ios::binary);
+  f.write(reinterpret_cast<const char*>(&hdr), sizeof(hdr));
+  f.write(reinterpret_cast<const char*>(data.data()), data.size() * sizeof(float));
+  f.close();
+
+  auto model = load_binary_velocity_with_header(tmp.path());
+
+  EXPECT_EQ(model.grid().nx, grid.nx);
+  EXPECT_EQ(model.grid().nz, grid.nz);
+  EXPECT_EQ(model.grid().ny, grid.ny);
+}
+
+TEST(BinaryModelLoader, Handles2DModel) {
+  TmpFile tmp("test_2d.bin");
+  GridSpec grid{.nx = 10, .nz = 8, .ny = 1, .dx = 5.0f, .dz = 5.0f};
+
+  auto expected = make_random_velocity(grid.nx * grid.nz);
+  write_raw_binary(tmp.path(), expected);
+
+  auto model = load_binary_velocity(tmp.path(), grid);
+  ASSERT_EQ(model.velocity().size(), grid.nx * grid.nz);
+}
+
+TEST(MappedVelocityModel, ConstDataAccess) {
+  TmpFile tmp("test_mmap_const.bin");
+  GridSpec grid{.nx = 8, .nz = 6, .ny = 1};
+
+  auto data = make_random_velocity(grid.nx * grid.nz);
+  write_raw_binary(tmp.path(), data);
+
+  const auto mapped = mmap_binary_velocity(tmp.path(), grid);
+  ASSERT_NE(mapped, nullptr);
+
+  const float* ptr = mapped->data();
+  EXPECT_NE(ptr, nullptr);
+  EXPECT_NEAR(ptr[0], data[0], kTolerance);
+}
+
+TEST(MappedVelocityModel, SizeMatchesGrid) {
+  TmpFile tmp("test_mmap_size.bin");
+  GridSpec grid{.nx = 20, .nz = 15, .ny = 3};
+
+  auto data = make_random_velocity(grid.nx * grid.nz * grid.ny);
+  write_raw_binary(tmp.path(), data);
+
+  auto mapped = mmap_binary_velocity(tmp.path(), grid);
+  EXPECT_EQ(mapped->size(), grid.nx * grid.nz * grid.ny);
+}
+
 }  // namespace rtm3d

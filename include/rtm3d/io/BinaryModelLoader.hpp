@@ -33,6 +33,9 @@
 
 namespace rtm3d {
 
+/// Magic number for binary velocity files: "VEL3" in little-endian
+constexpr std::uint32_t kBinaryVelocityMagic = 0x56454C33;
+
 /**
  * @brief Binary file header for velocity models.
  *
@@ -40,7 +43,7 @@ namespace rtm3d {
  * If not present, dimensions are read from sidecar JSON.
  */
 struct BinaryVelocityHeader {
-  std::uint32_t magic = 0x56454C33;  // "VEL3" in little-endian
+  std::uint32_t magic = kBinaryVelocityMagic;
   std::uint32_t version = 1;
   std::uint32_t nx = 0;
   std::uint32_t nz = 0;
