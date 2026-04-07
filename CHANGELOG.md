@@ -10,9 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `constexpr kBinaryVelocityMagic` constant for binary velocity file magic number
 - BinaryModelLoader edge case tests: single-element, large models, header preservation, 2D models
 - MappedVelocityModel const-correctness and size validation tests
+- Unit tests for `step_fd3d` propagation kernel: zero wavefield, constant field Laplacian, damping, boundary conditions, point source propagation
 
 ### Changed
-- Test suite expanded to 251 tests (27 test suites)
+- Test suite expanded to 256 tests (28 test suites)
 
 ### Added
 - Full I/O format benchmark (14 formats): binary_f32, npy, hdf5, netcdf, parquet, duckdb, zarr, tiledb, segy, asdf, adios2, tensorstore, mdio, json
