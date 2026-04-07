@@ -82,3 +82,91 @@ TEST(RtmInlineSlice, ClampsDepthIndexToValidRange) {
     EXPECT_FLOAT_EQ(v, 1.0f);
   }
 }
+
+TEST(RtmInlineSlice, HandlesSingleZPlane) {
+  rtm3d::Volume3D vol(4, 3, 1, 1500.0f);  // nz = 1
+  std::vector<float> image(vol.size(), 0.0f);
+
+  // Fill the only z-plane
+  for (std::size_t y = 0; y < vol.ny(); ++y) {
+    for (std::size_t x = 0; x < vol.nx(); ++x) {
+      image[vol.index(x, y, 0)] = static_cast<float>(y * 10 + x);
+    }
+  }
+
+  const auto inline_xz = rtm3d::rtm_internal::extract_inline_xz(vol, image);
+  ASSERT_EQ(inline_xz.size(), vol.nx() * vol.nz());
+
+  // Should extract the middle y-slice from the single z-plane
+  std::size_t ymid = vol.ny() / 2;
+  for (std::size_t x = 0; x < vol.nx(); ++x) {
+    EXPECT_FLOAT_EQ(inline_xz[x], static_cast<float>(ymid * 10 + x));
+  }
+}
+
+TEST(RtmInlineSlice, HandlesLargeNy) {
+  rtm3d::Volume3D vol(4, 100, 3, 1500.0f);  // ny = 100
+  std::vector<float> image(vol.size(), 0.0f);
+
+  // Fill with y-dependent values
+  for (std::size_t z = 0; z < vol.nz(); ++z) {
+    for (std::size_t y = 0; y < vol.ny(); ++y) {
+      for (std::size_t x = 0; x < vol.nx(); ++x) {
+        image[vol.index(x, y, z)] = static_cast<float>(y);
+      }
+    }
+  }
+
+  const auto inline_xz = rtm3d::rtm_internal::extract_inline_xz(vol, image);
+  ASSERT_EQ(inline_xz.size(), vol.nx() * vol.nz());
+
+  // All values should be from middle y-slice (y = 50)
+  for (float v : inline_xz) {
+    EXPECT_FLOAT_EQ(v, 50.0f);
+  }
+}
+
+TEST(RtmInlineSlice, CrosslineHandlesSingleX) {
+  rtm3d::Volume3D vol(1, 5, 3, 1500.0f);  // nx = 1
+  std::vector<float> image(vol.size(), 0.0f);
+
+  for (std::size_t z = 0; z < vol.nz(); ++z) {
+    for (std::size_t y = 0; y < vol.ny(); ++y) {
+      image[vol.index(0, y, z)] = static_cast<float>(z * 10 + y);
+    }
+  }
+
+  const auto crossline = rtm3d::rtm_internal::extract_crossline_yz(vol, image);
+  ASSERT_EQ(crossline.size(), vol.ny() * vol.nz());
+
+  // All values should match since x=0 is the only column
+  for (std::size_t z = 0; z < vol.nz(); ++z) {
+    for (std::size_t y = 0; y < vol.ny(); ++y) {
+      std::size_t idx = z * vol.ny() + y;
+      EXPECT_FLOAT_EQ(crossline[idx], static_cast<float>(z * 10 + y));
+    }
+  }
+}
+
+TEST(RtmInlineSlice, DepthSliceAtZeroZ) {
+  rtm3d::Volume3D vol(3, 4, 5, 1500.0f);
+  std::vector<float> image(vol.size(), 0.0f);
+
+  // Fill z=0 plane with specific values
+  for (std::size_t y = 0; y < vol.ny(); ++y) {
+    for (std::size_t x = 0; x < vol.nx(); ++x) {
+      image[vol.index(x, y, 0)] = static_cast<float>(y * 100 + x);
+    }
+  }
+
+  const auto depth_slice = rtm3d::rtm_internal::extract_depth_xy(vol, image, 0);
+  ASSERT_EQ(depth_slice.size(), vol.nx() * vol.ny());
+
+  // Verify values from z=0
+  for (std::size_t y = 0; y < vol.ny(); ++y) {
+    for (std::size_t x = 0; x < vol.nx(); ++x) {
+      std::size_t idx = y * vol.nx() + x;
+      EXPECT_FLOAT_EQ(depth_slice[idx], static_cast<float>(y * 100 + x));
+    }
+  }
+}
