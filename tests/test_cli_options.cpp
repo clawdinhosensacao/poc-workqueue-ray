@@ -208,3 +208,65 @@ TEST(CliOptions, LaterConfigOutputOverridesEarlierCliOutput) {
 
   ASSERT_EQ(o.output_file, "output/from_later_config.pgm");
 }
+
+TEST(CliOptions, ParsesMinimalConfig) {
+  write_config_file("tests/tmp_loader/minimal.json",
+                    "{\n"
+                    "  \"data_dir\": \"data\"\n"
+                    "}\n");
+
+  const char* argv[] = {"rtm3d_cli", "--config", "tests/tmp_loader/minimal.json"};
+  const auto o = parse_cli(argv);
+
+  ASSERT_EQ(o.values_file, "data/vel.json");
+}
+
+TEST(CliOptions, AllRtmParametersParsedCorrectly) {
+  const char* argv[] = {"rtm3d_cli",
+                        "--data-dir", "data",
+                        "--decim-x", "5",
+                        "--decim-z", "7",
+                        "--crop-x", "100",
+                        "--crop-z", "80",
+                        "--ny", "30",
+                        "--dy", "12.5",
+                        "--dt", "0.002",
+                        "--nt", "200",
+                        "--f0", "15.5",
+                        "--pml", "12",
+                        "--receiver-stride", "8",
+                        "--output", "output/test.pgm"};
+  const auto o = parse_cli(argv);
+
+  EXPECT_EQ(o.load.decim_x, 5u);
+  EXPECT_EQ(o.load.decim_z, 7u);
+  EXPECT_EQ(o.load.crop_x, 100u);
+  EXPECT_EQ(o.load.crop_z, 80u);
+  EXPECT_EQ(o.rtm.ny, 30u);
+  EXPECT_FLOAT_EQ(o.rtm.dy, 12.5f);
+  EXPECT_FLOAT_EQ(o.rtm.dt, 0.002f);
+  EXPECT_EQ(o.rtm.nt, 200u);
+  EXPECT_FLOAT_EQ(o.rtm.f0, 15.5f);
+  EXPECT_EQ(o.rtm.pml, 12u);
+  EXPECT_EQ(o.rtm.receiver_stride, 8u);
+}
+
+TEST(CliOptions, NegativeDecimationRejected) {
+  const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--decim-x", "-5"};
+  EXPECT_THROW((void)parse_cli(argv), std::runtime_error);
+}
+
+TEST(CliOptions, NegativeCropRejected) {
+  const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--crop-z", "-10"};
+  EXPECT_THROW((void)parse_cli(argv), std::runtime_error);
+}
+
+TEST(CliOptions, ZeroNtRejected) {
+  const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--nt", "0"};
+  EXPECT_THROW((void)parse_cli(argv), std::runtime_error);
+}
+
+TEST(CliOptions, InvalidOutputFormatRejected) {
+  const char* argv[] = {"rtm3d_cli", "--data-dir", "data", "--output-format", "invalid"};
+  EXPECT_THROW((void)parse_cli(argv), std::runtime_error);
+}
